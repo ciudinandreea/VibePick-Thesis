@@ -2,109 +2,347 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/api';
 
+const UserIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2"/>
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  </svg>
+);
+
+const LockIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+);
+
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
+
+const VibeLogo = () => (
+  <div style={{
+    width: 64, height: 64,
+    background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+    borderRadius: 16,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 8px 32px rgba(168,85,247,0.4)',
+    marginBottom: 16,
+  }}>
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="10" stroke="white" strokeWidth="2.5"/>
+      <circle cx="18" cy="18" r="3.5" fill="white"/>
+      <circle cx="18" cy="8"  r="2" fill="white"/>
+      <circle cx="18" cy="28" r="2" fill="white"/>
+      <circle cx="8"  cy="18" r="2" fill="white"/>
+      <circle cx="28" cy="18" r="2" fill="white"/>
+      <rect x="24" y="22" width="10" height="7" rx="1.5"
+        fill="white" fillOpacity="0.9"/>
+      <line x1="27" y1="22" x2="27" y2="29" stroke="#a855f7" strokeWidth="1"/>
+      <line x1="30" y1="22" x2="30" y2="29" stroke="#a855f7" strokeWidth="1"/>
+    </svg>
+  </div>
+);
+
+const S = {
+  page: {
+    position: 'relative',
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: "'Segoe UI', system-ui, sans-serif",
+    overflow: 'hidden',
+  },
+  bg: {
+    position: 'absolute', inset: 0,
+    backgroundImage: 'url(/bg-movies.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    filter: 'brightness(0.55) saturate(1.2)',
+    zIndex: 0,
+  },
+  overlay: {
+    position: 'absolute', inset: 0,
+    background: 'linear-gradient(135deg, rgba(88,28,135,0.6) 0%, rgba(30,10,60,0.7) 100%)',
+    zIndex: 1,
+  },
+  card: {
+    position: 'relative', zIndex: 2,
+    width: '100%', maxWidth: 420,
+    margin: '24px 16px',
+    background: 'rgba(255,255,255,0.08)',
+    backdropFilter: 'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    border: '1px solid rgba(255,255,255,0.18)',
+    borderRadius: 24,
+    padding: '36px 36px 32px',
+    boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+    color: 'white',
+    animation: 'fadeUp 0.5s ease both',
+  },
+  header: {
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', marginBottom: 24,
+  },
+  title: {
+    fontSize: 26, fontWeight: 700, margin: '0 0 4px',
+    letterSpacing: '-0.3px',
+  },
+  subtitle: {
+    fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0,
+  },
+  fieldWrap: {
+    position: 'relative', marginBottom: 14,
+  },
+  iconLeft: {
+    position: 'absolute', left: 14, top: '50%',
+    transform: 'translateY(-50%)',
+    color: 'rgba(255,255,255,0.5)',
+    pointerEvents: 'none',
+    display: 'flex',
+  },
+  input: {
+    width: '100%',
+    background: 'rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    padding: '13px 44px',
+    color: 'white',
+    fontSize: 14,
+    outline: 'none',
+    transition: 'border-color 0.2s, background 0.2s',
+    boxSizing: 'border-box',
+  },
+  iconRight: {
+    position: 'absolute', right: 14, top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'none', border: 'none',
+    color: 'rgba(255,255,255,0.5)', cursor: 'pointer',
+    display: 'flex', padding: 0,
+  },
+  btn: {
+    width: '100%',
+    padding: '14px',
+    background: 'linear-gradient(90deg, #a855f7, #ec4899)',
+    border: 'none', borderRadius: 12,
+    color: 'white', fontSize: 15, fontWeight: 600,
+    cursor: 'pointer',
+    boxShadow: '0 4px 24px rgba(168,85,247,0.45)',
+    transition: 'opacity 0.2s, transform 0.15s',
+    letterSpacing: '0.3px',
+    marginTop: 6,
+  },
+  switchRow: {
+    textAlign: 'center', marginTop: 18,
+    fontSize: 14, color: 'rgba(255,255,255,0.6)',
+  },
+  switchLink: {
+    color: '#c084fc', fontWeight: 600,
+    textDecoration: 'none', marginLeft: 4,
+  },
+  error: {
+    background: 'rgba(239,68,68,0.2)',
+    border: '1px solid rgba(239,68,68,0.4)',
+    borderRadius: 10, padding: '10px 14px',
+    fontSize: 13, color: '#fca5a5',
+    marginBottom: 14,
+  },
+  success: {
+    background: 'rgba(34,197,94,0.2)',
+    border: '1px solid rgba(34,197,94,0.4)',
+    borderRadius: 10, padding: '10px 14px',
+    fontSize: 13, color: '#86efac',
+    marginBottom: 14,
+  },
+};
+
 function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [fullName, setFullName]             = useState('');
+  const [email, setEmail]                   = useState('');
+  const [password, setPassword]             = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw]                 = useState(false);
+  const [showConfirmPw, setShowConfirmPw]   = useState(false);
+  const [error, setError]                   = useState('');
+  const [success, setSuccess]               = useState('');
+  const [loading, setLoading]               = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Passwords do not match.');
       return;
     }
-
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError('Password must be at least 6 characters.');
       return;
     }
 
     setLoading(true);
-
     try {
       await register(email, password);
-      alert('Registration successful! Please login.');
-      navigate('/login');
+      setSuccess('Account created! Redirecting to login…');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const btnHover   = e => { e.target.style.opacity = '0.88'; e.target.style.transform = 'translateY(-1px)'; };
+  const btnUnhover = e => { e.target.style.opacity = '1';    e.target.style.transform = 'translateY(0)'; };
+  const inputFocus = e => { e.target.style.borderColor = 'rgba(168,85,247,0.7)'; e.target.style.background = 'rgba(255,255,255,0.14)'; };
+  const inputBlur  = e => { e.target.style.borderColor = 'rgba(255,255,255,0.2)'; e.target.style.background = 'rgba(255,255,255,0.1)'; };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
-        
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+    <>
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        ::placeholder { color: rgba(255,255,255,0.38) !important; }
+      `}</style>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-              required
-            />
+      <div style={S.page}>
+        <div style={S.bg} />
+        <div style={S.overlay} />
+
+        <div style={S.card}>
+          <div style={S.header}>
+            <VibeLogo />
+            <h1 style={S.title}>VibePick</h1>
+            <p style={S.subtitle}>Join the community</p>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-              required
-            />
-          </div>
+          {error   && <div style={S.error}>{error}</div>}
+          {success && <div style={S.success}>{success}</div>}
 
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
-          >
-            {loading ? 'Creating account...' : 'Register'}
-          </button>
-        </form>
+            {}
+            <div style={S.fieldWrap}>
+              <span style={S.iconLeft}><UserIcon /></span>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
+                style={S.input}
+                required
+              />
+            </div>
 
-        <p className="mt-4 text-center text-sm">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-500 hover:underline">
-            Login here
-          </Link>
-        </p>
+            {}
+            <div style={S.fieldWrap}>
+              <span style={S.iconLeft}><MailIcon /></span>
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
+                style={S.input}
+                required
+              />
+            </div>
+
+            {}
+            <div style={S.fieldWrap}>
+              <span style={S.iconLeft}><LockIcon /></span>
+              <input
+                type={showPw ? 'text' : 'password'}
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
+                style={S.input}
+                required
+              />
+              <button type="button" style={S.iconRight}
+                onClick={() => setShowPw(v => !v)}>
+                {showPw ? <EyeOffIcon /> : <EyeIcon />}
+              </button>
+            </div>
+
+            {}
+            <div style={S.fieldWrap}>
+              <span style={S.iconLeft}><LockIcon /></span>
+              <input
+                type={showConfirmPw ? 'text' : 'password'}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
+                style={S.input}
+                required
+              />
+              <button type="button" style={S.iconRight}
+                onClick={() => setShowConfirmPw(v => !v)}>
+                {showConfirmPw ? <EyeOffIcon /> : <EyeIcon />}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ ...S.btn, opacity: loading ? 0.7 : 1 }}
+              onMouseEnter={btnHover}
+              onMouseLeave={btnUnhover}
+            >
+              {loading ? 'Creating account…' : 'Create Account'}
+            </button>
+          </form>
+
+          <p style={S.switchRow}>
+            Already have an account?
+            <Link to="/login" style={S.switchLink}>Login</Link>
+          </p>
+        </div>
+
+        <div style={{
+          position: 'absolute', bottom: 20, left: 0, right: 0, zIndex: 2,
+          textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)',
+          padding: '0 16px',
+        }}>
+          By continuing, you agree to VibePick's Terms of Service and Privacy Policy
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
