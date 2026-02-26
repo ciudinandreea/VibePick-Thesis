@@ -9,7 +9,6 @@ const UserIcon = () => (
     <circle cx="12" cy="7" r="4"/>
   </svg>
 );
-
 const MailIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -17,7 +16,6 @@ const MailIcon = () => (
     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
   </svg>
 );
-
 const LockIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -25,7 +23,6 @@ const LockIcon = () => (
     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
   </svg>
 );
-
 const EyeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -33,7 +30,6 @@ const EyeIcon = () => (
     <circle cx="12" cy="12" r="3"/>
   </svg>
 );
-
 const EyeOffIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -43,47 +39,16 @@ const EyeOffIcon = () => (
   </svg>
 );
 
-const VibeLogo = () => (
-  <div style={{
-    width: 64, height: 64,
-    background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-    borderRadius: 16,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 8px 32px rgba(168,85,247,0.4)',
-    marginBottom: 16,
-  }}>
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-      <circle cx="18" cy="18" r="10" stroke="white" strokeWidth="2.5"/>
-      <circle cx="18" cy="18" r="3.5" fill="white"/>
-      <circle cx="18" cy="8"  r="2" fill="white"/>
-      <circle cx="18" cy="28" r="2" fill="white"/>
-      <circle cx="8"  cy="18" r="2" fill="white"/>
-      <circle cx="28" cy="18" r="2" fill="white"/>
-      <rect x="24" y="22" width="10" height="7" rx="1.5"
-        fill="white" fillOpacity="0.9"/>
-      <line x1="27" y1="22" x2="27" y2="29" stroke="#a855f7" strokeWidth="1"/>
-      <line x1="30" y1="22" x2="30" y2="29" stroke="#a855f7" strokeWidth="1"/>
-    </svg>
-  </div>
-);
-
 const S = {
   page: {
-    position: 'relative',
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontFamily: "'Segoe UI', system-ui, sans-serif",
-    overflow: 'hidden',
+    position: 'relative', minHeight: '100vh',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: "'Montserrat', sans-serif", overflow: 'hidden',
   },
   bg: {
-    position: 'absolute', inset: 0,
-    backgroundImage: 'url(/bg-movies.jpg)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    filter: 'brightness(0.55) saturate(1.2)',
-    zIndex: 0,
+    position: 'absolute', inset: 0, backgroundImage: 'url(/bg-movies.jpg)',
+    backgroundSize: 'cover', backgroundPosition: 'center',
+    filter: 'brightness(0.55) saturate(1.2)', zIndex: 0,
   },
   overlay: {
     position: 'absolute', inset: 0,
@@ -92,123 +57,83 @@ const S = {
   },
   card: {
     position: 'relative', zIndex: 2,
-    width: '100%', maxWidth: 420,
-    margin: '24px 16px',
+    width: '100%', maxWidth: 420, margin: '24px 16px',
     background: 'rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(24px)',
-    WebkitBackdropFilter: 'blur(24px)',
-    border: '1px solid rgba(255,255,255,0.18)',
-    borderRadius: 24,
-    padding: '36px 36px 32px',
-    boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
-    color: 'white',
-    animation: 'fadeUp 0.5s ease both',
+    backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+    border: '1px solid rgba(255,255,255,0.18)', borderRadius: 24,
+    padding: '36px 36px 32px', boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+    color: 'white', animation: 'fadeUp 0.5s ease both',
   },
-  header: {
-    display: 'flex', flexDirection: 'column',
-    alignItems: 'center', marginBottom: 24,
+  header: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 },
+  logo: {
+    width: 72, height: 72, borderRadius: 18, objectFit: 'cover',
+    marginBottom: 14, boxShadow: '0 8px 32px rgba(168,85,247,0.45)',
   },
-  title: {
-    fontSize: 26, fontWeight: 700, margin: '0 0 4px',
-    letterSpacing: '-0.3px',
-  },
-  subtitle: {
-    fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0,
-  },
-  fieldWrap: {
-    position: 'relative', marginBottom: 14,
-  },
+  title: { fontSize: 26, fontWeight: 700, margin: '0 0 4px', letterSpacing: '0.5px' },
+  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: 0, fontWeight: 500 },
+  fieldWrap: { position: 'relative', marginBottom: 14 },
   iconLeft: {
-    position: 'absolute', left: 14, top: '50%',
-    transform: 'translateY(-50%)',
-    color: 'rgba(255,255,255,0.5)',
-    pointerEvents: 'none',
-    display: 'flex',
+    position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+    color: 'rgba(255,255,255,0.5)', pointerEvents: 'none', display: 'flex',
   },
   input: {
-    width: '100%',
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    borderRadius: 12,
-    padding: '13px 44px',
-    color: 'white',
-    fontSize: 14,
-    outline: 'none',
-    transition: 'border-color 0.2s, background 0.2s',
+    width: '100%', background: 'rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.2)', borderRadius: 12,
+    padding: '13px 44px', color: 'white', fontSize: 14,
+    fontFamily: "'Montserrat', sans-serif", fontWeight: 500,
+    outline: 'none', transition: 'border-color 0.2s, background 0.2s',
     boxSizing: 'border-box',
   },
   iconRight: {
-    position: 'absolute', right: 14, top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'none', border: 'none',
-    color: 'rgba(255,255,255,0.5)', cursor: 'pointer',
-    display: 'flex', padding: 0,
+    position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+    background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)',
+    cursor: 'pointer', display: 'flex', padding: 0,
   },
   btn: {
-    width: '100%',
-    padding: '14px',
+    width: '100%', padding: '14px',
     background: 'linear-gradient(90deg, #a855f7, #ec4899)',
-    border: 'none', borderRadius: 12,
-    color: 'white', fontSize: 15, fontWeight: 600,
-    cursor: 'pointer',
+    border: 'none', borderRadius: 12, color: 'white',
+    fontSize: 15, fontWeight: 700, fontFamily: "'Montserrat', sans-serif",
+    letterSpacing: '0.5px', cursor: 'pointer',
     boxShadow: '0 4px 24px rgba(168,85,247,0.45)',
-    transition: 'opacity 0.2s, transform 0.15s',
-    letterSpacing: '0.3px',
-    marginTop: 6,
+    transition: 'opacity 0.2s, transform 0.15s', marginTop: 6,
   },
-  switchRow: {
-    textAlign: 'center', marginTop: 18,
-    fontSize: 14, color: 'rgba(255,255,255,0.6)',
-  },
-  switchLink: {
-    color: '#c084fc', fontWeight: 600,
-    textDecoration: 'none', marginLeft: 4,
-  },
+  switchRow: { textAlign: 'center', marginTop: 18, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.6)' },
+  switchLink: { color: '#c084fc', fontWeight: 700, textDecoration: 'none', marginLeft: 4 },
   error: {
-    background: 'rgba(239,68,68,0.2)',
-    border: '1px solid rgba(239,68,68,0.4)',
-    borderRadius: 10, padding: '10px 14px',
-    fontSize: 13, color: '#fca5a5',
-    marginBottom: 14,
+    background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)',
+    borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#fca5a5',
+    marginBottom: 14, fontWeight: 500,
   },
   success: {
-    background: 'rgba(34,197,94,0.2)',
-    border: '1px solid rgba(34,197,94,0.4)',
-    borderRadius: 10, padding: '10px 14px',
-    fontSize: 13, color: '#86efac',
-    marginBottom: 14,
+    background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)',
+    borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#86efac',
+    marginBottom: 14, fontWeight: 500,
   },
 };
 
 function Register() {
-  const [fullName, setFullName]             = useState('');
-  const [email, setEmail]                   = useState('');
-  const [password, setPassword]             = useState('');
+  const [fullName, setFullName]               = useState('');
+  const [email, setEmail]                     = useState('');
+  const [password, setPassword]               = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPw, setShowPw]                 = useState(false);
-  const [showConfirmPw, setShowConfirmPw]   = useState(false);
-  const [error, setError]                   = useState('');
-  const [success, setSuccess]               = useState('');
-  const [loading, setLoading]               = useState(false);
+  const [showPw, setShowPw]                   = useState(false);
+  const [showConfirmPw, setShowConfirmPw]     = useState(false);
+  const [error, setError]                     = useState('');
+  const [success, setSuccess]                 = useState('');
+  const [loading, setLoading]                 = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError(''); setSuccess('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
+    if (password !== confirmPassword) { setError('Passwords do not match.'); return; }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
 
     setLoading(true);
     try {
-      await register(email, password);
+      await register(fullName, email, password);
       setSuccess('Account created! Redirecting to login…');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
@@ -218,19 +143,23 @@ function Register() {
     }
   };
 
-  const btnHover   = e => { e.target.style.opacity = '0.88'; e.target.style.transform = 'translateY(-1px)'; };
-  const btnUnhover = e => { e.target.style.opacity = '1';    e.target.style.transform = 'translateY(0)'; };
-  const inputFocus = e => { e.target.style.borderColor = 'rgba(168,85,247,0.7)'; e.target.style.background = 'rgba(255,255,255,0.14)'; };
+  const btnHover   = e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; };
+  const btnUnhover = e => { e.currentTarget.style.opacity = '1';    e.currentTarget.style.transform = 'translateY(0)'; };
+  const inputFocus = e => { e.target.style.borderColor = 'rgba(168,85,247,0.8)'; e.target.style.background = 'rgba(255,255,255,0.14)'; };
   const inputBlur  = e => { e.target.style.borderColor = 'rgba(255,255,255,0.2)'; e.target.style.background = 'rgba(255,255,255,0.1)'; };
 
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        ::placeholder { color: rgba(255,255,255,0.38) !important; }
+        ::placeholder { color: rgba(255,255,255,0.38) !important; font-family: 'Montserrat', sans-serif !important; }
+        input[type="password"]::-ms-reveal { display: none; }
+        input[type="password"]::-ms-clear { display: none; }
+        input::-webkit-credentials-auto-fill-button { display: none !important; }
       `}</style>
 
       <div style={S.page}>
@@ -239,7 +168,7 @@ function Register() {
 
         <div style={S.card}>
           <div style={S.header}>
-            <VibeLogo />
+            <img src="/logo.png" alt="VibePick" style={S.logo} />
             <h1 style={S.title}>VibePick</h1>
             <p style={S.subtitle}>Join the community</p>
           </div>
@@ -248,82 +177,48 @@ function Register() {
           {success && <div style={S.success}>{success}</div>}
 
           <form onSubmit={handleSubmit}>
-
             {}
             <div style={S.fieldWrap}>
               <span style={S.iconLeft}><UserIcon /></span>
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={fullName}
+              <input type="text" placeholder="Full Name" value={fullName}
                 onChange={e => setFullName(e.target.value)}
-                onFocus={inputFocus}
-                onBlur={inputBlur}
-                style={S.input}
-                required
-              />
+                onFocus={inputFocus} onBlur={inputBlur}
+                style={S.input} required />
             </div>
 
-            {}
             <div style={S.fieldWrap}>
               <span style={S.iconLeft}><MailIcon /></span>
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={email}
+              <input type="email" placeholder="Email Address" value={email}
                 onChange={e => setEmail(e.target.value)}
-                onFocus={inputFocus}
-                onBlur={inputBlur}
-                style={S.input}
-                required
-              />
+                onFocus={inputFocus} onBlur={inputBlur}
+                style={S.input} required />
             </div>
 
-            {}
             <div style={S.fieldWrap}>
               <span style={S.iconLeft}><LockIcon /></span>
-              <input
-                type={showPw ? 'text' : 'password'}
-                placeholder="Password"
-                value={password}
+              <input type={showPw ? 'text' : 'password'} placeholder="Password" value={password}
                 onChange={e => setPassword(e.target.value)}
-                onFocus={inputFocus}
-                onBlur={inputBlur}
-                style={S.input}
-                required
-              />
-              <button type="button" style={S.iconRight}
-                onClick={() => setShowPw(v => !v)}>
+                onFocus={inputFocus} onBlur={inputBlur}
+                style={S.input} required />
+              <button type="button" style={S.iconRight} onClick={() => setShowPw(v => !v)}>
                 {showPw ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
 
-            {}
             <div style={S.fieldWrap}>
               <span style={S.iconLeft}><LockIcon /></span>
-              <input
-                type={showConfirmPw ? 'text' : 'password'}
-                placeholder="Confirm Password"
-                value={confirmPassword}
+              <input type={showConfirmPw ? 'text' : 'password'} placeholder="Confirm Password" value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
-                onFocus={inputFocus}
-                onBlur={inputBlur}
-                style={S.input}
-                required
-              />
-              <button type="button" style={S.iconRight}
-                onClick={() => setShowConfirmPw(v => !v)}>
+                onFocus={inputFocus} onBlur={inputBlur}
+                style={S.input} required />
+              <button type="button" style={S.iconRight} onClick={() => setShowConfirmPw(v => !v)}>
                 {showConfirmPw ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{ ...S.btn, opacity: loading ? 0.7 : 1 }}
-              onMouseEnter={btnHover}
-              onMouseLeave={btnUnhover}
-            >
+            <button type="submit" disabled={loading}
+              style={{ ...S.btn, opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
+              onMouseEnter={btnHover} onMouseLeave={btnUnhover}>
               {loading ? 'Creating account…' : 'Create Account'}
             </button>
           </form>
@@ -336,8 +231,9 @@ function Register() {
 
         <div style={{
           position: 'absolute', bottom: 20, left: 0, right: 0, zIndex: 2,
-          textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)',
-          padding: '0 16px',
+          textAlign: 'center', fontSize: 11, fontWeight: 500,
+          color: 'rgba(255,255,255,0.3)', padding: '0 16px',
+          fontFamily: "'Montserrat', sans-serif",
         }}>
           By continuing, you agree to VibePick's Terms of Service and Privacy Policy
         </div>
