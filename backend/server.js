@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const authMiddleware = require('./middleware/auth');
+const movieRoutes = require('./routes/movies');
 require('dotenv').config();
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 
 app.use('/api/auth', authRoutes);
+app.use('/api/movies', movieRoutes);
 
 app.get('/', (req, res) => {
   res.send('VibePick API is running!');
