@@ -13,13 +13,31 @@ import MoodHistoryCalendar  from './pages/MoodHistoryCalendar';
 import { isAuthenticated, getCurrentUser } from './services/api';
 
 function ProtectedRoute({ children }) {
-  return isAuthenticated() ? children : <Navigate to="/login" replace />;
+  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function OnboardingRoute({ children }) {
+  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function AppRoute({ children }) {
+  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  const user = getCurrentUser();
+  const uid  = user?.id || user?.userId || '';
+  const setupDone = localStorage.getItem(`setupComplete_${uid}`) === 'true';
+  if (!setupDone) return <Navigate to="/setup/genres" replace />;
+  const today    = new Date().toISOString().slice(0, 10);
+  const moodDate = localStorage.getItem(`moodDate_${uid}`);
+  if (moodDate !== today) return <Navigate to="/mood" replace />;
+  return children;
 }
 
 function SmartRedirect() {
   if (!isAuthenticated()) return <Navigate to="/login" replace />;
-  const user   = getCurrentUser();
-  const uid    = user?.id || user?.userId || '';
+  const user = getCurrentUser();
+  const uid  = user?.id || user?.userId || '';
   const setupDone = localStorage.getItem(`setupComplete_${uid}`) === 'true';
   if (!setupDone) return <Navigate to="/setup/genres" replace />;
   const today    = new Date().toISOString().slice(0, 10);
@@ -37,18 +55,18 @@ export default function App() {
         <Route path="/register"        element={<Register />} />
 
         {}
-        <Route path="/setup/genres"        element={<ProtectedRoute><GenreSetup /></ProtectedRoute>} />
-        <Route path="/setup/subscriptions" element={<ProtectedRoute><SubscriptionSetup /></ProtectedRoute>} />
+        <Route path="/setup/genres"        element={<OnboardingRoute><GenreSetup /></OnboardingRoute>} />
+        <Route path="/setup/subscriptions" element={<OnboardingRoute><SubscriptionSetup /></OnboardingRoute>} />
 
         {}
-        <Route path="/mood" element={<ProtectedRoute><MoodPicker/></ProtectedRoute>} />
+        <Route path="/mood" element={<OnboardingRoute><MoodPicker/></OnboardingRoute>} />
 
         {}
-        <Route path="/browse"       element={<ProtectedRoute><DiscoveryFeed /></ProtectedRoute>} />
-        <Route path="/movie/:id"    element={<ProtectedRoute><MovieDetail /></ProtectedRoute>} />
-        <Route path="/wishlist"     element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-        <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionManager /></ProtectedRoute>} />
-        <Route path="/mood-history" element={<ProtectedRoute><MoodHistoryCalendar /></ProtectedRoute>} />
+        <Route path="/browse"       element={<AppRoute><DiscoveryFeed /></AppRoute>} />
+        <Route path="/movie/:id"    element={<AppRoute><MovieDetail /></AppRoute>} />
+        <Route path="/wishlist"     element={<AppRoute><Wishlist /></AppRoute>} />
+        <Route path="/subscriptions" element={<AppRoute><SubscriptionManager /></AppRoute>} />
+        <Route path="/mood-history" element={<AppRoute><MoodHistoryCalendar /></AppRoute>} />
 
         {}
         <Route path="/dashboard" element={<SmartRedirect />} />

@@ -9,7 +9,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
@@ -24,24 +24,15 @@ export const register = async (fullName, email, password) => {
 export const login = async (email, password) => {
   const response = await api.post('/auth/login', { email, password });
   if (response.data.token) {
-    localStorage.setItem('token', response.data.token);
+    sessionStorage.setItem('token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
   }
   return response.data;
 };
 
 export const logout = () => {
-  const user = getCurrentUser();
-  const uid  = user?.id || user?.userId || '';
-  if (uid) {
-    localStorage.removeItem(`setupComplete_${uid}`);
-    localStorage.removeItem(`moodDate_${uid}`);
-    localStorage.removeItem(`currentMood_${uid}`);
-  }
-  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
   localStorage.removeItem('user');
-  localStorage.removeItem('currentMood');
-  localStorage.removeItem('moodDate');
   localStorage.removeItem('setupComplete');
 };
 
@@ -50,6 +41,6 @@ export const getCurrentUser = () => {
   return userStr ? JSON.parse(userStr) : null;
 };
 
-export const isAuthenticated = () => !!localStorage.getItem('token');
+export const isAuthenticated = () => !!sessionStorage.getItem('token');
 
 export default api;

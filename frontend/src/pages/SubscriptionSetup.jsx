@@ -6,7 +6,7 @@ import api from '../services/api';
 const FONT = "'Montserrat', sans-serif";
 
 const PLATFORMS = [
-  { id: 'netflix',      label: 'Netflix',        logo: '/logos/netflix_logo.png',     logoBg: '#141414' },
+  { id: 'netflix',      label: 'Netflix',        logo: '/logos/netflix_logo.png',     logoBg: '#ffffff' },
   { id: 'disneyplus',   label: 'Disney+',        logo: '/logos/disneyplus_logo.png',  logoBg: '#1a6a8a' },
   { id: 'prime',        label: 'Prime Video',    logo: '/logos/primevideo_logo.png',  logoBg: '#00A8E0' },
   { id: 'hbomax',       label: 'HBO Max',        logo: '/logos/hbomax_logo.png',      logoBg: '#1C0533' },
@@ -100,8 +100,8 @@ export default function SubscriptionSetup() {
 
       <div style={{
         position: 'relative', minHeight: '100vh',
-        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-        fontFamily: FONT, overflowY: 'auto',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: FONT, overflowY: 'auto', paddingTop: 60,
       }}>
         <div style={{
           position: 'absolute', inset: 0,
@@ -119,7 +119,7 @@ export default function SubscriptionSetup() {
 
         <div style={{
           position: 'relative', zIndex: 2,
-          width: '100%', maxWidth: 580, margin: '76px 16px 16px',
+          width: '100%', maxWidth: 580, margin: '16px 16px',
           background: 'rgba(255,255,255,0.08)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(255,255,255,0.18)', borderRadius: 24,
