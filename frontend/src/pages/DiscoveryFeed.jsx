@@ -182,10 +182,11 @@ function MovieCard({ movie, onClick }) {
 }
 
 function MovieModal({ movieId, onClose }) {
-  const [movie,   setMovie]   = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saved,   setSaved]   = useState(false);
-  const [watched, setWatched] = useState(false);
+  const [movie,      setMovie]      = useState(null);
+  const [loading,    setLoading]    = useState(true);
+  const [saved,      setSaved]      = useState(false);
+  const [saving,     setSaving]     = useState(false);
+  const [watched,    setWatched]    = useState(false);
 
   useEffect(() => {
     if (!movieId) return;
@@ -193,6 +194,27 @@ function MovieModal({ movieId, onClose }) {
     getMovieDetails(movieId)
       .then(setMovie).catch(console.error).finally(() => setLoading(false));
   }, [movieId]);
+
+  const handleSaveWishlist = async () => {
+    if (saved || saving || !movie) return;
+    try {
+      setSaving(true);
+      await api.post('/wishlist', {
+        tmdb_id:    movie.id,
+        title:      movie.title,
+        poster_path: movie.poster_url || null,
+        rating:     movie.vote_average || null,
+        genres:     movie.genres || [],
+        description: movie.overview || null,
+      });
+      setSaved(true);
+    } catch (e) {
+      console.error('Failed to save to wishlist:', e);
+      setSaved(true); 
+    } finally {
+      setSaving(false);
+    }
+  };
 
   useEffect(() => {
     const fn = e => { if (e.key === 'Escape') onClose(); };
@@ -320,15 +342,17 @@ function MovieModal({ movieId, onClose }) {
               <div style={{ height:1, background:'rgba(255,255,255,0.07)', marginBottom:18 }} />
               <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
                 {!saved ? (
-                  <button onClick={() => setSaved(true)} style={{
+                  <button onClick={handleSaveWishlist} disabled={saving} style={{
                     display:'flex', alignItems:'center', gap:7,
                     background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.16)',
                     borderRadius:10, padding:'10px 18px', fontSize:13, fontWeight:700,
-                    color:'white', cursor:'pointer', fontFamily:FONT, transition:'background 0.15s',
+                    color:'white', cursor: saving ? 'not-allowed' : 'pointer',
+                    fontFamily:FONT, transition:'background 0.15s',
+                    opacity: saving ? 0.6 : 1,
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.14)'}
+                    onMouseEnter={e => { if (!saving) e.currentTarget.style.background='rgba(255,255,255,0.14)'; }}
                     onMouseLeave={e => e.currentTarget.style.background='rgba(255,255,255,0.07)'}>
-                    <HeartIco /> Save to Wishlist
+                    <HeartIco /> {saving ? 'Saving…' : 'Save to Wishlist'}
                   </button>
                 ) : (
                   <div style={{ display:'inline-flex', alignItems:'center', gap:6,

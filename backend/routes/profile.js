@@ -1,45 +1,81 @@
 const express = require('express');
-const router = express.Router();
-const pool = require('../db/connection');
-const authMiddleware = require('../middleware/auth');
+const router  = express.Router();
+const pool    = require('../db/connection');
+const auth    = require('../middleware/auth');
 
-router.put('/genres', authMiddleware, async (req, res) => {
+router.put('/genres', auth, async (req, res) => {
   try {
-    const userId = req.user.userId;
     const { genres } = req.body;
-
     await pool.query(`
       INSERT INTO profiles (user_id, favourite_genres)
       VALUES ($1, $2::jsonb)
       ON CONFLICT (user_id)
       DO UPDATE SET favourite_genres = $2::jsonb
-    `, [userId, JSON.stringify(genres)]);
-
+    `, [req.user.userId, JSON.stringify(genres)]);
     res.json({ success: true });
-  } catch (error) {
-    console.error('Error saving genres:', error);
+  } catch (err) {
+    console.error('Error saving genres:', err.message);
     res.status(500).json({ error: 'Failed to save genres' });
   }
 });
 
-router.post('/subscriptions', authMiddleware, async (req, res) => {
+router.get('/subscriptions', auth, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const result = await pool.query(
+      `SELECT platform_name FROM subscriptions WHERE user_id=$1 AND active=true`,
+      [req.user.userId]
+    );
+    console.log(`Subscriptions for user ${req.user.userId}:`, result.rows);
+    res.json({ platforms: result.rows.map(r => r.platform_name) });
+  } catch (err) {
+    console.error('Error fetching subscriptions:', err.message);
+    res.status(500).json({ error: 'Failed to fetch subscriptions' });
+  }
+});
+
+router.post('/subscriptions', auth, async (req, res) => {
+  const client = await pool.connect();
+  try {
     const { platforms } = req.body;
+    console.log('Saving subscriptions for user', req.user.userId, ':', platforms);
 
-    await pool.query(`DELETE FROM subscriptions WHERE user_id = $1`, [userId]);
+    await client.query('BEGIN');
 
-    for (const platform of platforms) {
-      await pool.query(`
-        INSERT INTO subscriptions (user_id, platform_name, active)
-        VALUES ($1, $2, true)
-      `, [userId, platform]);
+    await client.query(
+      `DELETE FROM subscriptions WHERE user_id=$1`,
+      [req.user.userId]
+    );
+
+    for (const p of platforms) {
+      await client.query(
+        `INSERT INTO subscriptions (user_id, platform_name, active) VALUES ($1,$2,true)`,
+        [req.user.userId, p]
+      );
     }
 
+    await client.query('COMMIT');
+    console.log('Subscriptions saved successfully');
     res.json({ success: true });
-  } catch (error) {
-    console.error('Error saving subscriptions:', error);
-    res.status(500).json({ error: 'Failed to save subscriptions' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error saving subscriptions:', err.message);
+    console.error('Full error:', err);
+    res.status(500).json({ error: 'Failed to save subscriptions', detail: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+router.delete('/subscriptions/:platformId', auth, async (req, res) => {
+  try {
+    await pool.query(
+      `DELETE FROM subscriptions WHERE user_id=$1 AND platform_name=$2`,
+      [req.user.userId, req.params.platformId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error removing subscription:', err.message);
+    res.status(500).json({ error: 'Failed to remove subscription' });
   }
 });
 

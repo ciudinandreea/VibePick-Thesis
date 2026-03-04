@@ -5,6 +5,7 @@ const movieRoutes = require('./routes/movies');
 const recommendationRoutes = require('./routes/recommendations');
 const profileRoutes = require('./routes/profile');
 const moodRoutes = require('./routes/mood');
+const wishlistRoutes = require('./routes/wishlist');
 require('dotenv').config();
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api/movies', movieRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/mood', moodRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 app.get('/', (req, res) => {
   res.send('VibePick API is running!');
