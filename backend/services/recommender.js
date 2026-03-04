@@ -2,39 +2,31 @@ const pool = require('../db/connection');
 const { MOOD_GENRE_SCORES, GENRE_IDS } = require('../config/moodMapping');
 const { getPopularMovies } = require('./tmdb');
 
+function getGenreNames(movie) {
+  if (movie.genres && Array.isArray(movie.genres) && movie.genres.length > 0) {
+    return movie.genres.map(g => (typeof g === 'object' ? g.name : GENRE_IDS[g])).filter(Boolean);
+  }
+  if (movie.genre_ids && Array.isArray(movie.genre_ids)) {
+    return movie.genre_ids.map(id => GENRE_IDS[id]).filter(Boolean);
+  }
+  return [];
+}
+
 function calculateMoodMatch(movie, mood) {
-  if (!movie.genres || movie.genres.length === 0) return 0.5;
   const moodScores = MOOD_GENRE_SCORES[mood];
   if (!moodScores) return 0.5;
-  let genreNames;
-  if (Array.isArray(movie.genres)) {
-    genreNames = movie.genres.map(g => {
-      if (typeof g === 'object' && g.name) return g.name;
-      if (typeof g === 'number') return GENRE_IDS[g] || null;
-      return g;
-    }).filter(Boolean);
-  } else {
-    genreNames = JSON.parse(movie.genres).map(g => g.name || g);
-  }
-  const scores = genreNames.map(genre => moodScores[genre] || 0.5);
+  const genreNames = getGenreNames(movie);
+  if (genreNames.length === 0) return 0.5;
+  const scores = genreNames.map(g => moodScores[g] || 0.5);
   return scores.reduce((sum, s) => sum + s, 0) / scores.length;
 }
 
 function calculatePrefMatch(movie, userGenres) {
-  if (!movie.genres || movie.genres.length === 0) return 0.5;
   if (!userGenres || userGenres.length === 0) return 0.5;
-  let movieGenres;
-  if (Array.isArray(movie.genres)) {
-    movieGenres = movie.genres.map(g => {
-      if (typeof g === 'object' && g.name) return g.name;
-      if (typeof g === 'number') return GENRE_IDS[g];
-      return g;
-    }).filter(Boolean);
-  } else {
-    movieGenres = JSON.parse(movie.genres).map(g => g.name || g);
-  }
-  const overlap = movieGenres.filter(g => userGenres.includes(g)).length;
-  return overlap / Math.max(movieGenres.length, userGenres.length);
+  const genreNames = getGenreNames(movie);
+  if (genreNames.length === 0) return 0.5;
+  const overlap = genreNames.filter(g => userGenres.includes(g)).length;
+  return overlap / Math.max(genreNames.length, userGenres.length);
 }
 
 async function calculateHistoryAffinity(movie, userId) {

@@ -6,7 +6,7 @@ import api from '../services/api';
 const FONT = "'Montserrat', sans-serif";
 
 const GENRES = [
-  'Action','Comedy','Drama','Sci-Fi','Horror',
+  'Action','Comedy','Drama','Science Fiction','Horror',
   'Romance','Thriller','Fantasy','Documentary',
   'Animation','Mystery','Adventure',
 ];
