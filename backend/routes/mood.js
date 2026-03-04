@@ -52,8 +52,8 @@ router.post('/log-after', auth, async (req, res) => {
         const item = await pool.query(`SELECT id FROM items WHERE tmdb_id=$1`, [tmdb_id]);
         if (item.rows.length > 0) {
           await pool.query(`
-            INSERT INTO interactions (user_id, item_id, action_type, created_at)
-            VALUES ($1,$2,'watch',NOW()) ON CONFLICT DO NOTHING
+            INSERT INTO interactions (user_id, item_id, action_type, timestamp)
+            VALUES ($1,$2,'watch',NOW())
           `, [userId, item.rows[0].id]);
         }
       } catch { }
@@ -94,13 +94,13 @@ router.get('/history', auth, async (req, res) => {
     try {
       const movieRes = await pool.query(`
         SELECT i.title,
-               COALESCE(i.poster_path, i.poster_url) as poster_url,
-               TO_CHAR(int.created_at, 'YYYY-MM-DD') as date
+               i.poster_path as poster_url,
+               TO_CHAR(int.timestamp, 'YYYY-MM-DD') as date
         FROM interactions int
         JOIN items i ON int.item_id = i.id
         WHERE int.user_id = $1
-          AND int.action_type = 'view'
-          AND TO_CHAR(int.created_at, 'YYYY-MM') = $2
+          AND int.action_type = 'watched'
+          AND TO_CHAR(int.timestamp, 'YYYY-MM') = $2
       `, [userId, yearMonth]);
 
       movieRes.rows.forEach(row => {
@@ -113,6 +113,58 @@ router.get('/history', auth, async (req, res) => {
   } catch (err) {
     console.error('Mood history error:', err.message);
     res.status(500).json({ error: 'Failed to fetch mood history' });
+  }
+});
+
+router.post('/watch', auth, async (req, res) => {
+  try {
+    const { tmdb_id, title, poster_path } = req.body;
+    if (!tmdb_id) return res.status(400).json({ error: 'tmdb_id required' });
+    const userId = req.user.userId;
+
+    let itemId;
+    const existing = await pool.query(`SELECT id FROM items WHERE tmdb_id = $1`, [tmdb_id]);
+    if (existing.rows.length > 0) {
+      itemId = existing.rows[0].id;
+    } else {
+      if (!title) return res.status(404).json({ error: 'Movie not in DB and no title provided' });
+      const newItem = await pool.query(
+        `INSERT INTO items (tmdb_id, title, poster_path) VALUES ($1,$2,$3) RETURNING id`,
+        [tmdb_id, title, poster_path || null]
+      );
+      itemId = newItem.rows[0].id;
+    }
+
+    await pool.query(
+      `INSERT INTO interactions (user_id, item_id, action_type, timestamp) VALUES ($1,$2,'watched',NOW())`,
+      [userId, itemId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Watch log error:', err.message);
+    res.status(500).json({ error: 'Failed to log watched movie' });
+  }
+});
+
+router.get('/watched', auth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const result = await pool.query(`
+      SELECT DISTINCT ON (i.tmdb_id)
+        i.tmdb_id,
+        i.title,
+        i.poster_path as poster_url,
+        i.rating,
+        int.timestamp as watched_at
+      FROM interactions int
+      JOIN items i ON int.item_id = i.id
+      WHERE int.user_id = $1 AND int.action_type = 'watched'
+      ORDER BY i.tmdb_id, int.timestamp DESC
+    `, [userId]);
+    res.json({ watched: result.rows });
+  } catch (err) {
+    console.error('Watched fetch error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch watched movies' });
   }
 });
 

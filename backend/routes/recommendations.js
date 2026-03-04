@@ -35,7 +35,7 @@ router.get('/', authMiddleware, async (req, res) => {
       const watchedRes = await pool.query(`
         SELECT i.tmdb_id FROM interactions int
         JOIN items i ON int.item_id = i.id
-        WHERE int.user_id = $1 AND int.action_type = 'watch'
+        WHERE int.user_id = $1 AND int.action_type = 'watched'
       `, [userId]);
       const watchedIds = new Set(watchedRes.rows.map(r => r.tmdb_id));
       if (watchedIds.size > 0) {

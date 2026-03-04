@@ -39,6 +39,12 @@ const TvIco = () => (
     <polyline points="17 2 12 7 7 2"/>
   </svg>
 );
+const CheckNavIco = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
 const FeedIco = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -61,6 +67,7 @@ function Navbar() {
     { ico: <CalIco />,      label: 'Mood History Calendar', to: '/mood-history'  },
     { ico: <HeartNavIco />, label: 'Wishlist',              to: '/wishlist'       },
     { ico: <TvIco />,       label: 'Subscription Manager',  to: '/subscriptions' },
+    { ico: <CheckNavIco />, label: 'Watched Movies',        to: '/watched'       },
   ];
 
   return (

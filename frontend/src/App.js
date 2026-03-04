@@ -10,6 +10,7 @@ import MovieDetail          from './pages/MovieDetail';
 import Wishlist             from './pages/Wishlist';
 import SubscriptionManager  from './pages/SubscriptionManager';
 import MoodHistoryCalendar  from './pages/MoodHistoryCalendar';
+import WatchedMovies        from './pages/WatchedMovies';
 import { isAuthenticated, getCurrentUser } from './services/api';
 
 function ProtectedRoute({ children }) {
@@ -67,6 +68,7 @@ export default function App() {
         <Route path="/wishlist"     element={<AppRoute><Wishlist /></AppRoute>} />
         <Route path="/subscriptions" element={<AppRoute><SubscriptionManager /></AppRoute>} />
         <Route path="/mood-history" element={<AppRoute><MoodHistoryCalendar /></AppRoute>} />
+        <Route path="/watched"      element={<AppRoute><WatchedMovies /></AppRoute>} />
 
         {}
         <Route path="/dashboard" element={<SmartRedirect />} />

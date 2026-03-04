@@ -11,6 +11,15 @@ const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
+const MOOD_OPTIONS = [
+  { id:'happy',    emoji:'😊', label:'Happy'    },
+  { id:'sad',      emoji:'😢', label:'Sad'      },
+  { id:'stressed', emoji:'😰', label:'Stressed' },
+  { id:'tired',    emoji:'😴', label:'Tired'    },
+  { id:'excited',  emoji:'🤩', label:'Excited'  },
+  { id:'bored',    emoji:'😐', label:'Bored'    },
+];
+
 const SearchIco = ({ color = MUT, size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
     stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -186,11 +195,15 @@ function MovieModal({ movieId, onClose }) {
   const [loading,    setLoading]    = useState(true);
   const [saved,      setSaved]      = useState(false);
   const [saving,     setSaving]     = useState(false);
-  const [watched,    setWatched]    = useState(false);
+  const [watched,      setWatched]      = useState(false);
+  const [showMoodPick, setShowMoodPick] = useState(false);
+  const [moodAfter,    setMoodAfter]    = useState(null);
+  const user      = getCurrentUser();
+  const firstName = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'you';
 
   useEffect(() => {
     if (!movieId) return;
-    setLoading(true); setSaved(false); setWatched(false);
+    setLoading(true); setSaved(false); setWatched(false); setShowMoodPick(false); setMoodAfter(null);
     getMovieDetails(movieId)
       .then(setMovie).catch(console.error).finally(() => setLoading(false));
   }, [movieId]);
@@ -214,6 +227,25 @@ function MovieModal({ movieId, onClose }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleMarkWatched = async () => {
+    setWatched(true);
+    setShowMoodPick(true);
+    try {
+      await api.post('/mood/watch', {
+        tmdb_id: movie?.id,
+        title: movie?.title,
+        poster_path: movie?.poster_url || null,
+      });
+    } catch (e) { console.error('Failed to log watched:', e); }
+  };
+
+  const handleMoodAfter = async (moodId) => {
+    setMoodAfter(moodId);
+    setShowMoodPick(false);
+    try { await api.post('/mood/log-after', { mood_after: moodId, tmdb_id: movie?.id }); }
+    catch (e) { console.error('Failed to log mood after:', e); }
   };
 
   useEffect(() => {
@@ -362,7 +394,7 @@ function MovieModal({ movieId, onClose }) {
                   </div>
                 )}
                 {!watched ? (
-                  <button onClick={() => setWatched(true)} style={{
+                  <button onClick={handleMarkWatched} style={{
                     display:'flex', alignItems:'center', gap:7,
                     background:'linear-gradient(135deg,#7C3AED,#9333ea)',
                     border:'none', borderRadius:10, padding:'10px 20px',
@@ -381,6 +413,47 @@ function MovieModal({ movieId, onClose }) {
                   </div>
                 )}
               </div>
+
+              {}
+              {showMoodPick && (
+                <div style={{
+                  marginTop:14, background:'rgba(255,255,255,0.05)',
+                  border:'1px solid rgba(255,255,255,0.12)',
+                  borderRadius:14, padding:'14px 16px',
+                  animation:'vp-fadeUp 0.2s ease both',
+                }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+                    <span style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.85)' }}>
+                      How do you feel after watching, {firstName}? 🎬
+                    </span>
+                    <button onClick={() => setShowMoodPick(false)} style={{
+                      background:'none', border:'none', color:'rgba(255,255,255,0.4)',
+                      cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:FONT,
+                    }}>skip</button>
+                  </div>
+                  <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                    {MOOD_OPTIONS.map(m => (
+                      <button key={m.id} onClick={() => handleMoodAfter(m.id)} style={{
+                        display:'flex', alignItems:'center', gap:5,
+                        padding:'7px 12px', borderRadius:10,
+                        border:'1px solid rgba(255,255,255,0.15)',
+                        background:'rgba(255,255,255,0.07)',
+                        color:'white', fontSize:13, fontWeight:600,
+                        cursor:'pointer', fontFamily:FONT, transition:'all 0.15s',
+                      }}
+                        onMouseEnter={e => { e.currentTarget.style.background='rgba(124,58,237,0.3)'; e.currentTarget.style.borderColor='rgba(124,58,237,0.5)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.07)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.15)'; }}>
+                        {m.emoji} {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {moodAfter && !showMoodPick && (
+                <div style={{ marginTop:10, fontSize:13, color:'#86efac', fontWeight:600 }}>
+                  ✓ Mood logged after watching!
+                </div>
+              )}
             </div>
           </div>
         ) : null}
@@ -587,9 +660,10 @@ export default function DiscoveryFeed() {
           <div style={{ display:'flex', alignItems:'center', gap:4, flexShrink:0 }} ref={menuRef}>
 
             {[
-              { ico:<CalIco />,   label:'Mood History Calendar', to:'/mood-history'  },
-              { ico:<HeartIco />, label:'Wishlist',              to:'/wishlist'       },
-              { ico:<TvIco />,    label:'Subscription Manager',  to:'/subscriptions' },
+              { ico:<CalIco />,      label:'Mood History Calendar', to:'/mood-history'  },
+              { ico:<HeartIco />,    label:'Wishlist',              to:'/wishlist'       },
+              { ico:<TvIco />,       label:'Subscription Manager',  to:'/subscriptions' },
+              { ico:<CheckIco />,    label:'Watched Movies',        to:'/watched'       },
             ].map(({ ico, label, to }) => (
               <Link key={to} to={to} style={{ textDecoration:'none' }}>
                 <div style={{

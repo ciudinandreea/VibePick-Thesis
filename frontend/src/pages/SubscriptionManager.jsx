@@ -14,7 +14,7 @@ const ALL_PLATFORMS = [
   { id: 'disneyplus',   label: 'Disney+',        logo: '/logos/disneyplus_logo.png',  logoBg: '#1a6a8a' },
   { id: 'prime',        label: 'Prime Video',    logo: '/logos/primevideo_logo.png',  logoBg: '#00A8E0' },
   { id: 'hbomax',       label: 'HBO Max',        logo: '/logos/hbomax_logo.png',      logoBg: '#1C0533' },
-  { id: 'appletv',      label: 'Apple TV+',      logo: '/logos/appletv_logo.png',     logoBg: '#ffffff' },
+  { id: 'appletv',      label: 'Apple TV+',      logo: '/logos/appletv_logo.png',     logoBg: '#1d3a2f' },
   { id: 'hulu',         label: 'Hulu',           logo: '/logos/hulu_logo.png',        logoBg: '#000000' },
   { id: 'paramount',    label: 'Paramount+',     logo: '/logos/paramount_logo.png',   logoBg: '#0064FF' },
   { id: 'peacock',      label: 'Peacock',        logo: '/logos/peacock_logo.png',     logoBg: '#ffffff' },
@@ -23,7 +23,6 @@ const ALL_PLATFORMS = [
 
 const ALIASES = { disney: 'disneyplus', hbo: 'hbomax', amazon: 'prime', 'hbo-max': 'hbomax', 'disney-plus': 'disneyplus' };
 const norm = (id) => ALIASES[id] || id;
-
 
 const CalIco = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -44,6 +43,12 @@ const TvIco = () => (
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="7" width="20" height="15" rx="2"/>
     <polyline points="17 2 12 7 7 2"/>
+  </svg>
+);
+const CheckNavIco = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
 const FeedIco = () => (
@@ -68,6 +73,7 @@ function Navbar() {
     { ico: <CalIco />,      label: 'Mood History Calendar', to: '/mood-history'  },
     { ico: <HeartNavIco />, label: 'Wishlist',              to: '/wishlist'       },
     { ico: <TvIco />,       label: 'Subscription Manager',  to: '/subscriptions' },
+    { ico: <CheckNavIco />, label: 'Watched Movies',        to: '/watched'       },
   ];
 
   return (
@@ -329,7 +335,7 @@ export default function SubscriptionManager() {
                 background:'rgba(124,58,237,0.08)',border:'none',
                 cursor:'pointer',fontSize:18,color:MUT,
                 display:'flex',alignItems:'center',justifyContent:'center',
-              }}>×</button>
+              }}>x</button>
             </div>
 
             {saveError && (

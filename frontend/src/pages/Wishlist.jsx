@@ -50,6 +50,12 @@ const TvIco = () => (
     <polyline points="17 2 12 7 7 2"/>
   </svg>
 );
+const CheckNavIco = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
 
 const MOOD_OPTIONS = [
   { id:'happy',    emoji:'😊', label:'Happy'    },
@@ -82,7 +88,17 @@ function MovieModal({ tmdbId, onClose }) {
     return () => window.removeEventListener('keydown', fn);
   }, [onClose]);
 
-  const handleMarkWatched = () => { setWatched(true); setShowMoodPick(true); };
+  const handleMarkWatched = async () => {
+    setWatched(true);
+    setShowMoodPick(true);
+    try {
+      await api.post('/mood/watch', {
+        tmdb_id: movie?.id || tmdbId,
+        title: movie?.title,
+        poster_path: movie?.poster_url || null,
+      });
+    } catch (e) { console.error('Failed to log watched:', e); }
+  };
 
   const handleMoodAfter = async (moodId) => {
     setMoodAfter(moodId); setShowMoodPick(false);
@@ -276,6 +292,7 @@ function Navbar() {
     { ico: <CalIco />,      label: 'Mood History Calendar', to: '/mood-history'  },
     { ico: <HeartNavIco />, label: 'Wishlist',              to: '/wishlist'       },
     { ico: <TvIco />,       label: 'Subscription Manager',  to: '/subscriptions' },
+    { ico: <CheckNavIco />, label: 'Watched Movies',        to: '/watched'       },
   ];
 
   return (
