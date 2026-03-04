@@ -123,6 +123,9 @@ const ChevronIco = () => (
 
 function MovieCard({ movie, onClick }) {
   const [hov, setHov] = useState(false);
+  const rating = movie.vote_average?.toFixed(1) || movie.finalScore
+    ? `${((movie.finalScore || 0) * 100).toFixed(0)}% match`
+    : '—';
   const displayRating = movie.finalScore
     ? `${((movie.finalScore) * 100).toFixed(0)}%`
     : movie.vote_average?.toFixed(1) || '—';
@@ -514,7 +517,8 @@ export default function DiscoveryFeed() {
 
           {}
           <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
-            <div onClick={() => { window.location.pathname === '/browse' ? window.location.reload() : window.location.href='/browse'; }}
+            <div
+              onClick={() => { window.location.pathname === '/browse' ? window.location.reload() : window.location.href='/browse'; }}
               style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer' }}>
               <img src="/logo.png" alt="VibePick" style={{
                 width:38, height:38, borderRadius:10, objectFit:'cover',
@@ -523,26 +527,77 @@ export default function DiscoveryFeed() {
                 VibePick
               </span>
             </div>
+
+            <div style={{ width:1, height:22, background:'rgba(255,255,255,0.2)', flexShrink:0 }} />
+
+            <div style={{ position:'relative' }} ref={feedRef}>
+              <button onClick={() => setFeedOpen(v => !v)} style={{
+                display:'flex', alignItems:'center', gap:6,
+                padding:'7px 13px', borderRadius:9, fontSize:14, fontWeight:600,
+                color: feedOpen ? '#c084fc' : 'rgba(255,255,255,0.85)',
+                background: feedOpen ? 'rgba(124,58,237,0.2)' : 'none',
+                border:'none', cursor:'pointer', fontFamily:FONT,
+                transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.color='#c084fc'; e.currentTarget.style.background='rgba(124,58,237,0.18)'; }}
+                onMouseLeave={e => { if (!feedOpen) { e.currentTarget.style.color='rgba(255,255,255,0.85)'; e.currentTarget.style.background='none'; } }}>
+                <FeedIco /> Discovery Feed <ChevronIco />
+              </button>
+
+              {feedOpen && (
+                <div style={{
+                  position:'absolute', top:'calc(100% + 8px)', left:0, width:230,
+                  background:'rgba(255,255,255,0.95)',
+                  backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
+                  border:'1px solid rgba(124,58,237,0.14)', borderRadius:14,
+                  boxShadow:'0 16px 48px rgba(91,33,182,0.18)',
+                  overflow:'hidden', animation:'vp-fadeUp 0.18s ease both', zIndex:200,
+                }}>
+                  <div onClick={() => loadRecommendations('mood-aware')} style={{
+                    display:'flex', alignItems:'center', gap:10, padding:'14px 16px',
+                    borderBottom:'1px solid rgba(124,58,237,0.07)',
+                    cursor:'pointer', transition:'background 0.12s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseLeave={e => e.currentTarget.style.background='none'}>
+                    <span style={{ color:PUR }}><MoodIco /></span>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:700, color:TEXT }}>Mood-Aware</div>
+                      <div style={{ fontSize:11, fontWeight:500, color:MUT }}>Based on your mood today</div>
+                    </div>
+                  </div>
+                  <div onClick={() => loadRecommendations('baseline')} style={{
+                    display:'flex', alignItems:'center', gap:10, padding:'14px 16px',
+                    cursor:'pointer', transition:'background 0.12s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseLeave={e => e.currentTarget.style.background='none'}>
+                    <span style={{ color:MUT }}><BaselineIco /></span>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:700, color:TEXT }}>Baseline</div>
+                      <div style={{ fontSize:11, fontWeight:500, color:MUT }}>Based on history & preferences</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {}
-          <div style={{ display:'flex', alignItems:'center', gap:2,
-            flex:1, justifyContent:'flex-end', marginRight:12 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:4, flexShrink:0 }} ref={menuRef}>
 
-            {}
             {[
-              { ico:<CalIco />,   label:'Mood History Calendar', to:'/mood-history' },
-              { ico:<HeartIco />, label:'Wishlist',              to:'/wishlist'      },
+              { ico:<CalIco />,   label:'Mood History Calendar', to:'/mood-history'  },
+              { ico:<HeartIco />, label:'Wishlist',              to:'/wishlist'       },
               { ico:<TvIco />,    label:'Subscription Manager',  to:'/subscriptions' },
             ].map(({ ico, label, to }) => (
               <Link key={to} to={to} style={{ textDecoration:'none' }}>
                 <div style={{
                   display:'flex', alignItems:'center', gap:6,
-                  padding:'7px 13px', borderRadius:9,
-                  fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.75)',
-                  cursor:'pointer', border:'none', background:'none',
-                  fontFamily:FONT, transition:'background 0.15s, color 0.15s',
-                  whiteSpace:'nowrap',
+                  padding:'7px 12px', borderRadius:9,
+                  fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.75)',
+                  cursor:'pointer', background:'none',
+                  transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap',
                 }}
                   onMouseEnter={e => nh(e, true)}
                   onMouseLeave={e => nh(e, false)}>
@@ -551,90 +606,21 @@ export default function DiscoveryFeed() {
               </Link>
             ))}
 
-            {}
-            <div style={{ position:'relative', marginLeft:2 }} ref={feedRef}>
-              <button onClick={() => setFeedOpen(v => !v)} style={{
-                display:'flex', alignItems:'center', gap:6,
-                padding:'7px 13px', borderRadius:9,
-                fontSize:13, fontWeight:600,
-                color: feedOpen ? '#c084fc' : 'rgba(255,255,255,0.85)',
-                background: feedOpen ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.06)',
-                border:'none', cursor:'pointer', fontFamily:FONT,
-                transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap',
-              }}
-                onMouseEnter={e => nh(e, true)}
-                onMouseLeave={e => { if (!feedOpen) nh(e, false); }}>
-                <FeedIco /> Discovery Feed <ChevronIco />
-              </button>
-
-              {feedOpen && (
-                <div style={{
-                  position:'absolute', top:'calc(100% + 8px)', left:0,
-                  width:230,
-                  background:'rgba(255,255,255,0.95)',
-                  backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
-                  border:'1px solid rgba(124,58,237,0.14)', borderRadius:14,
-                  boxShadow:'0 16px 48px rgba(91,33,182,0.18)',
-                  overflow:'hidden',
-                  animation:'vp-fadeUp 0.18s ease both', zIndex:200,
-                }}>
-                  {}
-                  <div onClick={() => loadRecommendations('mood-aware')} style={{
-                    display:'flex', alignItems:'center', gap:10,
-                    padding:'14px 16px',
-                    borderBottom:'1px solid rgba(124,58,237,0.07)',
-                    cursor:'pointer', transition:'background 0.12s',
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
-                    onMouseLeave={e => e.currentTarget.style.background='none'}>
-                    <span style={{ color:PUR }}><MoodIco /></span>
-                    <div>
-                      <div style={{ fontSize:13, fontWeight:700, color:TEXT }}>
-                        Mood-Aware
-                      </div>
-                      <div style={{ fontSize:11, fontWeight:500, color:MUT }}>
-                        Based on your mood today
-                      </div>
-                    </div>
-                  </div>
-                  {}
-                  <div onClick={() => loadRecommendations('baseline')} style={{
-                    display:'flex', alignItems:'center', gap:10,
-                    padding:'14px 16px',
-                    cursor:'pointer', transition:'background 0.12s',
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
-                    onMouseLeave={e => e.currentTarget.style.background='none'}>
-                    <span style={{ color:MUT }}><BaselineIco /></span>
-                    <div>
-                      <div style={{ fontSize:13, fontWeight:700, color:TEXT }}>
-                        Baseline
-                      </div>
-                      <div style={{ fontSize:11, fontWeight:500, color:MUT }}>
-                        Based on history & preferences
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {}
             {!showSearch ? (
               <button onClick={() => setShowSearch(true)} title="Search" style={{
                 display:'flex', alignItems:'center', justifyContent:'center',
-                width:36, height:36, borderRadius:9,
+                width:34, height:34, borderRadius:9,
                 background:'none', border:'none', cursor:'pointer',
-                transition:'background 0.15s', marginLeft:4,
+                transition:'background 0.15s',
               }}
-                onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.07)'}
-                onMouseLeave={e => e.currentTarget.style.background='none'}>
-                <SearchIco color={TEXT} size={18} />
+                onMouseEnter={e => { e.currentTarget.style.background='rgba(124,58,237,0.18)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background='none'; }}>
+                <SearchIco color='rgba(255,255,255,0.75)' size={17} />
               </button>
             ) : (
               <form onSubmit={handleSearch} style={{
                 display:'flex', alignItems:'center', gap:6,
-                animation:'srch-in 0.2s ease both', marginLeft:4,
+                animation:'srch-in 0.2s ease both',
               }}>
                 <div style={{ position:'relative' }}>
                   <span style={{ position:'absolute', left:10, top:'50%',
@@ -645,41 +631,33 @@ export default function DiscoveryFeed() {
                     onChange={e => setSearchQ(e.target.value)}
                     placeholder="Search movies…"
                     style={{
-                      width:200, background:'rgba(255,255,255,0.78)',
-                      border:'1.5px solid rgba(124,58,237,0.22)',
-                      borderRadius:9, padding:'7px 10px 7px 32px',
-                      fontSize:13, fontWeight:500, color:TEXT,
-                      fontFamily:FONT, outline:'none', transition:'border-color 0.2s',
+                      width:190, background:'rgba(255,255,255,0.95)',
+                      border:'1.5px solid rgba(124,58,237,0.3)', borderRadius:9,
+                      padding:'7px 10px 7px 32px', fontSize:13, fontWeight:500,
+                      color:TEXT, fontFamily:FONT, outline:'none',
                     }}
-                    onFocus={e => e.target.style.borderColor='rgba(124,58,237,0.55)'}
-                    onBlur={e  => e.target.style.borderColor='rgba(124,58,237,0.22)'} />
+                    onFocus={e => e.target.style.borderColor='rgba(124,58,237,0.6)'}
+                    onBlur={e  => e.target.style.borderColor='rgba(124,58,237,0.3)'} />
                 </div>
                 <button type="submit" style={{
-                  padding:'7px 14px', background:`linear-gradient(135deg,${PUR},${PUR2})`,
+                  padding:'7px 13px', background:`linear-gradient(135deg,${PUR},${PUR2})`,
                   border:'none', borderRadius:9, color:'white',
                   fontSize:13, fontWeight:700, fontFamily:FONT, cursor:'pointer',
-                  boxShadow:'0 3px 10px rgba(124,58,237,0.35)', transition:'opacity 0.15s',
-                }}
-                  onMouseEnter={e => e.currentTarget.style.opacity='0.87'}
-                  onMouseLeave={e => e.currentTarget.style.opacity='1'}>
-                  Search
-                </button>
+                  boxShadow:'0 3px 10px rgba(124,58,237,0.35)',
+                }}>Search</button>
                 <button type="button" onClick={clearSearch} style={{
                   display:'flex', alignItems:'center', justifyContent:'center',
                   width:30, height:30, borderRadius:8,
-                  background:'rgba(124,58,237,0.07)', border:'1px solid rgba(124,58,237,0.15)',
-                  cursor:'pointer', color:MUT, transition:'background 0.15s',
-                }}
-                  onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.14)'}
-                  onMouseLeave={e => e.currentTarget.style.background='rgba(124,58,237,0.07)'}>
-                  <XIcon size={13} />
+                  background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)',
+                  cursor:'pointer',
+                }}>
+                  <XIcon size={13} color='rgba(255,255,255,0.7)' />
                 </button>
               </form>
             )}
-          </div>
 
-          {}
-          <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }} ref={menuRef}>
+            <div style={{ width:1, height:22, background:'rgba(255,255,255,0.15)', margin:'0 4px' }} />
+
             <div style={{
               display:'flex', alignItems:'center', gap:7,
               background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)',
@@ -703,8 +681,8 @@ export default function DiscoveryFeed() {
                 border:'1px solid rgba(255,255,255,0.1)',
                 cursor:'pointer', color:'rgba(255,255,255,0.75)', transition:'background 0.15s',
               }}
-                onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.1)'}
-                 onMouseLeave={e => { if (!menuOpen) e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}>
+                onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
+                onMouseLeave={e => { if (!menuOpen) e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}>
                 <HamIco />
               </button>
 
@@ -750,6 +728,7 @@ export default function DiscoveryFeed() {
             </div>
           </div>
         </nav>
+
 
         {}
         <div style={{ padding:'28px 32px 56px' }}>

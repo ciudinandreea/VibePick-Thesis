@@ -6,10 +6,15 @@ import api from '../services/api';
 const FONT = "'Montserrat', sans-serif";
 
 const PLATFORMS = [
-  { id: 'netflix',       label: 'Netflix',      emoji: '🎬' },
-  { id: 'disney',        label: 'Disney+',      emoji: '✨' },
-  { id: 'prime',         label: 'Prime Video',  emoji: '📺' },
-  { id: 'hbo',           label: 'HBO Max',      emoji: '🎭' },
+  { id: 'netflix',      label: 'Netflix',        logo: '/logos/netflix_logo.png',     logoBg: '#141414' },
+  { id: 'disneyplus',   label: 'Disney+',        logo: '/logos/disneyplus_logo.png',  logoBg: '#1a6a8a' },
+  { id: 'prime',        label: 'Prime Video',    logo: '/logos/primevideo_logo.png',  logoBg: '#00A8E0' },
+  { id: 'hbomax',       label: 'HBO Max',        logo: '/logos/hbomax_logo.png',      logoBg: '#1C0533' },
+  { id: 'appletv',      label: 'Apple TV+',      logo: '/logos/appletv_logo.png',     logoBg: '#ffffff' },
+  { id: 'hulu',         label: 'Hulu',           logo: '/logos/hulu_logo.png',        logoBg: '#000000' },
+  { id: 'paramount',    label: 'Paramount+',     logo: '/logos/paramount_logo.png',   logoBg: '#0064FF' },
+  { id: 'peacock',      label: 'Peacock',        logo: '/logos/peacock_logo.png',     logoBg: '#ffffff' },
+  { id: 'skyshowtime',  label: 'SkyShowtime',    logo: '/logos/skyshowtime_logo.png', logoBg: '#000000' },
 ];
 
 function OnboardingNav() {
@@ -76,7 +81,9 @@ export default function SubscriptionSetup() {
       if (selected.length > 0) {
         await api.post('/profile/subscriptions', { platforms: selected });
       }
-      localStorage.setItem('setupComplete', 'true');
+      const _user = getCurrentUser();
+      const _uid  = _user?.id || _user?.userId || '';
+      localStorage.setItem(`setupComplete_${_uid}`, 'true');
       navigate('/mood');
     } catch { setError('Failed to save. Please try again.'); }
     finally  { setLoading(false); }
@@ -93,8 +100,8 @@ export default function SubscriptionSetup() {
 
       <div style={{
         position: 'relative', minHeight: '100vh',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: FONT, overflow: 'hidden',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        fontFamily: FONT, overflowY: 'auto',
       }}>
         <div style={{
           position: 'absolute', inset: 0,
@@ -112,11 +119,11 @@ export default function SubscriptionSetup() {
 
         <div style={{
           position: 'relative', zIndex: 2,
-          width: '100%', maxWidth: 520, margin: '80px 16px 32px',
+          width: '100%', maxWidth: 580, margin: '76px 16px 16px',
           background: 'rgba(255,255,255,0.08)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid rgba(255,255,255,0.18)', borderRadius: 24,
-          padding: '40px 40px 36px',
+          padding: '28px 36px 28px',
           boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
           color: 'white', animation: 'fadeUp 0.45s ease both',
           textAlign: 'center',
@@ -133,7 +140,7 @@ export default function SubscriptionSetup() {
           </div>
 
           {}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14, marginBottom: 28 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 28 }}>
             {PLATFORMS.map(p => {
               const on = selected.includes(p.id);
               return (
@@ -149,8 +156,13 @@ export default function SubscriptionSetup() {
                 }}
                   onMouseEnter={e => { if (!on) e.currentTarget.style.background='rgba(255,255,255,0.11)'; }}
                   onMouseLeave={e => { if (!on) e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}>
-                  <span style={{ fontSize: 36 }}>{p.emoji}</span>
-                  <span style={{ fontSize: 14, fontWeight: on ? 700 : 600 }}>{p.label}</span>
+                  <div style={{
+                    width: 64, height: 40, borderRadius: 8, overflow: 'hidden',
+                    background: p.logoBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <img src={p.logo} alt={p.label} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: on ? 700 : 600 }}>{p.label}</span>
                 </button>
               );
             })}

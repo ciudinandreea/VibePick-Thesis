@@ -119,8 +119,14 @@ function Login() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const data = await login(email, password);
+      const userId = data.user?.userId || data.user?.id;
+      const onboardingKey = `onboardingComplete_${userId}`;
+      if (localStorage.getItem(onboardingKey)) {
+        navigate('/browse');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
     } finally {

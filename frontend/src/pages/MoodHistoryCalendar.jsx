@@ -39,12 +39,23 @@ const TvIco = () => (
     <polyline points="17 2 12 7 7 2"/>
   </svg>
 );
+const FeedIco = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
 
 function Navbar() {
   const navigate = useNavigate();
   const user     = getCurrentUser();
   const name     = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
   const path     = window.location.pathname;
+
+  const nh = (e, on) => {
+    e.currentTarget.style.color      = on ? '#c084fc' : 'rgba(255,255,255,0.75)';
+    e.currentTarget.style.background = on ? 'rgba(124,58,237,0.18)' : 'none';
+  };
 
   const NAV_LINKS = [
     { ico: <CalIco />,      label: 'Mood History Calendar', to: '/mood-history'  },
@@ -62,35 +73,56 @@ function Navbar() {
     }}>
 
       {}
-      <Link to="/browse" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <img src="/logo.png" alt="VibePick" style={{ width: 38, height: 38, borderRadius: 10, objectFit: 'cover',
-          boxShadow: '0 2px 8px rgba(124,58,237,0.4)' }} />
-        <span style={{ fontSize: 21, fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>VibePick</span>
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <Link to="/browse" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img src="/logo.png" alt="VibePick" style={{ width: 38, height: 38, borderRadius: 10, objectFit: 'cover',
+            boxShadow: '0 2px 8px rgba(124,58,237,0.4)' }} />
+          <span style={{ fontSize: 21, fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>VibePick</span>
+        </Link>
 
-      {}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        {NAV_LINKS.map(({ ico, label, to }) => {
-          const active = path === to;
-          return (
-            <Link key={to} to={to} style={{
-              textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 7,
-              padding: '8px 14px', borderRadius: 9,
-              fontSize: 14, fontWeight: 600,
-              color: active ? '#c084fc' : 'rgba(255,255,255,0.75)',
-              background: active ? 'rgba(124,58,237,0.2)' : 'none',
-              whiteSpace: 'nowrap', transition: 'background 0.15s, color 0.15s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#c084fc'; e.currentTarget.style.background = 'rgba(124,58,237,0.18)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = active ? '#c084fc' : 'rgba(255,255,255,0.75)'; e.currentTarget.style.background = active ? 'rgba(124,58,237,0.2)' : 'none'; }}>
-              {ico} {label}
-            </Link>
-          );
-        })}
+        <div style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+
+        <Link to="/browse" style={{ textDecoration: 'none' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '7px 13px', borderRadius: 9, fontSize: 14, fontWeight: 600,
+            color: 'rgba(255,255,255,0.85)', background: 'none', whiteSpace: 'nowrap',
+            transition: 'background 0.15s, color 0.15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#c084fc'; e.currentTarget.style.background = 'rgba(124,58,237,0.18)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; e.currentTarget.style.background = 'none'; }}>
+            <FeedIco /> Discovery Feed
+          </div>
+        </Link>
       </div>
 
       {}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+        {NAV_LINKS.map(({ ico, label, to }) => {
+          const active = path === to;
+          return (
+            <Link key={to} to={to} style={{ textDecoration: 'none' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 12px', borderRadius: 9,
+                fontSize: 13, fontWeight: 600,
+                color: active ? '#c084fc' : 'rgba(255,255,255,0.75)',
+                background: active ? 'rgba(124,58,237,0.2)' : 'none',
+                whiteSpace: 'nowrap', transition: 'background 0.15s, color 0.15s',
+              }}
+                onMouseEnter={e => nh(e, true)}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = active ? '#c084fc' : 'rgba(255,255,255,0.75)';
+                  e.currentTarget.style.background = active ? 'rgba(124,58,237,0.2)' : 'none';
+                }}>
+                {ico} {label}
+              </div>
+            </Link>
+          );
+        })}
+
+        <div style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
+
         <div style={{
           display: 'flex', alignItems: 'center', gap: 7,
           background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
@@ -105,6 +137,7 @@ function Navbar() {
           }}>{name[0]?.toUpperCase()}</div>
           {name}
         </div>
+
         <button onClick={() => { logout(); navigate('/login'); }} style={{
           padding: '8px 16px', borderRadius: 9,
           background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
@@ -115,7 +148,6 @@ function Navbar() {
     </nav>
   );
 }
-
 
 export default function MoodHistoryCalendar() {
   const today   = new Date();
@@ -157,7 +189,13 @@ export default function MoodHistoryCalendar() {
 
   const selectedEntry = selected ? moodData[selected] : null;
 
+  const navH   = 62;
   const padV   = 20;
+  const headerH = 56; 
+  const calHeaderH = 64; 
+  const dayLabelsH = 36;
+  const detailH = selected ? 180 : 0;
+  const availH  = `calc(100vh - ${navH + padV*2 + headerH + calHeaderH + dayLabelsH + detailH + 20}px)`;
 
   return (
     <>

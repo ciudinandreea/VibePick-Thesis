@@ -76,9 +76,12 @@ export default function MoodGate() {
     try {
       setLoading(true);
       await api.post('/mood/log', { mood: selected });
-      const today = new Date().toISOString().slice(0, 10); 
-      localStorage.setItem('moodDate', today);
-      localStorage.setItem('currentMood', selected);
+      const today  = new Date().toISOString().slice(0, 10);
+      const _user  = getCurrentUser();
+      const _uid   = _user?.id || _user?.userId || '';
+      localStorage.setItem(`moodDate_${_uid}`, today);
+      localStorage.setItem(`currentMood_${_uid}`, selected);
+      localStorage.setItem('currentMood', selected); 
       navigate('/browse');
     } catch { setError('Failed to save mood. Please try again.'); }
     finally  { setLoading(false); }

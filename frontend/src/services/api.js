@@ -31,8 +31,18 @@ export const login = async (email, password) => {
 };
 
 export const logout = () => {
+  const user = getCurrentUser();
+  const uid  = user?.id || user?.userId || '';
+  if (uid) {
+    localStorage.removeItem(`setupComplete_${uid}`);
+    localStorage.removeItem(`moodDate_${uid}`);
+    localStorage.removeItem(`currentMood_${uid}`);
+  }
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  localStorage.removeItem('currentMood');
+  localStorage.removeItem('moodDate');
+  localStorage.removeItem('setupComplete');
 };
 
 export const getCurrentUser = () => {
@@ -41,15 +51,5 @@ export const getCurrentUser = () => {
 };
 
 export const isAuthenticated = () => !!localStorage.getItem('token');
-
-export const requestPasswordReset = async (email) => {
-  const response = await api.post('/auth/forgot-password', { email });
-  return response.data;
-};
-
-export const resetPassword = async (token, newPassword) => {
-  const response = await api.post('/auth/reset-password', { token, newPassword });
-  return response.data;
-};
 
 export default api;

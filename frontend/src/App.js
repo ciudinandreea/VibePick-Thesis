@@ -10,7 +10,7 @@ import MovieDetail          from './pages/MovieDetail';
 import Wishlist             from './pages/Wishlist';
 import SubscriptionManager  from './pages/SubscriptionManager';
 import MoodHistoryCalendar  from './pages/MoodHistoryCalendar';
-import { isAuthenticated }  from './services/api';
+import { isAuthenticated, getCurrentUser } from './services/api';
 
 function ProtectedRoute({ children }) {
   return isAuthenticated() ? children : <Navigate to="/login" replace />;
@@ -18,10 +18,12 @@ function ProtectedRoute({ children }) {
 
 function SmartRedirect() {
   if (!isAuthenticated()) return <Navigate to="/login" replace />;
-  const setupDone = localStorage.getItem('setupComplete') === 'true';
+  const user   = getCurrentUser();
+  const uid    = user?.id || user?.userId || '';
+  const setupDone = localStorage.getItem(`setupComplete_${uid}`) === 'true';
   if (!setupDone) return <Navigate to="/setup/genres" replace />;
   const today    = new Date().toISOString().slice(0, 10);
-  const moodDate = localStorage.getItem('moodDate');
+  const moodDate = localStorage.getItem(`moodDate_${uid}`);
   if (moodDate !== today) return <Navigate to="/mood" replace />;
   return <Navigate to="/browse" replace />;
 }
