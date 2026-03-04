@@ -14,7 +14,7 @@ const ALL_PLATFORMS = [
   { id: 'disneyplus',   label: 'Disney+',        logo: '/logos/disneyplus_logo.png',  logoBg: '#1a6a8a' },
   { id: 'prime',        label: 'Prime Video',    logo: '/logos/primevideo_logo.png',  logoBg: '#00A8E0' },
   { id: 'hbomax',       label: 'HBO Max',        logo: '/logos/hbomax_logo.png',      logoBg: '#1C0533' },
-  { id: 'appletv',      label: 'Apple TV+',      logo: '/logos/appletv_logo.png',     logoBg: '#ffffff' },
+  { id: 'appletv',      label: 'Apple TV+',      logo: '/logos/appletv_logo.png',     logoBg: '#1d3a2f' },
   { id: 'hulu',         label: 'Hulu',           logo: '/logos/hulu_logo.png',        logoBg: '#000000' },
   { id: 'paramount',    label: 'Paramount+',     logo: '/logos/paramount_logo.png',   logoBg: '#0064FF' },
   { id: 'peacock',      label: 'Peacock',        logo: '/logos/peacock_logo.png',     logoBg: '#ffffff' },
@@ -24,59 +24,97 @@ const ALL_PLATFORMS = [
 const ALIASES = { disney: 'disneyplus', hbo: 'hbomax', amazon: 'prime', 'hbo-max': 'hbomax', 'disney-plus': 'disneyplus' };
 const norm = (id) => ALIASES[id] || id;
 
+const CalIco = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+const HeartNavIco = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+const TvIco = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="15" rx="2"/>
+    <polyline points="17 2 12 7 7 2"/>
+  </svg>
+);
+
 function Navbar() {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const name = user?.fullName || user?.email || 'User';
-  const path = window.location.pathname;
-  const ls = (to) => ({
-    textDecoration:'none', padding:'7px 13px', borderRadius:9,
-    fontSize:13, fontWeight:600,
-    color: path===to ? PUR : TEXT,
-    background: path===to ? 'rgba(124,58,237,0.07)' : 'none',
-    whiteSpace:'nowrap', fontFamily:FONT,
-  });
+  const user     = getCurrentUser();
+  const name     = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
+  const path     = window.location.pathname;
+
+  const NAV_LINKS = [
+    { ico: <CalIco />,      label: 'Mood History Calendar', to: '/mood-history'  },
+    { ico: <HeartNavIco />, label: 'Wishlist',              to: '/wishlist'       },
+    { ico: <TvIco />,       label: 'Subscription Manager',  to: '/subscriptions' },
+  ];
+
   return (
     <nav style={{
-      position:'sticky', top:0, zIndex:100, height:62,
-      background:'rgba(255,255,255,0.60)', backdropFilter:'blur(20px)',
-      borderBottom:'1px solid rgba(124,58,237,0.13)',
-      display:'flex', alignItems:'center',
-      justifyContent:'space-between', padding:'0 28px', fontFamily:FONT,
+      position: 'sticky', top: 0, zIndex: 100, height: 68,
+      background: 'rgba(20,8,45,0.95)', backdropFilter: 'blur(20px)',
+      borderBottom: '1px solid rgba(124,58,237,0.25)',
+      display: 'flex', alignItems: 'center',
+      justifyContent: 'space-between', padding: '0 28px', fontFamily: FONT,
     }}>
-      <Link to="/browse" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:10}}>
-        <img src="/logo.png" alt="VibePick" style={{width:36,height:36,borderRadius:10,objectFit:'cover'}}/>
-        <span style={{fontSize:19,fontWeight:800,color:TEXT}}>VibePick</span>
+      <Link to="/browse" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <img src="/logo.png" alt="VibePick" style={{ width: 38, height: 38, borderRadius: 10, objectFit: 'cover',
+          boxShadow: '0 2px 8px rgba(124,58,237,0.4)' }} />
+        <span style={{ fontSize: 21, fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>VibePick</span>
       </Link>
-      <div style={{display:'flex',alignItems:'center',gap:2}}>
-        {[
-          {label:'Mood History Calendar',to:'/mood-history'},
-          {label:'Wishlist',to:'/wishlist'},
-          {label:'Subscription Manager',to:'/subscriptions'},
-        ].map(({label,to}) => <Link key={to} to={to} style={ls(to)}>{label}</Link>)}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {NAV_LINKS.map(({ ico, label, to }) => {
+          const active = path === to;
+          return (
+            <Link key={to} to={to} style={{
+              textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 7,
+              padding: '8px 14px', borderRadius: 9, fontSize: 14, fontWeight: 600,
+              color: active ? '#c084fc' : 'rgba(255,255,255,0.75)',
+              background: active ? 'rgba(124,58,237,0.2)' : 'none',
+              whiteSpace: 'nowrap', transition: 'background 0.15s, color 0.15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#c084fc'; e.currentTarget.style.background = 'rgba(124,58,237,0.18)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = active ? '#c084fc' : 'rgba(255,255,255,0.75)'; e.currentTarget.style.background = active ? 'rgba(124,58,237,0.2)' : 'none'; }}>
+              {ico} {label}
+            </Link>
+          );
+        })}
       </div>
-      <div style={{display:'flex',alignItems:'center',gap:8}}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         <div style={{
-          display:'flex',alignItems:'center',gap:7,
-          background:'rgba(124,58,237,0.08)',border:'1px solid rgba(124,58,237,0.15)',
-          borderRadius:24,padding:'5px 12px 5px 8px',fontSize:13,fontWeight:600,color:TEXT,
+          display: 'flex', alignItems: 'center', gap: 7,
+          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 24, padding: '5px 13px 5px 8px',
+          fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.9)',
         }}>
           <div style={{
-            width:24,height:24,borderRadius:'50%',
-            background:'linear-gradient(135deg,#7C3AED,#ec4899)',
-            display:'flex',alignItems:'center',justifyContent:'center',
-            color:'white',fontSize:10,fontWeight:700,
+            width: 26, height: 26, borderRadius: '50%',
+            background: 'linear-gradient(135deg,#7C3AED,#ec4899)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'white', fontSize: 11, fontWeight: 700,
           }}>{name[0]?.toUpperCase()}</div>
           {name}
         </div>
-        <button onClick={() => {logout(); navigate('/login');}} style={{
-          padding:'7px 13px',borderRadius:9,background:'none',border:'none',
-          fontSize:13,fontWeight:600,color:TEXT,cursor:'pointer',fontFamily:FONT,
+        <button onClick={() => { logout(); navigate('/login'); }} style={{
+          padding: '8px 16px', borderRadius: 9,
+          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+          fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.75)',
+          cursor: 'pointer', fontFamily: FONT,
         }}>Logout</button>
       </div>
     </nav>
   );
 }
+
 
 function PlatformCard({ platform, deleteMode, onRemove, index }) {
   const [hov, setHov] = useState(false);
@@ -178,10 +216,10 @@ export default function SubscriptionManager() {
       <div style={{minHeight:'100vh', background:BG, fontFamily:FONT}}>
         <Navbar />
         <div style={{padding:'32px 32px 56px'}}>
-          <div style={{fontSize:30,fontWeight:900,color:TEXT,letterSpacing:'-0.5px',marginBottom:4}}>
+          <div style={{fontSize:34,fontWeight:900,color:TEXT,letterSpacing:'-0.5px',marginBottom:4}}>
             Subscription Manager
           </div>
-          <div style={{fontSize:13,fontWeight:500,color:MUT,marginBottom:28}}>
+          <div style={{fontSize:15,fontWeight:500,color:MUT,marginBottom:28}}>
             Manage your streaming platforms
           </div>
 
@@ -251,7 +289,7 @@ export default function SubscriptionManager() {
                 background:'rgba(124,58,237,0.08)',border:'none',
                 cursor:'pointer',fontSize:18,color:MUT,
                 display:'flex',alignItems:'center',justifyContent:'center',
-              }}>x</button>
+              }}>×</button>
             </div>
 
             {saveError && (

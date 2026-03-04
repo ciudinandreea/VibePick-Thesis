@@ -123,9 +123,6 @@ const ChevronIco = () => (
 
 function MovieCard({ movie, onClick }) {
   const [hov, setHov] = useState(false);
-  const rating = movie.vote_average?.toFixed(1) || movie.finalScore
-    ? `${((movie.finalScore || 0) * 100).toFixed(0)}% match`
-    : '—';
   const displayRating = movie.finalScore
     ? `${((movie.finalScore) * 100).toFixed(0)}%`
     : movie.vote_average?.toFixed(1) || '—';
@@ -400,7 +397,7 @@ export default function DiscoveryFeed() {
   const [feedOpen,    setFeedOpen]    = useState(false);  
   const [modalId,     setModalId]     = useState(null);
   const [feedMode,    setFeedMode]    = useState(null);  
-  const [feedTitle,   setFeedTitle]   = useState('Popular Movies');
+  const [feedTitle,   setFeedTitle]   = useState('Trending Movies');
 
   const navigate  = useNavigate();
   const user      = getCurrentUser();
@@ -408,7 +405,7 @@ export default function DiscoveryFeed() {
   const feedRef   = useRef(null);
   const searchRef = useRef(null);
 
-  const displayName = user?.fullName || user?.email || 'User';
+  const displayName = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
   const currentMood = localStorage.getItem('currentMood') || 'bored';
 
   useEffect(() => {
@@ -437,7 +434,7 @@ export default function DiscoveryFeed() {
       const data = await getPopularMovies();
       setMovies(data.results);
       setActiveQ(''); setFeedMode(null);
-      setFeedTitle('Popular Movies');
+      setFeedTitle('Trending Movies');
     } catch { setError('Failed to load movies.'); }
     finally   { setLoading(false); }
   }
@@ -482,8 +479,8 @@ export default function DiscoveryFeed() {
   const closeModal = useCallback(() => setModalId(null), []);
 
   const nh = (e, on) => {
-    e.currentTarget.style.color      = on ? PUR : TEXT;
-    e.currentTarget.style.background = on ? 'rgba(124,58,237,0.07)' : 'none';
+    e.currentTarget.style.color      = on ? '#c084fc' : 'rgba(255,255,255,0.75)';
+    e.currentTarget.style.background = on ? 'rgba(124,58,237,0.18)' : 'none';
   };
 
   return (
@@ -507,22 +504,25 @@ export default function DiscoveryFeed() {
 
         {}
         <nav style={{
-          position:'sticky', top:0, zIndex:100, height:62,
-          background:'rgba(255,255,255,0.60)',
+          position:'sticky', top:0, zIndex:100, height:68,
+          background:'rgba(20,8,45,0.95)',
           backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
-          borderBottom:'1px solid rgba(124,58,237,0.13)',
+          borderBottom:'1px solid rgba(124,58,237,0.25)',
           display:'flex', alignItems:'center',
           justifyContent:'space-between', padding:'0 28px', gap:12,
         }}>
 
           {}
           <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
-            <img src="/logo.png" alt="VibePick" style={{
-              width:36, height:36, borderRadius:10, objectFit:'cover',
-              boxShadow:'0 2px 8px rgba(124,58,237,0.3)' }} />
-            <span style={{ fontSize:19, fontWeight:800, color:TEXT, letterSpacing:'-0.3px' }}>
-              VibePick
-            </span>
+            <div onClick={() => { window.location.pathname === '/browse' ? window.location.reload() : window.location.href='/browse'; }}
+              style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer' }}>
+              <img src="/logo.png" alt="VibePick" style={{
+                width:38, height:38, borderRadius:10, objectFit:'cover',
+                boxShadow:'0 2px 8px rgba(124,58,237,0.3)' }} />
+              <span style={{ fontSize:21, fontWeight:800, color:'white', letterSpacing:'-0.3px' }}>
+                VibePick
+              </span>
+            </div>
           </div>
 
           {}
@@ -539,7 +539,7 @@ export default function DiscoveryFeed() {
                 <div style={{
                   display:'flex', alignItems:'center', gap:6,
                   padding:'7px 13px', borderRadius:9,
-                  fontSize:13, fontWeight:600, color:TEXT,
+                  fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.75)',
                   cursor:'pointer', border:'none', background:'none',
                   fontFamily:FONT, transition:'background 0.15s, color 0.15s',
                   whiteSpace:'nowrap',
@@ -557,8 +557,8 @@ export default function DiscoveryFeed() {
                 display:'flex', alignItems:'center', gap:6,
                 padding:'7px 13px', borderRadius:9,
                 fontSize:13, fontWeight:600,
-                color: feedOpen ? PUR : TEXT,
-                background: feedOpen ? 'rgba(124,58,237,0.07)' : 'none',
+                color: feedOpen ? '#c084fc' : 'rgba(255,255,255,0.85)',
+                background: feedOpen ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.06)',
                 border:'none', cursor:'pointer', fontFamily:FONT,
                 transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap',
               }}
@@ -682,9 +682,9 @@ export default function DiscoveryFeed() {
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }} ref={menuRef}>
             <div style={{
               display:'flex', alignItems:'center', gap:7,
-              background:'rgba(124,58,237,0.08)', border:'1px solid rgba(124,58,237,0.15)',
-              borderRadius:24, padding:'5px 12px 5px 8px',
-              fontSize:13, fontWeight:600, color:TEXT,
+              background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)',
+              borderRadius:24, padding:'5px 13px 5px 8px',
+              fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.9)',
             }}>
               <div style={{
                 width:24, height:24, borderRadius:'50%',
@@ -699,12 +699,12 @@ export default function DiscoveryFeed() {
               <button onClick={() => setMenuOpen(v => !v)} style={{
                 display:'flex', alignItems:'center', justifyContent:'center',
                 width:36, height:36, borderRadius:9,
-                background: menuOpen ? 'rgba(124,58,237,0.1)' : 'rgba(255,255,255,0.5)',
-                border:'1px solid rgba(124,58,237,0.15)',
-                cursor:'pointer', color:TEXT, transition:'background 0.15s',
+                background: menuOpen ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.06)',
+                border:'1px solid rgba(255,255,255,0.1)',
+                cursor:'pointer', color:'rgba(255,255,255,0.75)', transition:'background 0.15s',
               }}
                 onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.1)'}
-                onMouseLeave={e => { if (!menuOpen) e.currentTarget.style.background='rgba(255,255,255,0.5)'; }}>
+                 onMouseLeave={e => { if (!menuOpen) e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}>
                 <HamIco />
               </button>
 
@@ -819,7 +819,7 @@ export default function DiscoveryFeed() {
 
           {!loading && !error && (
             <div className="vp-grid" style={{
-              display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:20,
+              display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:20,
             }}>
               {movies.map((movie, i) => (
                 <div key={movie.id} style={{

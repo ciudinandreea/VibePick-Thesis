@@ -9,14 +9,60 @@ router.post('/log', auth, async (req, res) => {
   try {
     const { mood } = req.body;
     if (!VALID.includes(mood)) return res.status(400).json({ error: 'Invalid mood' });
-    await pool.query(
-      `INSERT INTO mood_logs (user_id, mood, logged_at) VALUES ($1,$2,NOW())`,
+    const result = await pool.query(
+      `INSERT INTO mood_logs (user_id, mood, logged_at) VALUES ($1,$2,NOW()) RETURNING id`,
       [req.user.userId, mood]
     );
-    res.json({ success: true });
+    res.json({ success: true, logId: result.rows[0].id });
   } catch (err) {
     console.error('Mood log error:', err.message);
     res.status(500).json({ error: 'Failed to log mood' });
+  }
+});
+
+router.post('/log-after', auth, async (req, res) => {
+  try {
+    const { mood_after, tmdb_id } = req.body;
+    if (!VALID.includes(mood_after)) return res.status(400).json({ error: 'Invalid mood' });
+    const userId = req.user.userId;
+    const today  = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+    const upd = await pool.query(`
+      UPDATE mood_logs SET mood_after = $1
+      WHERE id = (
+        SELECT id FROM mood_logs
+        WHERE user_id = $2
+          AND TO_CHAR(logged_at, 'YYYY-MM-DD') = $3
+          AND (mood_after IS NULL OR mood_after = '')
+        ORDER BY logged_at DESC LIMIT 1
+      )
+      RETURNING id
+    `, [mood_after, userId, todayStr]);
+
+    if (upd.rowCount === 0) {
+      await pool.query(
+        `INSERT INTO mood_logs (user_id, mood, mood_after, logged_at) VALUES ($1, NULL, $2, NOW())`,
+        [userId, mood_after]
+      );
+    }
+
+    if (tmdb_id) {
+      try {
+        const item = await pool.query(`SELECT id FROM items WHERE tmdb_id=$1`, [tmdb_id]);
+        if (item.rows.length > 0) {
+          await pool.query(`
+            INSERT INTO interactions (user_id, item_id, action_type, created_at)
+            VALUES ($1,$2,'watch',NOW()) ON CONFLICT DO NOTHING
+          `, [userId, item.rows[0].id]);
+        }
+      } catch { }
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Mood after error:', err.message);
+    res.status(500).json({ error: 'Failed to log mood after' });
   }
 });
 
@@ -28,7 +74,7 @@ router.get('/history', auth, async (req, res) => {
     const yearMonth = `${year}-${String(month).padStart(2,'0')}`;
 
     const moodRes = await pool.query(`
-      SELECT mood,
+      SELECT mood, mood_after,
              TO_CHAR(logged_at, 'YYYY-MM-DD') as date
       FROM mood_logs
       WHERE user_id = $1
@@ -39,8 +85,10 @@ router.get('/history', auth, async (req, res) => {
     const dateMap = {};
     moodRes.rows.forEach(row => {
       if (!dateMap[row.date]) {
-        dateMap[row.date] = { date: row.date, mood: row.mood, movies: [] };
+        dateMap[row.date] = { date: row.date, mood: null, mood_after: null, movies: [] };
       }
+      if (!dateMap[row.date].mood      && row.mood)       dateMap[row.date].mood       = row.mood;
+      if (!dateMap[row.date].mood_after && row.mood_after) dateMap[row.date].mood_after = row.mood_after;
     });
 
     try {
