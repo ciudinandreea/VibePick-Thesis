@@ -9,7 +9,7 @@ const PLATFORMS = [
   { id: 'netflix',      label: 'Netflix',        logo: '/logos/netflix_logo.png',     logoBg: '#ffffff' },
   { id: 'disneyplus',   label: 'Disney+',        logo: '/logos/disneyplus_logo.png',  logoBg: '#1a6a8a' },
   { id: 'prime',        label: 'Prime Video',    logo: '/logos/primevideo_logo.png',  logoBg: '#00A8E0' },
-  { id: 'hbomax',       label: 'HBO Max',        logo: '/logos/hbomax_logo.png',      logoBg: '#1C0533' },
+  { id: 'hbomax',       label: 'HBO Max',        logo: '/logos/hbomax_logo.png',      logoBg: '#000000' },
   { id: 'appletv',      label: 'Apple TV+',      logo: '/logos/appletv_logo.png',     logoBg: '#ffffff' },
   { id: 'hulu',         label: 'Hulu',           logo: '/logos/hulu_logo.png',        logoBg: '#000000' },
   { id: 'paramount',    label: 'Paramount+',     logo: '/logos/paramount_logo.png',   logoBg: '#0064FF' },

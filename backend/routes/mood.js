@@ -93,21 +93,46 @@ router.get('/history', auth, async (req, res) => {
 
     try {
       const movieRes = await pool.query(`
-        SELECT i.title,
-               i.poster_path as poster_url,
-               TO_CHAR(int.timestamp, 'YYYY-MM-DD') as date
-        FROM interactions int
-        JOIN items i ON int.item_id = i.id
-        WHERE int.user_id = $1
-          AND int.action_type = 'watched'
-          AND TO_CHAR(int.timestamp, 'YYYY-MM') = $2
+        WITH mood_after_times AS (
+          SELECT TO_CHAR(logged_at, 'YYYY-MM-DD') as date,
+                 logged_at as mood_after_time
+          FROM mood_logs
+          WHERE user_id = $1
+            AND TO_CHAR(logged_at, 'YYYY-MM') = $2
+            AND mood_after IS NOT NULL
+        ),
+        ranked_movies AS (
+          SELECT
+            i.title,
+            i.poster_path as poster_url,
+            TO_CHAR(int.timestamp, 'YYYY-MM-DD') as date,
+            int.timestamp,
+            -- Priority 1: movie watched closest before mood_after log that day
+            -- Priority 2: most recently watched movie that day
+            ROW_NUMBER() OVER (
+              PARTITION BY TO_CHAR(int.timestamp, 'YYYY-MM-DD')
+              ORDER BY
+                CASE WHEN mat.mood_after_time IS NOT NULL
+                  AND int.timestamp <= mat.mood_after_time
+                  THEN 0 ELSE 1 END ASC,
+                int.timestamp DESC
+            ) as rn
+          FROM interactions int
+          JOIN items i ON int.item_id = i.id
+          LEFT JOIN mood_after_times mat
+            ON TO_CHAR(int.timestamp, 'YYYY-MM-DD') = mat.date
+          WHERE int.user_id = $1
+            AND int.action_type = 'watched'
+            AND TO_CHAR(int.timestamp, 'YYYY-MM') = $2
+        )
+        SELECT title, poster_url, date FROM ranked_movies WHERE rn = 1
       `, [userId, yearMonth]);
 
       movieRes.rows.forEach(row => {
         if (!dateMap[row.date]) dateMap[row.date] = { date: row.date, movies: [] };
         dateMap[row.date].movies.push({ title: row.title, poster_url: row.poster_url });
       });
-    } catch {  }
+    } catch (e) { console.error('Movie history error:', e.message); }
 
     res.json({ entries: Object.values(dateMap) });
   } catch (err) {
