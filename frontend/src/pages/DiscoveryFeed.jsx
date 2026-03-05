@@ -470,7 +470,9 @@ export default function DiscoveryFeed() {
   const [activeQ,     setActiveQ]     = useState('');
   const [showSearch,  setShowSearch]  = useState(false);
   const [menuOpen,    setMenuOpen]    = useState(false);
-  const [feedOpen,    setFeedOpen]    = useState(false);  
+  const [feedOpen,    setFeedOpen]    = useState(false);
+  const [userOpen,    setUserOpen]    = useState(false);
+  const userRef  = useRef(null);
   const [modalId,     setModalId]     = useState(null);
   const [feedMode,    setFeedMode]    = useState(null);  
   const [feedTitle,   setFeedTitle]   = useState('Trending Movies');
@@ -660,10 +662,9 @@ export default function DiscoveryFeed() {
           <div style={{ display:'flex', alignItems:'center', gap:4, flexShrink:0 }} ref={menuRef}>
 
             {[
-              { ico:<CalIco />,      label:'Mood History Calendar', to:'/mood-history'  },
-              { ico:<HeartIco />,    label:'Wishlist',              to:'/wishlist'       },
-              { ico:<TvIco />,       label:'Subscription Manager',  to:'/subscriptions' },
-              { ico:<CheckIco />,    label:'Watched Movies',        to:'/watched'       },
+              { ico:<CalIco />,   label:'Mood History Calendar', to:'/mood-history'  },
+              { ico:<HeartIco />, label:'Wishlist',              to:'/wishlist'       },
+              { ico:<TvIco />,    label:'Subscription Manager',  to:'/subscriptions' },
             ].map(({ ico, label, to }) => (
               <Link key={to} to={to} style={{ textDecoration:'none' }}>
                 <div style={{
@@ -732,19 +733,49 @@ export default function DiscoveryFeed() {
 
             <div style={{ width:1, height:22, background:'rgba(255,255,255,0.15)', margin:'0 4px' }} />
 
-            <div style={{
-              display:'flex', alignItems:'center', gap:7,
-              background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)',
-              borderRadius:24, padding:'5px 13px 5px 8px',
-              fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.9)',
-            }}>
-              <div style={{
-                width:24, height:24, borderRadius:'50%',
-                background:`linear-gradient(135deg,${PUR},#ec4899)`,
-                display:'flex', alignItems:'center', justifyContent:'center',
-                color:'white', fontSize:10, fontWeight:700, flexShrink:0,
-              }}>{displayName[0]?.toUpperCase()}</div>
-              {displayName}
+            <div style={{ position:'relative' }} ref={userRef}>
+              <div onClick={() => setUserOpen(v => !v)} style={{
+                display:'flex', alignItems:'center', gap:7,
+                background: userOpen ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.08)',
+                border:'1px solid rgba(255,255,255,0.12)',
+                borderRadius:24, padding:'5px 13px 5px 8px',
+                fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.9)',
+                cursor:'pointer', transition:'background 0.15s',
+              }}>
+                <div style={{
+                  width:24, height:24, borderRadius:'50%',
+                  background:`linear-gradient(135deg,${PUR},#ec4899)`,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  color:'white', fontSize:10, fontWeight:700, flexShrink:0,
+                }}>{displayName[0]?.toUpperCase()}</div>
+                {displayName}
+              </div>
+              {userOpen && (
+                <div style={{
+                  position:'absolute', top:'calc(100% + 8px)', right:0, width:200,
+                  background:'rgba(255,255,255,0.97)', backdropFilter:'blur(20px)',
+                  border:'1px solid rgba(124,58,237,0.14)', borderRadius:14,
+                  boxShadow:'0 16px 48px rgba(91,33,182,0.18)',
+                  overflow:'hidden', zIndex:300,
+                }}>
+                  {[
+                    { label:'✓ Watched Movies',  to:'/watched' },
+                    { label:'★ Favorite Genres', to:'/genres'  },
+                  ].map(({ label, to }) => (
+                    <Link key={to} to={to} style={{ textDecoration:'none' }} onClick={() => setUserOpen(false)}>
+                      <div style={{
+                        padding:'13px 16px', fontSize:13, fontWeight:600, color:TEXT,
+                        borderBottom:'1px solid rgba(124,58,237,0.07)',
+                        transition:'background 0.12s', cursor:'pointer',
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                        onMouseLeave={e => e.currentTarget.style.background='none'}>
+                        {label}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div style={{ position:'relative' }}>

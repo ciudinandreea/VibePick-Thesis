@@ -19,6 +19,20 @@ router.put('/genres', auth, async (req, res) => {
   }
 });
 
+router.get('/genres', auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT favourite_genres FROM profiles WHERE user_id = $1`,
+      [req.user.userId]
+    );
+    const genres = result.rows[0]?.favourite_genres || [];
+    res.json({ genres });
+  } catch (err) {
+    console.error('Error fetching genres:', err.message);
+    res.status(500).json({ error: 'Failed to fetch genres' });
+  }
+});
+
 router.get('/subscriptions', auth, async (req, res) => {
   try {
     const result = await pool.query(

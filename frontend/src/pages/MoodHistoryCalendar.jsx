@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/api';
 import api from '../services/api';
@@ -45,6 +45,36 @@ const CheckNavIco = () => (
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
+
+const ShieldIco = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  </svg>
+);
+const UserIco = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+const LogoutIco = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+);
+const HamIco = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+);
 const FeedIco = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -57,6 +87,19 @@ function Navbar() {
   const user     = getCurrentUser();
   const name     = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
   const path     = window.location.pathname;
+  const menuRef  = useRef(null);
+  const userRef  = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+
+  useEffect(() => {
+    const fn = e => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false);
+    };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
 
   const nh = (e, on) => {
     e.currentTarget.style.color      = on ? '#c084fc' : 'rgba(255,255,255,0.75)';
@@ -67,7 +110,6 @@ function Navbar() {
     { ico: <CalIco />,      label: 'Mood History Calendar', to: '/mood-history'  },
     { ico: <HeartNavIco />, label: 'Wishlist',              to: '/wishlist'       },
     { ico: <TvIco />,       label: 'Subscription Manager',  to: '/subscriptions' },
-    { ico: <CheckNavIco />, label: 'Watched Movies',        to: '/watched'       },
   ];
 
   return (
@@ -130,27 +172,103 @@ function Navbar() {
 
         <div style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
 
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 7,
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: 24, padding: '5px 13px 5px 8px',
-          fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.9)',
-        }}>
-          <div style={{
-            width: 26, height: 26, borderRadius: '50%',
-            background: 'linear-gradient(135deg,#7C3AED,#ec4899)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', fontSize: 11, fontWeight: 700,
-          }}>{name[0]?.toUpperCase()}</div>
-          {name}
+        {}
+        <div style={{ position: 'relative' }} ref={userRef}>
+          <div onClick={() => setUserOpen(v => !v)} style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            background: userOpen ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 24, padding: '5px 13px 5px 8px',
+            fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.9)',
+            cursor: 'pointer', transition: 'background 0.15s',
+          }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: '50%',
+              background: 'linear-gradient(135deg,#7C3AED,#ec4899)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'white', fontSize: 11, fontWeight: 700,
+            }}>{name[0]?.toUpperCase()}</div>
+            {name}
+          </div>
+          {userOpen && (
+            <div style={{
+              position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
+              background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              overflow: 'hidden', zIndex: 300,
+            }}>
+              {[
+                { label: '✓ Watched Movies',  to: '/watched' },
+                { label: '★ Favorite Genres', to: '/genres'  },
+              ].map(({ label, to }) => (
+                <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setUserOpen(false)}>
+                  <div style={{
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
+                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    transition: 'background 0.12s', cursor: 'pointer',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseLeave={e => e.currentTarget.style.background='none'}>
+                    {label}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
-        <button onClick={() => { logout(); navigate('/login'); }} style={{
-          padding: '8px 16px', borderRadius: 9,
-          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-          fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.75)',
-          cursor: 'pointer', fontFamily: FONT,
-        }}>Logout</button>
+        {}
+        <div style={{ position: 'relative' }} ref={menuRef}>
+          <button onClick={() => setMenuOpen(v => !v)} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 36, height: 36, borderRadius: 9,
+            background: menuOpen ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            cursor: 'pointer', color: 'rgba(255,255,255,0.75)', transition: 'background 0.15s',
+          }}
+            onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
+            onMouseLeave={e => { if (!menuOpen) e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}>
+            <HamIco />
+          </button>
+          {menuOpen && (
+            <div style={{
+              position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
+              background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              overflow: 'hidden', zIndex: 300,
+            }}>
+              {[
+                { ico: <ShieldIco />, label: 'Privacy & Data', to: '/privacy' },
+                { ico: <UserIco />,   label: 'Your Account',   to: '/account' },
+              ].map(({ ico, label, to }) => (
+                <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
+                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    transition: 'background 0.12s', cursor: 'pointer',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseLeave={e => e.currentTarget.style.background='none'}>
+                    <span style={{ color: MUT }}>{ico}</span> {label}
+                  </div>
+                </Link>
+              ))}
+              <div onClick={() => { setMenuOpen(false); logout(); navigate('/login'); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '13px 16px', fontSize: 13, fontWeight: 700, color: '#dc2626',
+                  cursor: 'pointer', transition: 'background 0.12s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.06)'}
+                onMouseLeave={e => e.currentTarget.style.background='none'}>
+                <LogoutIco /> Log Out
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
