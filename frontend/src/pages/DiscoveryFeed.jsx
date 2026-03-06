@@ -4,7 +4,6 @@ import { getPopularMovies, searchMovies, getMovieDetails } from '../services/mov
 import { logout, getCurrentUser } from '../services/api';
 import api from '../services/api';
 
-const BG   = '#CFB9E5';
 const PUR  = '#7C3AED';
 const PUR2 = '#9333ea';
 const TEXT = '#1a0533';
@@ -202,10 +201,10 @@ function MovieCard({ movie, onClick }) {
           onMouseLeave={() => setTipOpen(false)}
           style={{
             position:'absolute', top:9, right:9,
-            width:22, height:22, borderRadius:'50%',
-            background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)',
-            border:'1px solid rgba(255,255,255,0.3)',
-            color:'white', fontSize:12, fontWeight:900,
+            width:30, height:30, borderRadius:'50%',
+            background:'rgba(0,0,0,0.70)', backdropFilter:'blur(6px)',
+            border:'1.5px solid rgba(255,255,255,0.40)',
+            color:'white', fontSize:15, fontWeight:900,
             display:'flex', alignItems:'center', justifyContent:'center',
             cursor:'default', zIndex:10,
           }}>ⓘ
@@ -251,20 +250,20 @@ function MovieCard({ movie, onClick }) {
       {matchPct !== null && (
         <div onClick={e => e.stopPropagation()} style={{
           position:'absolute', bottom:56, left:9,
-          width:42, height:42, borderRadius:'50%',
+          width:54, height:54, borderRadius:'50%',
           background:'linear-gradient(135deg,#7C3AED,#9333ea)',
-          border:'2px solid rgba(255,255,255,0.25)',
+          border:'2.5px solid rgba(255,255,255,0.30)',
           display:'flex', alignItems:'center', justifyContent:'center',
           flexDirection:'column',
-          boxShadow:'0 3px 10px rgba(124,58,237,0.5)',
+          boxShadow:'0 4px 14px rgba(124,58,237,0.6)',
           zIndex:5,
         }}>
-          <span style={{ fontSize:10, fontWeight:900, color:'white', lineHeight:1 }}>{matchPct}%</span>
-          <span style={{ fontSize:7, fontWeight:700, color:'rgba(255,255,255,0.7)', lineHeight:1 }}>match</span>
+          <span style={{ fontSize:13, fontWeight:900, color:'white', lineHeight:1 }}>{matchPct}%</span>
+          <span style={{ fontSize:9, fontWeight:700, color:'rgba(255,255,255,0.75)', lineHeight:1.4 }}>match</span>
         </div>
       )}
 
-      {/* Info panel */}
+      {}
       <div style={{ padding:'11px 13px 13px', background:'rgba(255,255,255,0.08)' }}>
         <div style={{ fontSize:14, fontWeight:700, color:'white',
           marginBottom:6, lineHeight:1.35,
@@ -730,23 +729,23 @@ export default function DiscoveryFeed() {
               {feedOpen && (
                 <div style={{
                   position:'absolute', top:'calc(100% + 8px)', left:0, width:230,
-                  background:'rgba(255,255,255,0.95)',
+                  background:'rgba(20,8,50,0.92)',
                   backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
-                  border:'1px solid rgba(124,58,237,0.14)', borderRadius:14,
-                  boxShadow:'0 16px 48px rgba(91,33,182,0.18)',
+                  border:'1px solid rgba(124,58,237,0.30)', borderRadius:14,
+                  boxShadow:'0 16px 48px rgba(0,0,0,0.45)',
                   overflow:'hidden', animation:'vp-fadeUp 0.18s ease both', zIndex:200,
                 }}>
                   <div onClick={() => loadRecommendations('mood-aware')} style={{
                     display:'flex', alignItems:'center', gap:10, padding:'14px 16px',
-                    borderBottom:'1px solid rgba(124,58,237,0.07)',
+                    borderBottom:'1px solid rgba(255,255,255,0.07)',
                     cursor:'pointer', transition:'background 0.12s',
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
                     <span style={{ color:PUR }}><MoodIco /></span>
                     <div>
-                      <div style={{ fontSize:13, fontWeight:700, color:TEXT }}>Mood-Aware</div>
-                      <div style={{ fontSize:11, fontWeight:500, color:MUT }}>Based on your mood today</div>
+                      <div style={{ fontSize:13, fontWeight:700, color:'white' }}>Mood-Aware</div>
+                      <div style={{ fontSize:11, fontWeight:500, color:'rgba(255,255,255,0.55)' }}>Based on your mood today</div>
                     </div>
                   </div>
                   <div onClick={() => loadRecommendations('baseline')} style={{
@@ -757,8 +756,8 @@ export default function DiscoveryFeed() {
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
                     <span style={{ color:MUT }}><BaselineIco /></span>
                     <div>
-                      <div style={{ fontSize:13, fontWeight:700, color:TEXT }}>Baseline</div>
-                      <div style={{ fontSize:11, fontWeight:500, color:MUT }}>Based on history & preferences</div>
+                      <div style={{ fontSize:13, fontWeight:700, color:'white' }}>Baseline</div>
+                      <div style={{ fontSize:11, fontWeight:500, color:'rgba(255,255,255,0.55)' }}>Based on history & preferences</div>
                     </div>
                   </div>
                 </div>
@@ -968,17 +967,17 @@ export default function DiscoveryFeed() {
             </div>
           )}
 
-          <div style={{ fontSize:28, fontWeight:800, color:TEXT,
+          <div style={{ fontSize:28, fontWeight:800, color:'white',
             letterSpacing:'-0.5px', marginBottom:4 }}>
             {feedTitle}
           </div>
           {!activeQ && !feedMode && (
-            <div style={{ fontSize:13, fontWeight:500, color:MUT, marginBottom:24 }}>
+            <div style={{ fontSize:13, fontWeight:500, color:'rgba(255,255,255,0.65)', marginBottom:24 }}>
               Trending films from around the world
             </div>
           )}
           {feedMode && (
-            <div style={{ fontSize:13, fontWeight:500, color:MUT, marginBottom:24 }}>
+            <div style={{ fontSize:13, fontWeight:500, color:'rgba(255,255,255,0.65)', marginBottom:24 }}>
               {feedMode === 'mood-aware'
                 ? 'Personalised based on your mood, genre preferences and watch history'
                 : 'Based on your genre preferences and watch history only'}
@@ -991,7 +990,7 @@ export default function DiscoveryFeed() {
               <div style={{ width:40, height:40, borderRadius:'50%',
                 border:`3px solid rgba(124,58,237,0.15)`, borderTop:`3px solid ${PUR}`,
                 animation:'vp-spin 0.75s linear infinite' }}/>
-              <span style={{ fontSize:14, fontWeight:600, color:MUT }}>
+              <span style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.65)' }}>
                 {feedMode ? 'Generating recommendations…' : 'Loading movies…'}
               </span>
             </div>

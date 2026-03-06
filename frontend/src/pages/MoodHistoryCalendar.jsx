@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/api';
 import api from '../services/api';
 
-const BG   = '#CFB9E5';
 const PUR  = '#7C3AED';
 const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
@@ -343,7 +342,7 @@ export default function MoodHistoryCalendar() {
           pointer-events: none; z-index: 0;
         }
         .cal-bg > * { position: relative; z-index: 1; }
-        .cal-cell:hover { background: rgba(124,58,237,0.18) !important; }
+        .cal-cell:hover { background: rgba(124,58,237,0.20) !important; }
       `}</style>
 
       <div className="cal-bg" style={{ display:'flex', flexDirection:'column', fontFamily:FONT }}>
@@ -356,17 +355,17 @@ export default function MoodHistoryCalendar() {
             <div style={{ fontSize:30, fontWeight:900, color:'white', letterSpacing:'-0.5px', marginBottom:2 }}>
               Mood History Calendar
             </div>
-            <div style={{ fontSize:14, fontWeight:500, color:MUT }}>
+            <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,0.65)' }}>
               Track your emotional journey through cinema
             </div>
           </div>
 
           {}
           <div style={{
-            background:'rgba(255,255,255,0.82)', backdropFilter:'blur(12px)',
-            border:'1px solid rgba(124,58,237,0.10)', borderRadius:20,
+            background:'rgba(80,40,140,0.35)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
+            border:'1px solid rgba(124,58,237,0.30)', borderRadius:20,
             padding:'18px 22px 14px',
-            boxShadow:'0 4px 24px rgba(91,33,182,0.10)',
+            boxShadow:'0 4px 24px rgba(0,0,0,0.30)',
             display:'flex', flexDirection:'column',
             marginBottom: selected ? 14 : 0,
             height: 'calc(100vh - 62px - 40px - 56px - 20px)',
@@ -376,15 +375,15 @@ export default function MoodHistoryCalendar() {
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, flexShrink:0 }}>
               <button onClick={prevMonth} style={{
                 width:36, height:36, borderRadius:10,
-                background:'rgba(124,58,237,0.07)', border:'1px solid rgba(124,58,237,0.18)',
-                cursor:'pointer', color:PUR, fontSize:20, fontWeight:700,
+                background:'rgba(124,58,237,0.20)', border:'1px solid rgba(124,58,237,0.40)',
+                cursor:'pointer', color:'white', fontSize:20, fontWeight:700,
                 display:'flex', alignItems:'center', justifyContent:'center',
               }}>‹</button>
-              <div style={{ fontSize:20, fontWeight:800, color:TEXT }}>{MONTHS[month]} {year}</div>
+              <div style={{ fontSize:20, fontWeight:800, color:'white' }}>{MONTHS[month]} {year}</div>
               <button onClick={nextMonth} style={{
                 width:36, height:36, borderRadius:10,
-                background:'rgba(124,58,237,0.07)', border:'1px solid rgba(124,58,237,0.18)',
-                cursor:'pointer', color:PUR, fontSize:20, fontWeight:700,
+                background:'rgba(124,58,237,0.20)', border:'1px solid rgba(124,58,237,0.40)',
+                cursor:'pointer', color:'white', fontSize:20, fontWeight:700,
                 display:'flex', alignItems:'center', justifyContent:'center',
               }}>›</button>
             </div>
@@ -393,7 +392,7 @@ export default function MoodHistoryCalendar() {
             <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:5, marginBottom:5, flexShrink:0 }}>
               {DAYS.map(d => (
                 <div key={d} style={{
-                  textAlign:'center', fontSize:11, fontWeight:700, color:MUT,
+                  textAlign:'center', fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.45)',
                   padding:'4px 0', textTransform:'uppercase', letterSpacing:'0.6px',
                 }}>{d}</div>
               ))}
@@ -430,7 +429,7 @@ export default function MoodHistoryCalendar() {
                     }}>
                     <span style={{
                       fontSize:13, fontWeight: isToday ? 800 : 600,
-                      color: isToday ? PUR : TEXT, lineHeight:1, flexShrink:0,
+                      color: isToday ? '#c084fc' : 'rgba(255,255,255,0.85)', lineHeight:1, flexShrink:0,
                     }}>{day}</span>
                     {entry?.mood && (
                       <span style={{ fontSize:'min(20px,2vw)', lineHeight:1, flexShrink:0 }}>
@@ -460,18 +459,18 @@ export default function MoodHistoryCalendar() {
           {selected && (
             <div style={{
               flexShrink:0,
-              background:'rgba(255,255,255,0.82)', backdropFilter:'blur(12px)',
-              border:'1px solid rgba(124,58,237,0.10)', borderRadius:18,
+              background:'rgba(80,40,140,0.35)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
+              border:'1px solid rgba(124,58,237,0.30)', borderRadius:18,
               padding:'20px 24px',
-              boxShadow:'0 4px 20px rgba(91,33,182,0.10)',
+              boxShadow:'0 4px 20px rgba(0,0,0,0.30)',
               animation:'fadeUp 0.22s ease both',
             }}>
-              <div style={{ fontSize:16, fontWeight:800, color:TEXT, marginBottom:14 }}>
+              <div style={{ fontSize:16, fontWeight:800, color:'white', marginBottom:14 }}>
                 {fmtLabel(selected)}
               </div>
 
               {!selectedEntry ? (
-                <div style={{ fontSize:13, fontWeight:500, color:MUT, fontStyle:'italic' }}>
+                <div style={{ fontSize:13, fontWeight:500, color:'rgba(255,255,255,0.55)', fontStyle:'italic' }}>
                   No mood logged on this day.
                 </div>
               ) : (
@@ -483,7 +482,7 @@ export default function MoodHistoryCalendar() {
                           style={{ width:50,height:74,borderRadius:9,objectFit:'cover',
                             boxShadow:'0 3px 10px rgba(0,0,0,0.15)',flexShrink:0 }}/>
                       )}
-                      <div style={{ fontSize:15, fontWeight:700, color:TEXT }}>
+                      <div style={{ fontSize:15, fontWeight:700, color:'white' }}>
                         {selectedEntry.movies[0].title}
                       </div>
                     </div>
@@ -494,13 +493,13 @@ export default function MoodHistoryCalendar() {
                       { label:'Mood after watching:',  val: selectedEntry.mood_after },
                     ].map(({ label, val }) => (
                       <div key={label} style={{
-                        background:'rgba(124,58,237,0.06)',
-                        border:'1px solid rgba(124,58,237,0.13)',
+                        background:'rgba(124,58,237,0.18)',
+                        border:'1px solid rgba(124,58,237,0.35)',
                         borderRadius:12, padding:'14px 16px',
                       }}>
-                        <div style={{ fontSize:10,fontWeight:700,color:MUT,
+                        <div style={{ fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.45)',
                           textTransform:'uppercase',letterSpacing:'0.9px',marginBottom:6 }}>{label}</div>
-                        <div style={{ fontSize:15,fontWeight:800,color:TEXT }}>
+                        <div style={{ fontSize:15,fontWeight:800,color:'white' }}>
                           {val ? `${val.charAt(0).toUpperCase()+val.slice(1)} ${MOOD_EMOJI[val]||''}` : '—'}
                         </div>
                       </div>

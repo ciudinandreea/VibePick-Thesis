@@ -4,9 +4,7 @@ import { getCurrentUser, logout } from '../services/api';
 import { getMovieDetails } from '../services/movies';
 import api from '../services/api';
 
-const BG   = '#CFB9E5';
 const PUR  = '#7C3AED';
-const PUR2 = '#9333ea';
 const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
