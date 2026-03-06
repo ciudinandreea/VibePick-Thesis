@@ -149,10 +149,10 @@ function MovieCard({ movie, onClick }) {
 
   const exp = movie.explanation || {};
   const scores = [
-    { label: 'Mood match',      val: exp.mood         },
-    { label: 'Genre pref',      val: exp.preferences  },
-    { label: 'History affinity',val: exp.history      },
-    { label: 'In subscription', val: exp.subscription },
+    { label: 'Mood match',             val: exp.mood         },
+    { label: 'Genre preferences',      val: exp.preferences  },
+    { label: 'History affinity',       val: exp.history      },
+    { label: 'In subscription',        val: exp.subscription },
   ].filter(s => s.val !== null && s.val !== undefined);
 
   return (

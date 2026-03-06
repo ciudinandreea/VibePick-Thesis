@@ -12,6 +12,7 @@ import SubscriptionManager  from './pages/SubscriptionManager';
 import MoodHistoryCalendar  from './pages/MoodHistoryCalendar';
 import WatchedMovies        from './pages/WatchedMovies';
 import GenreManager         from './pages/GenreManager';
+import About                from './pages/About';
 import { isAuthenticated, getCurrentUser } from './services/api';
 
 function ProtectedRoute({ children }) {
@@ -53,6 +54,7 @@ export default function App() {
     <Router>
       <Routes>
         {}
+        <Route path="/about"           element={<About />} />
         <Route path="/login"           element={<Login />} />
         <Route path="/register"        element={<Register />} />
 
@@ -74,7 +76,7 @@ export default function App() {
 
         {}
         <Route path="/dashboard" element={<SmartRedirect />} />
-        <Route path="/"          element={<SmartRedirect />} />
+        <Route path="/"          element={isAuthenticated() ? <SmartRedirect /> : <About />} />
       </Routes>
     </Router>
   );
