@@ -9,7 +9,7 @@ const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
 const ALL_PLATFORMS = [
-  { id: 'netflix',     label: 'Netflix',       logo: '/logos/netflix_logo.png',     logoBg: '#000000' },
+  { id: 'netflix',     label: 'Netflix',      logo: '/logos/netflix_logo.png',     logoBg: '#141414' },
   { id: 'disneyplus',  label: 'Disney+',       logo: '/logos/disneyplus_logo.png',  logoBg: '#1a6a8a' },
   { id: 'prime',       label: 'Prime Video',   logo: '/logos/primevideo_logo.png',  logoBg: '#00A8E0' },
   { id: 'hbomax',      label: 'HBO Max',       logo: '/logos/hbomax_logo.png',      logoBg: '#1C0533' },
@@ -321,13 +321,118 @@ function PlatformCard({ platform, deleteMode, onRemove, index }) {
   );
 }
 
+const CHART_PALETTE_SM = [
+  '#7C3AED','#ec4899','#3b82f6','#10b981','#f59e0b',
+  '#ef4444','#8b5cf6','#06b6d4','#84cc16','#f97316',
+  '#a855f7','#14b8a6',
+];
+
+function DonutChartSM({ data, size = 200, thickness = 36 }) {
+  const r = (size / 2) - thickness / 2;
+  const circ = 2 * Math.PI * r;
+  let offset = 0;
+  const slices = data.map((d, i) => {
+    const len = (d.pct / 100) * circ;
+    const slice = { ...d, offset, len, color: CHART_PALETTE_SM[i % CHART_PALETTE_SM.length] };
+    offset += len;
+    return slice;
+  });
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display:'block', flexShrink:0 }}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none"
+        stroke="rgba(255,255,255,0.07)" strokeWidth={thickness} />
+      {slices.map((s, i) => (
+        <circle key={i} cx={size/2} cy={size/2} r={r} fill="none"
+          stroke={s.color} strokeWidth={thickness}
+          strokeDasharray={`${s.len} ${circ - s.len}`}
+          strokeDashoffset={-s.offset + circ * 0.25}
+          style={{ transition:'stroke-dasharray 0.6s ease', cursor:'default' }}>
+          <title>{s.label}: {s.pct}%</title>
+        </circle>
+      ))}
+      <text x={size/2} y={size/2 - 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="white">
+        {data.reduce((a, d) => a + d.count, 0)}
+      </text>
+      <text x={size/2} y={size/2 + 12} textAnchor="middle" fontSize="11" fontWeight="600" fill="rgba(255,255,255,0.5)">
+        movies
+      </text>
+    </svg>
+  );
+}
+
+function StatsBars_SM({ data }) {
+  return (
+    <div style={{ flex:1, display:'flex', flexDirection:'column', gap:10, justifyContent:'center' }}>
+      {data.map((d, i) => (
+        <div key={d.label}>
+          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+            <span style={{ fontSize:13, fontWeight:700, color:'white' }}>{d.label}</span>
+            <span style={{ fontSize:13, fontWeight:800, color: CHART_PALETTE_SM[i % CHART_PALETTE_SM.length] }}>{d.pct}%</span>
+          </div>
+          <div style={{ height:8, borderRadius:8, background:'rgba(255,255,255,0.08)', overflow:'hidden' }}>
+            <div style={{
+              height:'100%', borderRadius:8,
+              width:`${d.pct}%`,
+              background: `linear-gradient(90deg, ${CHART_PALETTE_SM[i % CHART_PALETTE_SM.length]}, ${CHART_PALETTE_SM[(i+1) % CHART_PALETTE_SM.length]})`,
+              transition:'width 0.7s cubic-bezier(.4,0,.2,1)',
+            }}/>
+          </div>
+          <div style={{ fontSize:11, fontWeight:500, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
+            {d.count} movie{d.count !== 1 ? 's' : ''}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StatsPanelSM({ title, subtitle, data, loading }) {
+  return (
+    <div style={{
+      background:'rgba(255,255,255,0.07)', backdropFilter:'blur(12px)',
+      border:'1px solid rgba(255,255,255,0.12)', borderRadius:20,
+      padding:'28px 32px', marginTop:40,
+    }}>
+      <div style={{ marginBottom:24 }}>
+        <div style={{ fontSize:20, fontWeight:800, color:'white', marginBottom:4 }}>{title}</div>
+        <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,0.55)' }}>{subtitle}</div>
+      </div>
+      {loading ? (
+        <div style={{ display:'flex', justifyContent:'center', padding:'32px 0' }}>
+          <div style={{ width:32, height:32, borderRadius:'50%',
+            border:'3px solid rgba(255,255,255,0.1)', borderTop:'3px solid #a855f7',
+            animation:'sm-spin 0.75s linear infinite' }}/>
+        </div>
+      ) : data.length === 0 ? (
+        <div style={{ textAlign:'center', padding:'32px 0',
+          fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.35)' }}>
+          No data yet — start watching movies to see your stats!
+        </div>
+      ) : (
+        <div style={{ display:'flex', alignItems:'center', gap:32, flexWrap:'wrap' }}>
+          <DonutChartSM data={data} />
+          <StatsBars_SM data={data} />
+        </div>
+      )}
+    </div>
+  );
+}
 export default function SubscriptionManager() {
   const [active,     setActive]     = useState([]);
   const [deleteMode, setDeleteMode] = useState(false);
   const [showModal,  setShowModal]  = useState(false);
   const [modalSel,   setModalSel]   = useState([]);
   const [saving,     setSaving]     = useState(false);
-  const [saveError,  setSaveError]  = useState('');
+  const [saveError,    setSaveError]    = useState('');
+  const [platformStats, setPlatformStats] = useState([]);
+  const [statsLoading,  setStatsLoading]  = useState(true);
+
+  useEffect(() => {
+    api.get('/profile/stats/platforms')
+      .then(r => setPlatformStats(r.data.breakdown || []))
+      .catch(() => {})
+      .finally(() => setStatsLoading(false));
+  }, []);
 
   useEffect(() => {
     api.get('/profile/subscriptions')
@@ -368,6 +473,7 @@ export default function SubscriptionManager() {
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
         @keyframes sm-fadeUp { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
         @keyframes sm-mdIn   { from{opacity:0;}to{opacity:1;} }
+        @keyframes sm-spin   { to{transform:rotate(360deg);} }
         body { margin:0; }
         .sm-page-bg {
           min-height:100vh;
@@ -436,6 +542,13 @@ export default function SubscriptionManager() {
               ))}
             </div>
           )}
+
+          <StatsPanelSM
+            title="Platform Breakdown"
+            subtitle={`Movies watched this month by streaming platform`}
+            data={platformStats.map(d => ({ ...d, label: d.platform }))}
+            loading={statsLoading}
+          />
         </div>
       </div>
 
@@ -448,19 +561,20 @@ export default function SubscriptionManager() {
           padding: 24, animation: 'sm-mdIn 0.2s ease both',
         }}>
           <div onClick={e => e.stopPropagation()} style={{
-            background: 'rgba(255,255,255,0.97)',
-            border: '1px solid rgba(124,58,237,0.14)',
+            background: 'rgba(20,8,50,0.92)',
+            backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(124,58,237,0.35)',
             borderRadius: 22, padding: '30px 30px 24px',
             width: '100%', maxWidth: 560,
-            boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.55)',
             fontFamily: FONT,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: TEXT }}>Add Subscriptions</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: 'white' }}>Add Subscriptions</div>
               <button onClick={() => setShowModal(false)} style={{
                 width: 30, height: 30, borderRadius: '50%',
                 background: 'rgba(124,58,237,0.08)', border: 'none',
-                cursor: 'pointer', fontSize: 18, color: MUT,
+                cursor: 'pointer', fontSize: 18, color: 'rgba(255,255,255,0.6)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>×</button>
             </div>
@@ -474,7 +588,7 @@ export default function SubscriptionManager() {
             )}
 
             {available.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 14, fontWeight: 600, color: MUT }}>
+              <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
                 You've added all available platforms!
               </div>
             ) : (
@@ -486,8 +600,8 @@ export default function SubscriptionManager() {
                       prev.includes(p.id) ? prev.filter(x => x !== p.id) : [...prev, p.id]
                     )} style={{
                       borderRadius: 14, padding: '16px 10px 12px',
-                      border: on ? `2px solid ${PUR}` : '2px solid rgba(124,58,237,0.12)',
-                      background: on ? 'rgba(124,58,237,0.06)' : 'rgba(124,58,237,0.02)',
+                      border: on ? `2px solid ${PUR}` : '2px solid rgba(255,255,255,0.15)',
+                      background: on ? 'rgba(124,58,237,0.30)' : 'rgba(255,255,255,0.06)',
                       cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s',
                     }}>
                       <div style={{
@@ -499,7 +613,7 @@ export default function SubscriptionManager() {
                         <img src={p.logo} alt={p.label}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: TEXT }}>{p.label}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'white' }}>{p.label}</div>
                     </div>
                   );
                 })}

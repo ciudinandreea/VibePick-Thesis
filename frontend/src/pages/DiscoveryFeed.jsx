@@ -170,98 +170,99 @@ function MovieCard({ movie, onClick }) {
         position: 'relative',
       }}>
 
-      {}
-      <div style={{ borderRadius:'16px 16px 0 0', overflow:'hidden' }}>
-        {movie.poster_url
-          ? <img src={movie.poster_url} alt={movie.title} loading="lazy"
-              style={{ width:'100%', aspectRatio:'2/3', objectFit:'cover', display:'block' }} />
-          : <div style={{ width:'100%', aspectRatio:'2/3',
-              background:'linear-gradient(135deg,rgba(124,58,237,0.4),rgba(147,51,234,0.3))',
-              display:'flex', alignItems:'center', justifyContent:'center',
-              color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600 }}>No Image</div>
-        }
-      </div>
+       {}
+       <div style={{ borderRadius:'16px 16px 0 0', overflow:'hidden', position:'relative' }}>
+         {movie.poster_url
+           ? <img src={movie.poster_url} alt={movie.title} loading="lazy"
+               style={{ width:'100%', aspectRatio:'2/3', objectFit:'cover', display:'block' }} />
+           : <div style={{ width:'100%', aspectRatio:'2/3',
+               background:'linear-gradient(135deg,rgba(124,58,237,0.4),rgba(147,51,234,0.3))',
+               display:'flex', alignItems:'center', justifyContent:'center',
+               color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600 }}>No Image</div>
+         }
 
-      {}
-      {platformName && (
-        <div onClick={e => e.stopPropagation()} style={{
-          position:'absolute', top:9, left:9,
-          background:'rgba(0,0,0,0.72)', backdropFilter:'blur(6px)',
-          color:'white', fontSize:10, fontWeight:800,
-          borderRadius:20, padding:'3px 8px',
-          boxShadow:'0 2px 6px rgba(0,0,0,0.4)',
-          letterSpacing:'0.2px', whiteSpace:'nowrap',
-        }}>{platformName}</div>
-      )}
+         {}
+         {platformName && (
+           <div onClick={e => e.stopPropagation()} style={{
+             position:'absolute', top:9, left:9,
+             background:'rgba(0,0,0,0.72)', backdropFilter:'blur(6px)',
+             color:'white', fontSize:10, fontWeight:800,
+             borderRadius:20, padding:'3px 8px',
+             boxShadow:'0 2px 6px rgba(0,0,0,0.4)',
+             letterSpacing:'0.2px', whiteSpace:'nowrap',
+           }}>{platformName}</div>
+         )}
 
-      {}
-      {scores.length > 0 && (
-        <div onClick={e => e.stopPropagation()}
-          onMouseEnter={e => { e.stopPropagation(); setTipOpen(true); }}
-          onMouseLeave={() => setTipOpen(false)}
-          style={{
-            position:'absolute', top:9, right:9,
-            width:30, height:30, borderRadius:'50%',
-            background:'rgba(0,0,0,0.70)', backdropFilter:'blur(6px)',
-            border:'1.5px solid rgba(255,255,255,0.40)',
-            color:'white', fontSize:15, fontWeight:900,
-            display:'flex', alignItems:'center', justifyContent:'center',
-            cursor:'default', zIndex:10,
-          }}>ⓘ
-          {tipOpen && (
-            <div style={{
-              position:'absolute', top:'calc(100% + 6px)', right:0,
-              width:195, background:'rgba(15,5,40,0.92)',
-              backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
-              border:'1px solid rgba(255,255,255,0.15)',
-              borderRadius:12, padding:'12px 14px',
-              boxShadow:'0 12px 32px rgba(0,0,0,0.5)',
-              zIndex:50, animation:'vp-fadeUp 0.15s ease both',
-            }}>
-              <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,0.5)',
-                textTransform:'uppercase', letterSpacing:'1px', marginBottom:8 }}>
-                Why this?
-              </div>
-              {scores.map(s => (
-                <div key={s.label} style={{ marginBottom:7 }}>
-                  <div style={{ display:'flex', justifyContent:'space-between',
-                    fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.75)',
-                    marginBottom:3 }}>
-                    <span>{s.label}</span>
-                    <span style={{ color:'#c084fc' }}>{Math.round(s.val * 100)}%</span>
-                  </div>
-                  <div style={{ height:4, borderRadius:4,
-                    background:'rgba(255,255,255,0.12)', overflow:'hidden' }}>
-                    <div style={{
-                      height:'100%', borderRadius:4,
-                      width:`${Math.round(s.val * 100)}%`,
-                      background:'linear-gradient(90deg,#7C3AED,#c084fc)',
-                      transition:'width 0.4s ease',
-                    }}/>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+         {}
+         {scores.length > 0 && (
+           <div onClick={e => e.stopPropagation()}
+             onMouseEnter={e => { e.stopPropagation(); setTipOpen(true); }}
+             onMouseLeave={() => setTipOpen(false)}
+             style={{
+               position:'absolute', top:9, right:9,
+               width:30, height:30, borderRadius:'50%',
+               background:'rgba(0,0,0,0.70)', backdropFilter:'blur(6px)',
+               border:'1.5px solid rgba(255,255,255,0.40)',
+               color:'white', fontSize:15, fontWeight:900,
+               display:'flex', alignItems:'center', justifyContent:'center',
+               cursor:'default', zIndex:10,
+             }}>ⓘ
+             {tipOpen && (
+               <div style={{
+                 position:'absolute', top:'calc(100% + 6px)', right:0,
+                 width:195, background:'rgba(15,5,40,0.92)',
+                 backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
+                 border:'1px solid rgba(255,255,255,0.15)',
+                 borderRadius:12, padding:'12px 14px',
+                 boxShadow:'0 12px 32px rgba(0,0,0,0.5)',
+                 zIndex:50, animation:'vp-fadeUp 0.15s ease both',
+               }}>
+                 <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,0.5)',
+                   textTransform:'uppercase', letterSpacing:'1px', marginBottom:8 }}>
+                   Why this?
+                 </div>
+                 {scores.map(s => (
+                   <div key={s.label} style={{ marginBottom:7 }}>
+                     <div style={{ display:'flex', justifyContent:'space-between',
+                       fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.75)',
+                       marginBottom:3 }}>
+                       <span>{s.label}</span>
+                       <span style={{ color:'#c084fc' }}>{Math.round(s.val * 100)}%</span>
+                     </div>
+                     <div style={{ height:4, borderRadius:4,
+                       background:'rgba(255,255,255,0.12)', overflow:'hidden' }}>
+                       <div style={{
+                         height:'100%', borderRadius:4,
+                         width:`${Math.round(s.val * 100)}%`,
+                         background:'linear-gradient(90deg,#7C3AED,#c084fc)',
+                         transition:'width 0.4s ease',
+                       }}/>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             )}
+           </div>
+         )}
 
-      {}
-      {matchPct !== null && (
-        <div onClick={e => e.stopPropagation()} style={{
-          position:'absolute', bottom:56, left:9,
-          width:54, height:54, borderRadius:'50%',
-          background:'linear-gradient(135deg,#7C3AED,#9333ea)',
-          border:'2.5px solid rgba(255,255,255,0.30)',
-          display:'flex', alignItems:'center', justifyContent:'center',
-          flexDirection:'column',
-          boxShadow:'0 4px 14px rgba(124,58,237,0.6)',
-          zIndex:5,
-        }}>
-          <span style={{ fontSize:13, fontWeight:900, color:'white', lineHeight:1 }}>{matchPct}%</span>
-          <span style={{ fontSize:9, fontWeight:700, color:'rgba(255,255,255,0.75)', lineHeight:1.4 }}>match</span>
-        </div>
-      )}
+         {}
+         {matchPct !== null && (
+           <div onClick={e => e.stopPropagation()} style={{
+             position:'absolute', bottom:10, left:10,
+             width:54, height:54, borderRadius:'50%',
+             background:'linear-gradient(135deg,#7C3AED,#9333ea)',
+             border:'2.5px solid rgba(255,255,255,0.30)',
+             display:'flex', alignItems:'center', justifyContent:'center',
+             flexDirection:'column',
+             boxShadow:'0 4px 14px rgba(124,58,237,0.6)',
+             zIndex:5,
+           }}>
+             <span style={{ fontSize:13, fontWeight:900, color:'white', lineHeight:1 }}>{matchPct}%</span>
+             <span style={{ fontSize:9, fontWeight:700, color:'rgba(255,255,255,0.75)', lineHeight:1.4 }}>match</span>
+           </div>
+         )}
+       </div>
+
 
       {}
       <div style={{ padding:'11px 13px 13px', background:'rgba(255,255,255,0.08)' }}>
@@ -860,10 +861,11 @@ export default function DiscoveryFeed() {
               {userOpen && (
                 <div style={{
                   position:'absolute', top:'calc(100% + 8px)', right:0, width:200,
-                  background:'rgba(255,255,255,0.97)', backdropFilter:'blur(20px)',
-                  border:'1px solid rgba(124,58,237,0.14)', borderRadius:14,
-                  boxShadow:'0 16px 48px rgba(91,33,182,0.18)',
-                  overflow:'hidden', zIndex:300,
+                  background:'rgba(20,8,50,0.92)',
+                  backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
+                  border:'1px solid rgba(124,58,237,0.30)', borderRadius:14,
+                  boxShadow:'0 16px 48px rgba(0,0,0,0.45)',
+                  overflow:'hidden', animation:'vp-fadeUp 0.18s ease both', zIndex:300,
                 }}>
                   {[
                     { label:'✓ Watched Movies',  to:'/watched' },
@@ -871,11 +873,11 @@ export default function DiscoveryFeed() {
                   ].map(({ label, to }) => (
                     <Link key={to} to={to} style={{ textDecoration:'none' }} onClick={() => setUserOpen(false)}>
                       <div style={{
-                        padding:'13px 16px', fontSize:13, fontWeight:600, color:TEXT,
-                        borderBottom:'1px solid rgba(124,58,237,0.07)',
+                        padding:'13px 16px', fontSize:13, fontWeight:600, color:'white',
+                        borderBottom:'1px solid rgba(255,255,255,0.07)',
                         transition:'background 0.12s', cursor:'pointer',
                       }}
-                        onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                        onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                         onMouseLeave={e => e.currentTarget.style.background='none'}>
                         {label}
                       </div>
@@ -901,10 +903,10 @@ export default function DiscoveryFeed() {
               {menuOpen && (
                 <div style={{
                   position:'absolute', top:'calc(100% + 8px)', right:0, width:200,
-                  background:'rgba(255,255,255,0.95)',
+                  background:'rgba(20,8,50,0.92)',
                   backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
-                  border:'1px solid rgba(124,58,237,0.14)', borderRadius:14,
-                  boxShadow:'0 16px 48px rgba(91,33,182,0.18)',
+                  border:'1px solid rgba(124,58,237,0.30)', borderRadius:14,
+                  boxShadow:'0 16px 48px rgba(0,0,0,0.45)',
                   overflow:'hidden', animation:'vp-fadeUp 0.18s ease both', zIndex:300,
                 }}>
                   {[
@@ -915,13 +917,13 @@ export default function DiscoveryFeed() {
                       onClick={() => setMenuOpen(false)}>
                       <div style={{
                         display:'flex', alignItems:'center', gap:10,
-                        padding:'13px 16px', fontSize:13, fontWeight:600, color:TEXT,
-                        borderBottom:'1px solid rgba(124,58,237,0.07)',
+                        padding:'13px 16px', fontSize:13, fontWeight:600, color:'white',
+                        borderBottom:'1px solid rgba(255,255,255,0.07)',
                         transition:'background 0.12s', cursor:'pointer',
                       }}
-                        onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                        onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                         onMouseLeave={e => e.currentTarget.style.background='none'}>
-                        <span style={{ color:MUT }}>{ico}</span> {label}
+                        <span style={{ color:'rgba(255,255,255,0.5)' }}>{ico}</span> {label}
                       </div>
                     </Link>
                   ))}

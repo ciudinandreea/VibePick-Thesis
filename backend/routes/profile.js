@@ -93,4 +93,129 @@ router.delete('/subscriptions/:platformId', auth, async (req, res) => {
   }
 });
 
+router.get('/stats/genres', auth, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT i.genres
+      FROM interactions int
+      JOIN items i ON int.item_id = i.id
+      WHERE int.user_id = $1
+        AND int.action_type = 'watched'
+        AND int.timestamp >= date_trunc('month', now())
+    `, [req.user.userId]);
+
+    const tally = {};
+    let total = 0;
+
+    for (const row of result.rows) {
+      let genres = row.genres;
+      if (!genres) continue;
+      if (typeof genres === 'string') genres = JSON.parse(genres);
+      if (!Array.isArray(genres)) continue;
+      for (const g of genres) {
+        const name = typeof g === 'object' ? g.name : g;
+        if (!name) continue;
+        tally[name] = (tally[name] || 0) + 1;
+        total++;
+      }
+    }
+
+    const breakdown = Object.entries(tally)
+      .sort((a, b) => b[1] - a[1])
+      .map(([genre, count]) => ({
+        genre,
+        count,
+        pct: total > 0 ? Math.round((count / total) * 100) : 0,
+      }));
+
+    res.json({ breakdown, total: result.rows.length, month: new Date().toLocaleString('default', { month: 'long' }) });
+  } catch (err) {
+    console.error('Error fetching genre stats:', err.message);
+    res.status(500).json({ error: 'Failed to fetch genre stats' });
+  }
+});
+
+router.get('/stats/platforms', auth, async (req, res) => {
+  try {
+    const subResult = await pool.query(
+      `SELECT platform_name FROM subscriptions WHERE user_id=$1 AND active=true`,
+      [req.user.userId]
+    );
+    const userSubs = new Set(subResult.rows.map(r => r.platform_name));
+
+    const watchedResult = await pool.query(`
+      SELECT DISTINCT i.tmdb_id, i.title
+      FROM interactions int
+      JOIN items i ON int.item_id = i.id
+      WHERE int.user_id = $1
+        AND int.action_type = 'watched'
+        AND int.timestamp >= date_trunc('month', now())
+        AND i.tmdb_id IS NOT NULL
+    `, [req.user.userId]);
+
+    if (watchedResult.rows.length === 0) {
+      return res.json({ breakdown: [], total: 0, month: new Date().toLocaleString('default', { month: 'long' }) });
+    }
+    const { getMovieProviders } = require('./tmdb');
+    const PLATFORM_TMDB_NAMES = {
+      netflix:     ['Netflix'],
+      disneyplus:  ['Disney Plus', 'Disney+'],
+      prime:       ['Amazon Prime Video', 'Prime Video'],
+      hbomax:      ['Max', 'HBO Max'],
+      appletv:     ['Apple TV Plus', 'Apple TV+'],
+      hulu:        ['Hulu'],
+      paramount:   ['Paramount Plus', 'Paramount+'],
+      peacock:     ['Peacock', 'Peacock Premium'],
+      skyshowtime: ['SkyShowtime'],
+    };
+    const providerToPlatform = {};
+    for (const [pid, names] of Object.entries(PLATFORM_TMDB_NAMES)) {
+      for (const n of names) providerToPlatform[n] = pid;
+    }
+
+    const PLATFORM_LABELS = {
+      netflix: 'Netflix', disneyplus: 'Disney+', prime: 'Prime Video',
+      hbomax: 'HBO Max', appletv: 'Apple TV+', hulu: 'Hulu',
+      paramount: 'Paramount+', peacock: 'Peacock', skyshowtime: 'SkyShowtime',
+    };
+
+    const tally = {};
+    let matched = 0;
+
+    await Promise.all(watchedResult.rows.map(async (row) => {
+      try {
+        const providers = await getMovieProviders(row.tmdb_id);
+        const flatrate = providers.flatrate || [];
+        for (const p of flatrate) {
+          const pid = providerToPlatform[p.provider_name];
+          if (pid && userSubs.has(pid)) {
+            tally[pid] = (tally[pid] || 0) + 1;
+            matched++;
+            break; 
+          }
+        }
+      } catch {}
+    }));
+
+    const breakdown = Object.entries(tally)
+      .sort((a, b) => b[1] - a[1])
+      .map(([pid, count]) => ({
+        platform: PLATFORM_LABELS[pid] || pid,
+        platformId: pid,
+        count,
+        pct: matched > 0 ? Math.round((count / matched) * 100) : 0,
+      }));
+
+    res.json({
+      breakdown,
+      total: watchedResult.rows.length,
+      matched,
+      month: new Date().toLocaleString('default', { month: 'long' }),
+    });
+  } catch (err) {
+    console.error('Error fetching platform stats:', err.message);
+    res.status(500).json({ error: 'Failed to fetch platform stats' });
+  }
+});
+
 module.exports = router;
