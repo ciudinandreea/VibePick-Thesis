@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/api';
 import api from '../services/api';
 
-const BG   = '#CFB9E5';
 const PUR  = '#7C3AED';
 const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
@@ -379,7 +378,7 @@ function DonutChart({ data, size = 200, thickness = 36 }) {
           <title>{s.label}: {s.pct}%</title>
         </circle>
       ))}
-      {}
+      {/* Centre label */}
       <text x={size/2} y={size/2 - 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="white">
         {data.reduce((a, d) => a + d.count, 0)}
       </text>
@@ -575,7 +574,7 @@ export default function GenreManager() {
 
           <StatsPanel
             title="Genre Breakdown"
-            subtitle={`Movies watched this month by genre`}
+            subtitle={`All your watched movies by genre`}
             data={genreStats.map(d => ({ ...d, label: d.genre }))}
             loading={statsLoading}
           />

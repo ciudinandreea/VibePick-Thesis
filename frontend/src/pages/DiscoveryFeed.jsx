@@ -599,13 +599,32 @@ export default function DiscoveryFeed() {
     return () => { document.body.style.overflow = ''; };
   }, [modalId]);
 
+  async function enrichWithPlatformLabels(movies) {
+    try {
+      const ids = movies.map(m => m.id).filter(Boolean);
+      if (ids.length === 0) return movies;
+      const resp = await api.post('/profile/movies/platform-labels', { tmdbIds: ids });
+      const labels = resp.data.labels || {};
+      return movies.map(m => ({
+        ...m,
+        explanation: {
+          ...(m.explanation || {}),
+          platformName: labels[m.id] || null,
+        },
+      }));
+    } catch {
+      return movies; 
+    }
+  }
+
   useEffect(() => { loadPopular(); }, []);
 
   async function loadPopular() {
     try {
       setLoading(true); setError('');
       const data = await getPopularMovies();
-      setMovies(data.results);
+      const enriched = await enrichWithPlatformLabels(data.results);
+      setMovies(enriched);
       setActiveQ(''); setFeedMode(null);
       setFeedTitle('Trending Movies');
     } catch { setError('Failed to load movies.'); }
@@ -636,7 +655,8 @@ export default function DiscoveryFeed() {
     try {
       setLoading(true); setError('');
       const data = await searchMovies(q);
-      setMovies(data.results); setActiveQ(q);
+      const enriched = await enrichWithPlatformLabels(data.results);
+      setMovies(enriched); setActiveQ(q);
       setFeedMode(null); setFeedTitle(`Search Results for "${q}"`);
     } catch { setError('Search failed.'); }
     finally   { setLoading(false); }

@@ -315,7 +315,7 @@ function PlatformCard({ platform, deleteMode, onRemove, index }) {
           color: 'white', fontSize: 14, fontWeight: 900,
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 2px 6px rgba(239,68,68,0.4)', lineHeight: 1,
-        }}>x</button>
+        }}>×</button>
       )}
     </div>
   );
@@ -360,7 +360,7 @@ function DonutChartSM({ data, size = 200, thickness = 36 }) {
   );
 }
 
-function StatsBars_SM({ data }) {
+function StatsBarsSM({ data }) {
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', gap:10, justifyContent:'center' }}>
       {data.map((d, i) => (
@@ -411,7 +411,7 @@ function StatsPanelSM({ title, subtitle, data, loading }) {
       ) : (
         <div style={{ display:'flex', alignItems:'center', gap:32, flexWrap:'wrap' }}>
           <DonutChartSM data={data} />
-          <StatsBars_SM data={data} />
+          <StatsBarsSM data={data} />
         </div>
       )}
     </div>
@@ -545,7 +545,7 @@ export default function SubscriptionManager() {
 
           <StatsPanelSM
             title="Platform Breakdown"
-            subtitle={`Movies watched this month by streaming platform`}
+            subtitle={`All your watched movies by streaming platform`}
             data={platformStats.map(d => ({ ...d, label: d.platform }))}
             loading={statsLoading}
           />

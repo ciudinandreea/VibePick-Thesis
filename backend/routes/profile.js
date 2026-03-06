@@ -101,7 +101,6 @@ router.get('/stats/genres', auth, async (req, res) => {
       JOIN items i ON int.item_id = i.id
       WHERE int.user_id = $1
         AND int.action_type = 'watched'
-        AND int.timestamp >= date_trunc('month', now())
     `, [req.user.userId]);
 
     const tally = {};
@@ -128,7 +127,7 @@ router.get('/stats/genres', auth, async (req, res) => {
         pct: total > 0 ? Math.round((count / total) * 100) : 0,
       }));
 
-    res.json({ breakdown, total: result.rows.length, month: new Date().toLocaleString('default', { month: 'long' }) });
+    res.json({ breakdown, total: result.rows.length, period: 'All time' });
   } catch (err) {
     console.error('Error fetching genre stats:', err.message);
     res.status(500).json({ error: 'Failed to fetch genre stats' });
@@ -149,14 +148,14 @@ router.get('/stats/platforms', auth, async (req, res) => {
       JOIN items i ON int.item_id = i.id
       WHERE int.user_id = $1
         AND int.action_type = 'watched'
-        AND int.timestamp >= date_trunc('month', now())
         AND i.tmdb_id IS NOT NULL
     `, [req.user.userId]);
 
     if (watchedResult.rows.length === 0) {
-      return res.json({ breakdown: [], total: 0, month: new Date().toLocaleString('default', { month: 'long' }) });
+      return res.json({ breakdown: [], total: 0, period: 'All time' });
     }
-    const { getMovieProviders } = require('./tmdb');
+
+    const { getMovieProviders } = require('../services/tmdb');
     const PLATFORM_TMDB_NAMES = {
       netflix:     ['Netflix'],
       disneyplus:  ['Disney Plus', 'Disney+'],
@@ -184,8 +183,12 @@ router.get('/stats/platforms', auth, async (req, res) => {
 
     await Promise.all(watchedResult.rows.map(async (row) => {
       try {
-        const providers = await getMovieProviders(row.tmdb_id);
-        const flatrate = providers.flatrate || [];
+        let providers = await getMovieProviders(row.tmdb_id, 'US');
+        let flatrate = providers.flatrate || [];
+        if (flatrate.length === 0) {
+          providers = await getMovieProviders(row.tmdb_id, 'RO');
+          flatrate = providers.flatrate || [];
+        }
         for (const p of flatrate) {
           const pid = providerToPlatform[p.provider_name];
           if (pid && userSubs.has(pid)) {
@@ -210,11 +213,90 @@ router.get('/stats/platforms', auth, async (req, res) => {
       breakdown,
       total: watchedResult.rows.length,
       matched,
-      month: new Date().toLocaleString('default', { month: 'long' }),
+      period: 'All time',
     });
   } catch (err) {
     console.error('Error fetching platform stats:', err.message);
     res.status(500).json({ error: 'Failed to fetch platform stats' });
+  }
+});
+
+router.post('/movies/platform-labels', auth, async (req, res) => {
+  try {
+    const { tmdbIds } = req.body; 
+    if (!Array.isArray(tmdbIds) || tmdbIds.length === 0) {
+      return res.json({ labels: {} });
+    }
+
+    const subResult = await pool.query(
+      `SELECT platform_name FROM subscriptions WHERE user_id=$1 AND active=true`,
+      [req.user.userId]
+    );
+    const userSubs = new Set(subResult.rows.map(r => r.platform_name));
+    if (userSubs.size === 0) return res.json({ labels: {} });
+
+    const { getMovieProviders } = require('../services/tmdb');
+
+    const PROVIDER_DISPLAY_NAME = {
+      'netflix':             'Netflix',
+      'disney plus':         'Disney+',
+      'disney+':             'Disney+',
+      'amazon prime video':  'Prime',
+      'prime video':         'Prime',
+      'max':                 'Max',
+      'hbo max':             'Max',
+      'apple tv plus':       'Apple TV+',
+      'apple tv+':           'Apple TV+',
+      'hulu':                'Hulu',
+      'paramount plus':      'Paramount+',
+      'paramount+':          'Paramount+',
+      'peacock':             'Peacock',
+      'peacock premium':     'Peacock',
+      'skyshowtime':         'Sky',
+    };
+
+    const PLATFORM_TMDB_NAMES = {
+      netflix:     ['Netflix'],
+      disneyplus:  ['Disney Plus', 'Disney+'],
+      prime:       ['Amazon Prime Video', 'Prime Video'],
+      hbomax:      ['Max', 'HBO Max'],
+      appletv:     ['Apple TV Plus', 'Apple TV+'],
+      hulu:        ['Hulu'],
+      paramount:   ['Paramount Plus', 'Paramount+'],
+      peacock:     ['Peacock', 'Peacock Premium'],
+      skyshowtime: ['SkyShowtime'],
+    };
+
+    const providerSet = new Set();
+    for (const pid of userSubs) {
+      const names = PLATFORM_TMDB_NAMES[pid] || [];
+      names.forEach(n => providerSet.add(n.toLowerCase()));
+    }
+
+    const ids = tmdbIds.slice(0, 40);
+    const labels = {};
+
+    await Promise.all(ids.map(async (tmdbId) => {
+      try {
+        let providers = await getMovieProviders(tmdbId, 'US');
+        let flatrate = providers.flatrate || [];
+        if (flatrate.length === 0) {
+          providers = await getMovieProviders(tmdbId, 'RO');
+          flatrate = providers.flatrate || [];
+        }
+        for (const p of flatrate) {
+          if (providerSet.has(p.provider_name.toLowerCase())) {
+            labels[tmdbId] = PROVIDER_DISPLAY_NAME[p.provider_name.toLowerCase()] || p.provider_name;
+            break;
+          }
+        }
+      } catch {}
+    }));
+
+    res.json({ labels });
+  } catch (err) {
+    console.error('Error fetching platform labels:', err.message);
+    res.status(500).json({ error: 'Failed to fetch platform labels' });
   }
 });
 

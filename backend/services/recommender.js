@@ -14,6 +14,24 @@ const PLATFORM_TMDB_NAMES = {
   skyshowtime: ['SkyShowtime'],
 };
 
+const PROVIDER_DISPLAY_NAME = {
+  'netflix':             'Netflix',
+  'disney plus':         'Disney+',
+  'disney+':             'Disney+',
+  'amazon prime video':  'Amazon Prime Video',
+  'prime video':         'Amazon Prime Video',
+  'max':                 'HBO Max',
+  'hbo max':             'HBO Max',
+  'apple tv plus':       'Apple TV+',
+  'apple tv+':           'Apple TV+',
+  'hulu':                'Hulu',
+  'paramount plus':      'Paramount+',
+  'paramount+':          'Paramount+',
+  'peacock':             'Peacock',
+  'peacock premium':     'Peacock',
+  'skyshowtime':         'Sky',
+};
+
 function buildProviderSet(userPlatforms) {
   const set = new Set();
   for (const pid of userPlatforms) {
@@ -108,7 +126,7 @@ async function calculateSubscriptionScore(movie, providerSet, providerCache) {
     let matchedName = null;
     for (const p of available) {
       if (providerSet.has(p.provider_name.toLowerCase())) {
-        matchedName = PLATFORM_TMDB_NAMES[p.provider_name] || p.provider_name;
+        matchedName = PROVIDER_DISPLAY_NAME[p.provider_name.toLowerCase()] || p.provider_name;
         break;
       }
     }
@@ -141,7 +159,6 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
 
   const providerSet   = buildProviderSet(userPlatforms);
   const providerCache = new Map(); 
-
   const weights = mode === 'baseline'
     ? { mood: 0.00, pref: 0.35, hist: 0.30, novelty: 0.20, sub: 0.15 }
     : { mood: 0.30, pref: 0.25, hist: 0.15, novelty: 0.15, sub: 0.15 };
