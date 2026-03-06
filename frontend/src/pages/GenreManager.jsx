@@ -9,6 +9,21 @@ const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
+
+const GENRE_EMOJIS = {
+  'Action':          '💥',
+  'Comedy':          '😂',
+  'Drama':           '🎭',
+  'Science Fiction': '🚀',
+  'Horror':          '👻',
+  'Romance':         '💕',
+  'Thriller':        '🔪',
+  'Fantasy':         '🧙',
+  'Documentary':     '🎥',
+  'Animation':       '✨',
+  'Mystery':         '🔍',
+  'Adventure':       '🗺️',
+};
 const ALL_GENRES = [
   'Action','Comedy','Drama','Science Fiction','Horror',
   'Romance','Thriller','Fantasy','Documentary',
@@ -132,8 +147,8 @@ function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100, height: 68,
-      background: 'rgba(20,8,45,0.95)', backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(124,58,237,0.25)',
+      background: 'rgba(30,10,60,0.55)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+      borderBottom: '1px solid rgba(124,58,237,0.30)',
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', padding: '0 28px', fontFamily: FONT,
     }}>
@@ -296,9 +311,9 @@ function GenreCard({ genre, deleteMode, onRemove, index }) {
   return (
     <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
       position: 'relative',
-      background: hov ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.82)',
-      backdropFilter: 'blur(8px)',
-      border: hov ? '1px solid rgba(124,58,237,0.25)' : '1px solid rgba(124,58,237,0.10)',
+      background: hov ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.12)',
+      backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+      border: hov ? '1px solid rgba(255,255,255,0.35)' : '1px solid rgba(255,255,255,0.18)',
       borderRadius: 18, padding: '28px 20px 22px',
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
       transition: 'transform 0.2s, box-shadow 0.2s',
@@ -314,11 +329,11 @@ function GenreCard({ genre, deleteMode, onRemove, index }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
       }}>
-        <span style={{ fontSize: 13, fontWeight: 800, color: colors.text, textAlign: 'center', padding: '0 6px' }}>
-          {genre}
+        <span style={{ fontSize: 32 }}>
+          {GENRE_EMOJIS[genre] || '🎬'}
         </span>
       </div>
-      <div style={{ fontSize: 14, fontWeight: 800, color: TEXT }}>{genre}</div>
+      <div style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{genre}</div>
 
       {deleteMode && (
         <button onClick={() => onRemove(genre)} style={{
@@ -381,11 +396,24 @@ export default function GenreManager() {
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
         @keyframes gm-fadeUp { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
         @keyframes gm-mdIn   { from{opacity:0;}to{opacity:1;} }
-        body { margin:0; background:${BG}; }
+        body { margin:0; }
+        .gm-page-bg {
+          min-height:100vh;
+          background: url('/pages-bg.jpg') center/cover fixed no-repeat;
+          position: relative;
+        }
+        .gm-page-bg::before {
+          content:'';
+          position:fixed; inset:0;
+          backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+          background:rgba(15,5,35,0.45);
+          pointer-events:none; z-index:0;
+        }
+        .gm-page-bg > * { position:relative; z-index:1; }; }
         * { box-sizing:border-box; }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: BG, fontFamily: FONT }}>
+      <div className="gm-page-bg" style={{ fontFamily: FONT }}>
         <Navbar />
         <div style={{ padding: '32px 32px 56px' }}>
           <div style={{ fontSize: 34, fontWeight: 900, color: TEXT, letterSpacing: '-0.5px', marginBottom: 4 }}>
@@ -495,7 +523,7 @@ export default function GenreManager() {
                         background: colors.bg, border: `2px solid ${colors.border}`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: colors.text, textAlign: 'center', padding: '0 3px' }}>{g}</span>
+                        <span style={{ fontSize: 22 }}>{GENRE_EMOJIS[g] || '🎬'}</span>
                       </div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: TEXT }}>{g}</div>
                     </div>

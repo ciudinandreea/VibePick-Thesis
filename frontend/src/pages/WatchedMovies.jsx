@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/api';
 import api from '../services/api';
+import { getMovieDetails } from '../services/movies';
 
 const BG   = '#CFB9E5';
 const PUR  = '#7C3AED';
@@ -105,8 +106,8 @@ function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100, height: 68,
-      background: 'rgba(20,8,45,0.95)', backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(124,58,237,0.25)',
+      background: 'rgba(30,10,60,0.55)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+      borderBottom: '1px solid rgba(124,58,237,0.30)',
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', padding: '0 28px', fontFamily: FONT,
     }}>
@@ -264,10 +265,123 @@ function Navbar() {
   );
 }
 
-export default function WatchedMovies() {
-  const [movies,  setMovies]  = useState([]);
+
+function WatchedModal({ tmdbId, onClose }) {
+  const [movie,   setMovie]   = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState('');
+  const user = getCurrentUser();
+
+  useEffect(() => {
+    if (!tmdbId) return;
+    setLoading(true);
+    getMovieDetails(tmdbId)
+      .then(setMovie).catch(console.error).finally(() => setLoading(false));
+  }, [tmdbId]);
+
+  useEffect(() => {
+    const fn = e => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', fn);
+    return () => window.removeEventListener('keydown', fn);
+  }, [onClose]);
+
+  const rating  = movie?.vote_average?.toFixed(1) || '—';
+  const year    = movie?.release_date ? new Date(movie.release_date).getFullYear() : '';
+  const runtime = movie?.runtime ? `${movie.runtime} min` : '';
+
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, zIndex:300,
+      background:'rgba(10,0,30,0.72)',
+      backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)',
+      display:'flex', alignItems:'center', justifyContent:'center',
+      padding:24,
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        position:'relative',
+        background:'rgba(28,10,58,0.92)',
+        backdropFilter:'blur(32px)',
+        border:'1px solid rgba(255,255,255,0.10)', borderRadius:22,
+        width:'100%', maxWidth:680, maxHeight:'90vh', overflow:'auto',
+        boxShadow:'0 32px 80px rgba(0,0,0,0.65)',
+        color:'white', fontFamily:FONT,
+      }}>
+        <button onClick={onClose} style={{
+          position:'absolute', top:14, right:14,
+          width:30, height:30, borderRadius:'50%',
+          background:'rgba(255,255,255,0.1)', border:'1px solid rgba(255,255,255,0.13)',
+          color:'rgba(255,255,255,0.65)', cursor:'pointer',
+          display:'flex', alignItems:'center', justifyContent:'center', zIndex:10,
+        }}>✕</button>
+        {loading ? (
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'60px 40px' }}>
+            <div style={{ width:36, height:36, borderRadius:'50%',
+              border:'3px solid rgba(255,255,255,0.1)', borderTop:'3px solid #a855f7',
+              animation:'wm-spin 0.7s linear infinite' }}/>
+          </div>
+        ) : movie ? (
+          <div style={{ display:'flex', minHeight:0 }}>
+            <div style={{ flexShrink:0, padding:'26px 0 26px 26px' }}>
+              {movie.poster_url
+                ? <img src={movie.poster_url} alt={movie.title} style={{
+                    width:155, height:232, borderRadius:14, objectFit:'cover',
+                    boxShadow:'0 8px 28px rgba(0,0,0,0.55)', display:'block' }} />
+                : <div style={{ width:155, height:232, borderRadius:14,
+                    background:'rgba(255,255,255,0.05)', display:'flex',
+                    alignItems:'center', justifyContent:'center',
+                    color:'rgba(255,255,255,0.25)', fontSize:12 }}>No Image</div>
+              }
+            </div>
+            <div style={{ flex:1, padding:'26px 26px 26px 22px', minWidth:0 }}>
+              <div style={{ fontSize:24, fontWeight:900, lineHeight:1.2, marginBottom:6, paddingRight:30 }}>
+                {movie.title}
+              </div>
+              {movie.tagline && (
+                <div style={{ fontSize:13, color:'rgba(255,255,255,0.45)', fontStyle:'italic', marginBottom:14 }}>
+                  "{movie.tagline}"
+                </div>
+              )}
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:14 }}>
+                {year && <span style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.6)' }}>{year}</span>}
+                {runtime && <span style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.6)' }}>{runtime}</span>}
+                <div style={{ display:'flex', alignItems:'center', gap:4,
+                  background:'rgba(245,158,11,0.15)', borderRadius:8,
+                  padding:'3px 9px', fontSize:13, fontWeight:800, color:'#fcd34d' }}>
+                  ★ {rating}
+                </div>
+              </div>
+              {movie.genres?.length > 0 && (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:14 }}>
+                  {movie.genres.map(g => (
+                    <span key={g.id} style={{ background:'rgba(255,255,255,0.07)',
+                      border:'1px solid rgba(255,255,255,0.14)', borderRadius:20,
+                      padding:'3px 10px', fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.75)' }}>
+                      {g.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {movie.overview && (
+                <div style={{ fontSize:14, fontWeight:500, lineHeight:1.7,
+                  color:'rgba(255,255,255,0.75)' }}>{movie.overview}</div>
+              )}
+              <div style={{ marginTop:16, display:'inline-flex', alignItems:'center', gap:6,
+                background:'rgba(34,197,94,0.14)', border:'1px solid rgba(34,197,94,0.22)',
+                borderRadius:20, padding:'7px 14px', fontSize:13, fontWeight:700, color:'#86efac' }}>
+                ✓ Watched
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export default function WatchedMovies() {
+  const [movies,    setMovies]    = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState('');
+  const [modalId,   setModalId]   = useState(null);
   const user      = getCurrentUser();
   const firstName = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'you';
 
@@ -285,9 +399,22 @@ export default function WatchedMovies() {
         @keyframes wm-fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
         * { box-sizing: border-box; }
         body { margin: 0; }
+        .wm-page-bg {
+          min-height: 100vh;
+          background: url('/pages-bg.jpg') center/cover fixed no-repeat;
+          position: relative;
+        }
+        .wm-page-bg::before {
+          content: '';
+          position: fixed; inset: 0;
+          backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+          background: rgba(15,5,35,0.45);
+          pointer-events: none; z-index: 0;
+        }
+        .wm-page-bg > * { position: relative; z-index: 1; }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: BG, fontFamily: FONT }}>
+      <div className="wm-page-bg" style={{ fontFamily: FONT }}>
         <Navbar />
 
         <div style={{ padding: '32px 32px 56px' }}>
@@ -296,7 +423,7 @@ export default function WatchedMovies() {
             <h1 style={{ fontSize: 28, fontWeight: 900, color: TEXT, margin: '0 0 6px', letterSpacing: '-0.4px' }}>
               Watched Movies
             </h1>
-            <p style={{ fontSize: 14, color: MUT, margin: 0, fontWeight: 500 }}>
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>
               {movies.length > 0
                 ? `${movies.length} movie${movies.length !== 1 ? 's' : ''} watched — filtered from your recommendations`
                 : `Movies you mark as watched won't appear in your recommendations`}
@@ -331,16 +458,18 @@ export default function WatchedMovies() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(6, 1fr)',
+              gridTemplateColumns: 'repeat(5, 1fr)',
               gap: 18,
             }}>
               {movies.map(movie => (
-                <WatchedCard key={`${movie.tmdb_id}-${movie.watched_at}`} movie={movie} />
+                <WatchedCard key={`${movie.tmdb_id}-${movie.watched_at}`} movie={movie} onClick={setModalId} />
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {modalId && <WatchedModal tmdbId={modalId} onClose={() => setModalId(null)} />}
 
       <style>{`
         @keyframes wm-spin { to { transform: rotate(360deg); } }
@@ -349,21 +478,22 @@ export default function WatchedMovies() {
   );
 }
 
-function WatchedCard({ movie }) {
+function WatchedCard({ movie, onClick }) {
   const watchedDate = movie.watched_at
     ? new Date(movie.watched_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })
     : null;
 
   return (
-    <div style={{
-      background: 'white', borderRadius: 14,
-      boxShadow: '0 2px 12px rgba(124,58,237,0.08)',
-      border: '1px solid rgba(124,58,237,0.08)',
+    <div onClick={() => onClick(movie.tmdb_id)} style={{
+      cursor: 'pointer',
+      background: 'rgba(255,255,255,0.13)', backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      border: '1px solid rgba(255,255,255,0.18)', borderRadius: 14,
       overflow: 'hidden', animation: 'wm-fadeUp 0.3s ease both',
       transition: 'transform 0.15s, box-shadow 0.15s',
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 8px 24px rgba(124,58,237,0.15)'; }}
-      onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 2px 12px rgba(124,58,237,0.08)'; }}>
+      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-5px)'; e.currentTarget.style.boxShadow='0 18px 40px rgba(91,33,182,0.35)'; }}
+      onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='none'; }}>
       {}
       <div style={{ position: 'relative', aspectRatio: '2/3', background: '#e9e0f5' }}>
         {movie.poster_url ? (
@@ -391,9 +521,9 @@ function WatchedCard({ movie }) {
       </div>
 
       {/* Info */}
-      <div style={{ padding: '10px 12px 12px' }}>
+      <div style={{ padding: '10px 12px 12px', background: 'rgba(255,255,255,0.08)' }}>
         <div style={{
-          fontSize: 13, fontWeight: 700, color: TEXT,
+          fontSize: 14, fontWeight: 700, color: 'white',
           lineHeight: 1.3, marginBottom: 4,
           overflow: 'hidden', display: '-webkit-box',
           WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',

@@ -61,11 +61,12 @@ router.get('/', authMiddleware, async (req, res) => {
         ...r.movie,
         finalScore: r.finalScore,
         explanation: {
-          mood: mode === 'mood-aware' ? r.scores.mood : null,
-          preferences: r.scores.pref,
-          history: r.scores.hist,
+          mood:         mode === 'mood-aware' ? r.scores.mood : null,
+          preferences:  r.scores.pref,
+          history:      r.scores.hist,
           subscription: r.scores.sub,
-          novelty: r.scores.novelty
+          novelty:      r.scores.novelty,
+          platformName: r.scores.platformName || null,
         },
         weights: r.weights
       })),

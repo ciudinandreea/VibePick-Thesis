@@ -122,8 +122,8 @@ function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100, height: 68,
-      background: 'rgba(20,8,45,0.95)', backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(124,58,237,0.25)',
+      background: 'rgba(30,10,60,0.55)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+      borderBottom: '1px solid rgba(124,58,237,0.30)',
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', padding: '0 28px', fontFamily: FONT,
     }}>
@@ -374,7 +374,20 @@ export default function SubscriptionManager() {
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
         @keyframes mdIn   { from{opacity:0;}to{opacity:1;} }
-        body { margin:0; background:${BG}; }
+        body { margin:0; }
+        .sm-page-bg {
+          min-height:100vh;
+          background: url('/pages-bg.jpg') center/cover fixed no-repeat;
+          position: relative;
+        }
+        .sm-page-bg::before {
+          content:'';
+          position:fixed; inset:0;
+          backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+          background:rgba(15,5,35,0.45);
+          pointer-events:none; z-index:0;
+        }
+        .sm-page-bg > * { position:relative; z-index:1; }; }
         * { box-sizing:border-box; }
       `}</style>
 
@@ -454,7 +467,7 @@ export default function SubscriptionManager() {
                 background:'rgba(124,58,237,0.08)',border:'none',
                 cursor:'pointer',fontSize:18,color:MUT,
                 display:'flex',alignItems:'center',justifyContent:'center',
-              }}>×</button>
+              }}>x</button>
             </div>
 
             {saveError && (

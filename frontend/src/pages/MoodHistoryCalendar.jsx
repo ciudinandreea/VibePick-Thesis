@@ -115,8 +115,8 @@ function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100, height: 68,
-      background: 'rgba(20,8,45,0.95)', backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(124,58,237,0.25)',
+      background: 'rgba(30,10,60,0.55)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+      borderBottom: '1px solid rgba(124,58,237,0.30)',
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', padding: '0 28px', fontFamily: FONT,
     }}>
@@ -328,19 +328,32 @@ export default function MoodHistoryCalendar() {
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
         @keyframes spin    { to{transform:rotate(360deg);} }
-        body,html { margin:0; background:${BG}; height:100%; }
+        body,html { margin:0; height:100%; }
         * { box-sizing:border-box; }
-        .cal-cell:hover { background: rgba(124,58,237,0.12) !important; }
+        .cal-bg {
+          min-height: 100vh;
+          background: url('/pages-bg.jpg') center/cover fixed no-repeat;
+          position: relative;
+        }
+        .cal-bg::before {
+          content: '';
+          position: fixed; inset: 0;
+          backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+          background: rgba(15,5,35,0.45);
+          pointer-events: none; z-index: 0;
+        }
+        .cal-bg > * { position: relative; z-index: 1; }
+        .cal-cell:hover { background: rgba(124,58,237,0.18) !important; }
       `}</style>
 
-      <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', background:BG, fontFamily:FONT }}>
+      <div className="cal-bg" style={{ display:'flex', flexDirection:'column', fontFamily:FONT }}>
         <Navbar />
 
         <div style={{ flex:1, display:'flex', flexDirection:'column', padding:`${padV}px 28px 40px` }}>
 
           {}
           <div style={{ marginBottom:12, flexShrink:0 }}>
-            <div style={{ fontSize:30, fontWeight:900, color:TEXT, letterSpacing:'-0.5px', marginBottom:2 }}>
+            <div style={{ fontSize:30, fontWeight:900, color:'white', letterSpacing:'-0.5px', marginBottom:2 }}>
               Mood History Calendar
             </div>
             <div style={{ fontSize:14, fontWeight:500, color:MUT }}>

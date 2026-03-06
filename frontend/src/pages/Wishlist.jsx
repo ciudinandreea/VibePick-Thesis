@@ -340,8 +340,8 @@ function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100, height: 68,
-      background: 'rgba(20,8,45,0.95)', backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(124,58,237,0.25)',
+      background: 'rgba(30,10,60,0.55)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+      borderBottom: '1px solid rgba(124,58,237,0.30)',
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', padding: '0 28px', fontFamily: FONT,
     }}>
@@ -511,8 +511,9 @@ function WishlistCard({ item, index, deleteMode, onRemove, onCardClick }) {
       onMouseLeave={() => setHov(false)}
       onClick={() => { if (!deleteMode) onCardClick(item.tmdb_id); }}
       style={{
-        background:'rgba(255,255,255,0.82)', backdropFilter:'blur(8px)',
-        border:'1px solid rgba(124,58,237,0.10)', borderRadius:16,
+        background:'rgba(255,255,255,0.13)', backdropFilter:'blur(12px)',
+        WebkitBackdropFilter:'blur(12px)',
+        border:'1px solid rgba(255,255,255,0.18)', borderRadius:16,
         overflow:'hidden', position:'relative', fontFamily:FONT,
         cursor: deleteMode ? 'default' : 'pointer',
         transition:'transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s',
@@ -549,13 +550,13 @@ function WishlistCard({ item, index, deleteMode, onRemove, onCardClick }) {
         }
       </button>
 
-      <div style={{ padding:'12px 14px 14px' }}>
+      <div style={{ padding:'12px 14px 14px', background:'rgba(255,255,255,0.08)' }}>
         <div style={{
-          fontSize:14, fontWeight:700, color:TEXT, marginBottom:4, lineHeight:1.35,
+          fontSize:15, fontWeight:700, color:'white', marginBottom:4, lineHeight:1.35,
           display:'-webkit-box', WebkitLineClamp:2,
           WebkitBoxOrient:'vertical', overflow:'hidden',
         }}>{item.title}</div>
-        {genre && <div style={{ fontSize:12, fontWeight:500, color:MUT }}>{genre}</div>}
+        {genre && <div style={{ fontSize:12, fontWeight:500, color:'rgba(255,255,255,0.6)' }}>{genre}</div>}
       </div>
     </div>
   );
@@ -593,23 +594,35 @@ export default function Wishlist() {
         @keyframes wl-fadeIn  { from{opacity:0;}to{opacity:1;} }
         @keyframes wl-slideUp { from{opacity:0;transform:scale(0.94) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);} }
         @keyframes wl-spin    { to{transform:rotate(360deg);} }
-        body { margin:0; background:${BG}; font-size:16px; }
+        body { margin:0; }
+        .wl-page-bg {
+          min-height:100vh;
+          background: url('/pages-bg.jpg') center/cover fixed no-repeat;
+          position: relative;
+        }
+        .wl-page-bg::before {
+          content:'';
+          position:fixed; inset:0;
+          backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+          background:rgba(15,5,35,0.45);
+          pointer-events:none; z-index:0;
+        }
+        .wl-page-bg > * { position:relative; z-index:1; }
         * { box-sizing:border-box; }
-        @media(max-width:1400px){.wl-grid{grid-template-columns:repeat(5,1fr)!important;}}
         @media(max-width:1100px){.wl-grid{grid-template-columns:repeat(4,1fr)!important;}}
-        @media(max-width:800px) {.wl-grid{grid-template-columns:repeat(3,1fr)!important;}}
-        @media(max-width:550px) {.wl-grid{grid-template-columns:repeat(2,1fr)!important;}}
+        @media(max-width:800px){.wl-grid{grid-template-columns:repeat(3,1fr)!important;}}
+        @media(max-width:550px){.wl-grid{grid-template-columns:repeat(2,1fr)!important;}}
       `}</style>
-      <div style={{ minHeight:'100vh', background:BG, fontFamily:FONT }}>
+      <div className="wl-page-bg" style={{ fontFamily:FONT }}>
         <Navbar />
         <div style={{ padding:'32px 32px 56px' }}>
 
           <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:28 }}>
             <div>
-              <div style={{ fontSize:34, fontWeight:900, color:TEXT, letterSpacing:'-0.5px', marginBottom:4 }}>
+              <div style={{ fontSize:34, fontWeight:900, color:'white', letterSpacing:'-0.5px', marginBottom:4 }}>
                 My Wishlist
               </div>
-              <div style={{ fontSize:15, fontWeight:500, color:MUT, display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ fontSize:15, fontWeight:500, color:'rgba(255,255,255,0.7)', display:'flex', alignItems:'center', gap:8 }}>
                 Movies you're excited to watch
                 {items.length > 0 && (
                   <span style={{
@@ -661,7 +674,7 @@ export default function Wishlist() {
           )}
 
           {!loading && !error && items.length > 0 && (
-            <div className="wl-grid" style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:18 }}>
+            <div className="wl-grid" style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:18 }}>
               {items.map((item, i) => (
                 <WishlistCard key={item.id} item={item} index={i}
                   deleteMode={deleteMode} onRemove={removeItem} onCardClick={openModal}/>

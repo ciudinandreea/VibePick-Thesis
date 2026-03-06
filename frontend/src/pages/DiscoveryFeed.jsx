@@ -130,57 +130,152 @@ const ChevronIco = () => (
   </svg>
 );
 
+const PROVIDER_LABELS = {
+  'Netflix':'Netflix','Disney Plus':'Disney+','Disney+':'Disney+',
+  'Amazon Prime Video':'Prime','Prime Video':'Prime',
+  'Max':'Max','HBO Max':'Max',
+  'Apple TV Plus':'Apple TV+','Apple TV+':'Apple TV+',
+  'Hulu':'Hulu','Paramount Plus':'Paramount+','Paramount+':'Paramount+',
+  'Peacock':'Peacock','Peacock Premium':'Peacock','SkyShowtime':'Sky',
+};
+
 function MovieCard({ movie, onClick }) {
-  const [hov, setHov] = useState(false);
-  const rating = movie.vote_average?.toFixed(1) || movie.finalScore
-    ? `${((movie.finalScore || 0) * 100).toFixed(0)}% match`
-    : '—';
-  const displayRating = movie.finalScore
-    ? `${((movie.finalScore) * 100).toFixed(0)}%`
-    : movie.vote_average?.toFixed(1) || '—';
-  const year = movie.release_date ? new Date(movie.release_date).getFullYear() : '';
+  const [hov,     setHov]     = useState(false);
+  const [tipOpen, setTipOpen] = useState(false);
+  const year    = movie.release_date ? new Date(movie.release_date).getFullYear() : '';
+  const matchPct = movie.finalScore !== undefined
+    ? Math.round(movie.finalScore * 100) : null;
+
+  const platformName = movie.explanation?.platformName || null;
+
+  const exp = movie.explanation || {};
+  const scores = [
+    { label: 'Mood match',      val: exp.mood         },
+    { label: 'Genre pref',      val: exp.preferences  },
+    { label: 'History affinity',val: exp.history      },
+    { label: 'In subscription', val: exp.subscription },
+  ].filter(s => s.val !== null && s.val !== undefined);
+
   return (
     <div onClick={() => onClick(movie)}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => { setHov(false); setTipOpen(false); }}
       style={{
-        background: 'rgba(255,255,255,0.82)',
-        backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(124,58,237,0.10)',
-        borderRadius: 16, overflow: 'hidden',
+        background: 'rgba(255,255,255,0.13)',
+        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.18)',
+        borderRadius: 16, overflow: 'visible',
         cursor: 'pointer', fontFamily: FONT,
         transition: 'transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s',
         transform: hov ? 'translateY(-6px) scale(1.02)' : 'none',
-        boxShadow: hov ? '0 18px 40px rgba(91,33,182,0.22)' : '0 2px 10px rgba(91,33,182,0.09)',
+        boxShadow: hov ? '0 18px 40px rgba(91,33,182,0.35)' : '0 2px 10px rgba(0,0,0,0.25)',
         position: 'relative',
       }}>
-      {movie.poster_url
-        ? <img src={movie.poster_url} alt={movie.title} loading="lazy"
-            style={{ width: '100%', aspectRatio: '2/3', objectFit: 'cover', display: 'block' }} />
-        : <div style={{ width: '100%', aspectRatio: '2/3',
-            background: 'linear-gradient(135deg,#e9d5ff,#c4b5fd)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: PUR, fontSize: 12, fontWeight: 600 }}>No Image</div>
-      }
+
       {}
-      {movie.finalScore !== undefined && (
-        <div style={{
-          position: 'absolute', top: 10, right: 10,
-          background: 'linear-gradient(135deg,#7C3AED,#9333ea)',
-          color: 'white', fontSize: 11, fontWeight: 800,
-          borderRadius: 8, padding: '3px 7px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-        }}>{displayRating}</div>
+      <div style={{ borderRadius:'16px 16px 0 0', overflow:'hidden' }}>
+        {movie.poster_url
+          ? <img src={movie.poster_url} alt={movie.title} loading="lazy"
+              style={{ width:'100%', aspectRatio:'2/3', objectFit:'cover', display:'block' }} />
+          : <div style={{ width:'100%', aspectRatio:'2/3',
+              background:'linear-gradient(135deg,rgba(124,58,237,0.4),rgba(147,51,234,0.3))',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600 }}>No Image</div>
+        }
+      </div>
+
+      {}
+      {platformName && (
+        <div onClick={e => e.stopPropagation()} style={{
+          position:'absolute', top:9, left:9,
+          background:'rgba(0,0,0,0.72)', backdropFilter:'blur(6px)',
+          color:'white', fontSize:10, fontWeight:800,
+          borderRadius:20, padding:'3px 8px',
+          boxShadow:'0 2px 6px rgba(0,0,0,0.4)',
+          letterSpacing:'0.2px', whiteSpace:'nowrap',
+        }}>{platformName}</div>
       )}
-      <div style={{ padding: '12px 13px 14px' }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: TEXT,
-          marginBottom: 8, lineHeight: 1.35,
-          display: '-webkit-box', WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+
+      {}
+      {scores.length > 0 && (
+        <div onClick={e => e.stopPropagation()}
+          onMouseEnter={e => { e.stopPropagation(); setTipOpen(true); }}
+          onMouseLeave={() => setTipOpen(false)}
+          style={{
+            position:'absolute', top:9, right:9,
+            width:22, height:22, borderRadius:'50%',
+            background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)',
+            border:'1px solid rgba(255,255,255,0.3)',
+            color:'white', fontSize:12, fontWeight:900,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            cursor:'default', zIndex:10,
+          }}>ⓘ
+          {tipOpen && (
+            <div style={{
+              position:'absolute', top:'calc(100% + 6px)', right:0,
+              width:195, background:'rgba(15,5,40,0.92)',
+              backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
+              border:'1px solid rgba(255,255,255,0.15)',
+              borderRadius:12, padding:'12px 14px',
+              boxShadow:'0 12px 32px rgba(0,0,0,0.5)',
+              zIndex:50, animation:'vp-fadeUp 0.15s ease both',
+            }}>
+              <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,0.5)',
+                textTransform:'uppercase', letterSpacing:'1px', marginBottom:8 }}>
+                Why this?
+              </div>
+              {scores.map(s => (
+                <div key={s.label} style={{ marginBottom:7 }}>
+                  <div style={{ display:'flex', justifyContent:'space-between',
+                    fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.75)',
+                    marginBottom:3 }}>
+                    <span>{s.label}</span>
+                    <span style={{ color:'#c084fc' }}>{Math.round(s.val * 100)}%</span>
+                  </div>
+                  <div style={{ height:4, borderRadius:4,
+                    background:'rgba(255,255,255,0.12)', overflow:'hidden' }}>
+                    <div style={{
+                      height:'100%', borderRadius:4,
+                      width:`${Math.round(s.val * 100)}%`,
+                      background:'linear-gradient(90deg,#7C3AED,#c084fc)',
+                      transition:'width 0.4s ease',
+                    }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {}
+      {matchPct !== null && (
+        <div onClick={e => e.stopPropagation()} style={{
+          position:'absolute', bottom:56, left:9,
+          width:42, height:42, borderRadius:'50%',
+          background:'linear-gradient(135deg,#7C3AED,#9333ea)',
+          border:'2px solid rgba(255,255,255,0.25)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          flexDirection:'column',
+          boxShadow:'0 3px 10px rgba(124,58,237,0.5)',
+          zIndex:5,
+        }}>
+          <span style={{ fontSize:10, fontWeight:900, color:'white', lineHeight:1 }}>{matchPct}%</span>
+          <span style={{ fontSize:7, fontWeight:700, color:'rgba(255,255,255,0.7)', lineHeight:1 }}>match</span>
+        </div>
+      )}
+
+      {/* Info panel */}
+      <div style={{ padding:'11px 13px 13px', background:'rgba(255,255,255,0.08)' }}>
+        <div style={{ fontSize:14, fontWeight:700, color:'white',
+          marginBottom:6, lineHeight:1.35,
+          display:'-webkit-box', WebkitLineClamp:2,
+          WebkitBoxOrient:'vertical', overflow:'hidden' }}>
           {movie.title}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: MUT }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display:'flex', alignItems:'center',
+          justifyContent:'space-between', fontSize:12, fontWeight:600,
+          color:'rgba(255,255,255,0.6)' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:4 }}>
             <StarIco /><span>{movie.vote_average?.toFixed(1) || '—'}</span>
           </div>
           <span>{year}</span>
@@ -570,22 +665,35 @@ export default function DiscoveryFeed() {
         @keyframes md-in     { from{opacity:0;}to{opacity:1;} }
         @keyframes modal-up  { from{opacity:0;transform:scale(0.94) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);} }
         @keyframes srch-in   { from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);} }
-        body { margin:0; background:${BG}; }
+        body { margin:0; }
+        .vp-page-bg {
+          min-height:100vh;
+          background: url('/pages-bg.jpg') center/cover fixed no-repeat;
+          position: relative;
+        }
+        .vp-page-bg::before {
+          content:'';
+          position:fixed; inset:0;
+          backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+          background:rgba(15,5,35,0.45);
+          pointer-events:none; z-index:0;
+        }
+        .vp-page-bg > * { position:relative; z-index:1; }
         * { box-sizing:border-box; }
         ::placeholder { color:#a080c0!important; font-family:${FONT}!important; }
-        @media(max-width:1200px){.vp-grid{grid-template-columns:repeat(4,1fr)!important;}}
-        @media(max-width:900px){.vp-grid{grid-template-columns:repeat(3,1fr)!important;}}
-        @media(max-width:600px){.vp-grid{grid-template-columns:repeat(2,1fr)!important;}}
+        @media(max-width:1100px){.vp-grid{grid-template-columns:repeat(4,1fr)!important;}}
+        @media(max-width:800px){.vp-grid{grid-template-columns:repeat(3,1fr)!important;}}
+        @media(max-width:550px){.vp-grid{grid-template-columns:repeat(2,1fr)!important;}}
       `}</style>
 
-      <div style={{ minHeight:'100vh', background:BG, fontFamily:FONT }}>
+      <div className="vp-page-bg" style={{ fontFamily:FONT }}>
 
         {}
         <nav style={{
           position:'sticky', top:0, zIndex:100, height:68,
-          background:'rgba(20,8,45,0.95)',
-          backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
-          borderBottom:'1px solid rgba(124,58,237,0.25)',
+          background:'rgba(30,10,60,0.55)',
+          backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
+          borderBottom:'1px solid rgba(124,58,237,0.30)',
           display:'flex', alignItems:'center',
           justifyContent:'space-between', padding:'0 28px', gap:12,
         }}>
@@ -903,7 +1011,7 @@ export default function DiscoveryFeed() {
 
           {!loading && !error && (
             <div className="vp-grid" style={{
-              display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:20,
+              display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:20,
             }}>
               {movies.map((movie, i) => (
                 <div key={movie.id} style={{

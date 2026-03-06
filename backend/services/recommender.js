@@ -93,7 +93,7 @@ async function calculateNoveltyScore(movie, userId) {
 }
 
 async function calculateSubscriptionScore(movie, providerSet, providerCache) {
-  if (providerSet.size === 0) return 0.5; 
+  if (providerSet.size === 0) return { score: 0.5, platformName: null };
 
   try {
     let providers;
@@ -105,12 +105,16 @@ async function calculateSubscriptionScore(movie, providerSet, providerCache) {
     }
 
     const available = providers.flatrate || [];
-    const match = available.some(p =>
-      providerSet.has(p.provider_name.toLowerCase())
-    );
-    return match ? 1.0 : 0.0;
+    let matchedName = null;
+    for (const p of available) {
+      if (providerSet.has(p.provider_name.toLowerCase())) {
+        matchedName = PLATFORM_TMDB_NAMES[p.provider_name] || p.provider_name;
+        break;
+      }
+    }
+    return { score: matchedName ? 1.0 : 0.0, platformName: matchedName };
   } catch {
-    return 0.5; 
+    return { score: 0.5, platformName: null };
   }
 }
 
@@ -148,7 +152,9 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
       pref:    calculatePrefMatch(movie, userGenres),
       hist:    await calculateHistoryAffinity(movie, userId),
       novelty: await calculateNoveltyScore(movie, userId),
-      sub:     await calculateSubscriptionScore(movie, providerSet, providerCache),
+      ...await calculateSubscriptionScore(movie, providerSet, providerCache).then(r => ({
+        sub: r.score, platformName: r.platformName,
+      })),
     };
 
     const finalScore =
