@@ -49,14 +49,31 @@ router.post('/log-after', auth, async (req, res) => {
 
     if (tmdb_id) {
       try {
-        const item = await pool.query(`SELECT id FROM items WHERE tmdb_id=$1`, [tmdb_id]);
-        if (item.rows.length > 0) {
+        let itemId;
+        const existing = await pool.query(`SELECT id FROM items WHERE tmdb_id=$1`, [tmdb_id]);
+        if (existing.rows.length > 0) {
+          itemId = existing.rows[0].id;
+        } else if (req.body.title) {
+          const newItem = await pool.query(
+            `INSERT INTO items (tmdb_id, title, poster_path) VALUES ($1,$2,$3) RETURNING id`,
+            [tmdb_id, req.body.title, req.body.poster_path || null]
+          );
+          itemId = newItem.rows[0].id;
+        }
+
+        if (itemId) {
+          await pool.query(`
+            DELETE FROM interactions
+            WHERE user_id=$1 AND action_type='clicked'
+              AND TO_CHAR(timestamp, 'YYYY-MM-DD') = $2
+          `, [userId, todayStr]);
+
           await pool.query(`
             INSERT INTO interactions (user_id, item_id, action_type, timestamp)
-            VALUES ($1,$2,'watch',NOW())
-          `, [userId, item.rows[0].id]);
+            VALUES ($1,$2,'clicked',NOW())
+          `, [userId, itemId]);
         }
-      } catch { }
+      } catch (e) { console.error('mood_after link error:', e.message); }
     }
 
     res.json({ success: true });
@@ -93,39 +110,30 @@ router.get('/history', auth, async (req, res) => {
 
     try {
       const movieRes = await pool.query(`
-        WITH mood_after_times AS (
-          SELECT TO_CHAR(logged_at, 'YYYY-MM-DD') as date,
-                 logged_at as mood_after_time
-          FROM mood_logs
-          WHERE user_id = $1
-            AND TO_CHAR(logged_at, 'YYYY-MM') = $2
-            AND mood_after IS NOT NULL
-        ),
-        ranked_movies AS (
+        WITH all_movies AS (
           SELECT
             i.title,
             i.poster_path as poster_url,
             TO_CHAR(int.timestamp, 'YYYY-MM-DD') as date,
-            int.timestamp,
-            -- Priority 1: movie watched closest before mood_after log that day
-            -- Priority 2: most recently watched movie that day
-            ROW_NUMBER() OVER (
-              PARTITION BY TO_CHAR(int.timestamp, 'YYYY-MM-DD')
-              ORDER BY
-                CASE WHEN mat.mood_after_time IS NOT NULL
-                  AND int.timestamp <= mat.mood_after_time
-                  THEN 0 ELSE 1 END ASC,
-                int.timestamp DESC
-            ) as rn
+            -- 'clicked' = explicitly linked to mood_after (highest priority)
+            -- 'watched' = just marked watched (fallback)
+            CASE WHEN int.action_type = 'clicked' THEN 0 ELSE 1 END as priority,
+            int.timestamp
           FROM interactions int
           JOIN items i ON int.item_id = i.id
-          LEFT JOIN mood_after_times mat
-            ON TO_CHAR(int.timestamp, 'YYYY-MM-DD') = mat.date
           WHERE int.user_id = $1
-            AND int.action_type = 'watched'
+            AND int.action_type IN ('clicked', 'watched')
             AND TO_CHAR(int.timestamp, 'YYYY-MM') = $2
+        ),
+        ranked AS (
+          SELECT title, poster_url, date,
+            ROW_NUMBER() OVER (
+              PARTITION BY date
+              ORDER BY priority ASC, timestamp DESC
+            ) as rn
+          FROM all_movies
         )
-        SELECT title, poster_url, date FROM ranked_movies WHERE rn = 1
+        SELECT title, poster_url, date FROM ranked WHERE rn = 1
       `, [userId, yearMonth]);
 
       movieRes.rows.forEach(row => {

@@ -244,7 +244,7 @@ function MovieModal({ movieId, onClose }) {
   const handleMoodAfter = async (moodId) => {
     setMoodAfter(moodId);
     setShowMoodPick(false);
-    try { await api.post('/mood/log-after', { mood_after: moodId, tmdb_id: movie?.id }); }
+    try { await api.post('/mood/log-after', { mood_after: moodId, tmdb_id: movie?.id, title: movie?.title, poster_path: movie?.poster_url || null }); }
     catch (e) { console.error('Failed to log mood after:', e); }
   };
 
