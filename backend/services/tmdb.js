@@ -82,9 +82,24 @@ async function getMoviesByGenre(genreId, page = 1) {
   };
 }
 
+async function getMovieProviders(movieId, region = 'US') {
+  try {
+    const data = await tmdbRequest(`/movie/${movieId}/watch/providers`);
+    const regionData = data.results?.[region] || {};
+    return {
+      flatrate: regionData.flatrate || [],
+      rent:     regionData.rent     || [],
+      buy:      regionData.buy      || [],
+    };
+  } catch {
+    return { flatrate: [], rent: [], buy: [] };
+  }
+}
+
 module.exports = {
   getPopularMovies,
   getMovieDetails,
   searchMovies,
-  getMoviesByGenre
+  getMoviesByGenre,
+  getMovieProviders,
 };
