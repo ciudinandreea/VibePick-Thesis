@@ -337,8 +337,19 @@ export default function About() {
               <span className="ab-arrow" style={{ fontSize: 20, lineHeight: 1 }}>→</span>
             </button>
           </Reveal>
+          <Reveal delay={240}>
+            <p style={{
+              fontSize: 13, fontWeight: 500, fontFamily: FONT,
+              color: 'rgba(250, 242, 242, 0.76)', marginTop: 16,
+            }}>
+                ⚠️ Disclaimer:
+                VibePick is meant for academic research. 
+                It is NOT a mental health tool and does not provide psychological or 
+                medical advice. If you're experiencing mental health concerns, please 
+                consult a qualified healthcare professional.
+            </p>
+          </Reveal>
         </section>
-
       </div>{}
     </div>
   );

@@ -1,0 +1,102 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1876 >>
+stream
+BT
+/F1 18 Tf
+50 780 Td
+(Privacy Policy) Tj
+/F1 9 Tf
+0 -8 Td
+(VibePick  |  Effective: January 2025) Tj
+0 -20 Td
+/F1 11 Tf
+(1. Introduction) Tj
+/F1 9 Tf
+0 -14 Td
+(VibePick is committed to protecting your personal information. This Privacy Policy) Tj
+0 -12 Td
+(explains how we collect, use, and safeguard your data when you use the VibePick platform.) Tj
+0 -18 Td
+/F1 11 Tf
+(2. Information We Collect) Tj
+/F1 9 Tf
+0 -14 Td
+(We collect: account information \\(name, email\\); preference data \\(genres, subscriptions\\);) Tj
+0 -12 Td
+(activity data \\(watched films, wishlist, mood logs\\); and recommendation logs.) Tj
+0 -18 Td
+/F1 11 Tf
+(3. How We Use Your Information) Tj
+/F1 9 Tf
+0 -14 Td
+(We use your data to: provide personalised movie recommendations; improve mood-matching) Tj
+0 -12 Td
+(accuracy; display watch history and wishlist; and respond to your requests.) Tj
+0 -18 Td
+/F1 11 Tf
+(4. Data Retention) Tj
+/F1 9 Tf
+0 -14 Td
+(Data is retained while your account is active. You may request full deletion at any time) Tj
+0 -12 Td
+(from the Your Account page.) Tj
+0 -18 Td
+/F1 11 Tf
+(5. Data Sharing) Tj
+/F1 9 Tf
+0 -14 Td
+(We do not sell or share personal data with third parties for marketing. Movie metadata is) Tj
+0 -12 Td
+(fetched from TMDB; no personal data is transmitted to TMDB.) Tj
+0 -18 Td
+/F1 11 Tf
+(6. Your Rights \(GDPR\)) Tj
+/F1 9 Tf
+0 -14 Td
+(You have the right to access, rectify, erase, export, and object to processing of your) Tj
+0 -12 Td
+(data. Use the Privacy and Data page to exercise these rights.) Tj
+0 -18 Td
+/F1 11 Tf
+(7. Security) Tj
+/F1 9 Tf
+0 -14 Td
+(We use bcrypt password hashing, JWT authentication, and HTTPS transport encryption.) Tj
+0 -18 Td
+/F1 11 Tf
+(8. Contact) Tj
+/F1 9 Tf
+0 -14 Td
+(For privacy enquiries, contact the VibePick project team via institutional channels) Tj
+0 -12 Td
+(provided in the thesis documentation.) Tj
+0 -18 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000002169 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2239
+%%EOF

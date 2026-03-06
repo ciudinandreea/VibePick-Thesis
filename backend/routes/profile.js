@@ -300,4 +300,137 @@ router.post('/movies/platform-labels', auth, async (req, res) => {
   }
 });
 
+router.put('/account', auth, async (req, res) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+
+    if (email) {
+      await pool.query(
+        `UPDATE users SET email=$1 WHERE id=$2`,
+        [email, req.user.userId]
+      );
+    }
+
+    if (firstName !== undefined || lastName !== undefined) {
+      const fullName = `${firstName || ''} ${lastName || ''}`.trim();
+      await pool.query(
+        `UPDATE users SET full_name=$1 WHERE id=$2`,
+        [fullName, req.user.userId]
+      );
+    }
+
+    if (password) {
+      const bcrypt = require('bcryptjs');
+      const hash = await bcrypt.hash(password, 10);
+      await pool.query(
+        `UPDATE users SET password_hash=$1 WHERE id=$2`,
+        [hash, req.user.userId]
+      );
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error updating account:', err.message);
+    res.status(500).json({ error: 'Failed to update account' });
+  }
+});
+
+router.get('/export', auth, async (req, res) => {
+  try {
+    const uid = req.user.userId;
+
+    const [userRes, genresRes, subsRes, watchedRes, wishlistRes, moodsRes] = await Promise.all([
+      pool.query(`SELECT id, email, full_name, created_at FROM users WHERE id=$1`, [uid]),
+      pool.query(`SELECT favourite_genres FROM profiles WHERE user_id=$1`, [uid]),
+      pool.query(`SELECT platform_name FROM subscriptions WHERE user_id=$1 AND active=true`, [uid]),
+      pool.query(
+        `SELECT i.tmdb_id, i.title, i.poster_path, wi.watched_at
+         FROM watched_items wi
+         JOIN items i ON wi.item_id = i.id
+         WHERE wi.user_id=$1
+         ORDER BY wi.watched_at DESC`, [uid]
+      ),
+      pool.query(
+        `SELECT i.tmdb_id, i.title, i.poster_path, w.added_at
+         FROM wishlist w
+         JOIN items i ON w.item_id = i.id
+         WHERE w.user_id=$1
+         ORDER BY w.added_at DESC`, [uid]
+      ),
+      pool.query(
+        `SELECT mood_category, mood_text, timestamp
+         FROM mood_snapshots
+         WHERE user_id=$1
+         ORDER BY timestamp DESC`, [uid]
+      ),
+    ]);
+
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      user: {
+        id:          userRes.rows[0]?.id,
+        email:       userRes.rows[0]?.email,
+        fullName:    userRes.rows[0]?.full_name || null,
+        memberSince: userRes.rows[0]?.created_at || null,
+      },
+      genrePreferences: genresRes.rows[0]?.favourite_genres || [],
+      subscriptions:    subsRes.rows.map(r => r.platform_name),
+      watchHistory:     watchedRes.rows,
+      wishlist:         wishlistRes.rows,
+      moodHistory:      moodsRes.rows,
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="vibepick-data.json"');
+    res.json(exportData);
+  } catch (err) {
+    console.error('Error exporting data:', err.message);
+    res.status(500).json({ error: 'Failed to export data', detail: err.message });
+  }
+});
+
+router.delete('/account', auth, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const uid = req.user.userId;
+    await client.query('BEGIN');
+
+    await client.query(`DELETE FROM mood_logs WHERE user_id=$1`, [uid]);
+    await client.query(`DELETE FROM interactions WHERE user_id=$1`, [uid]);
+    await client.query(`DELETE FROM subscriptions WHERE user_id=$1`, [uid]);
+    await client.query(`DELETE FROM profiles WHERE user_id=$1`, [uid]);
+    await client.query(`DELETE FROM recommendation_runs WHERE user_id=$1`, [uid]);
+    await client.query(`DELETE FROM users WHERE id=$1`, [uid]);
+
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error deleting account:', err.message);
+    res.status(500).json({ error: 'Failed to delete account' });
+  } finally {
+    client.release();
+  }
+});
+
+router.get('/me', auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, email, full_name, created_at FROM users WHERE id=$1`,
+      [req.user.userId]
+    );
+    const u = result.rows[0];
+    if (!u) return res.status(404).json({ error: 'User not found' });
+    res.json({
+      id:          u.id,
+      email:       u.email,
+      fullName:    u.full_name || '',
+      createdAt:   u.created_at,
+    });
+  } catch (err) {
+    console.error('Error fetching user:', err.message);
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});
+
 module.exports = router;

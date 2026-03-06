@@ -211,7 +211,7 @@ function Navbar() {
                     borderBottom: '1px solid rgba(124,58,237,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
                     <span style={{ color: MUT }}>{ico}</span> {label}
                   </div>
@@ -252,7 +252,7 @@ function Navbar() {
                     borderBottom: '1px solid rgba(124,58,237,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
                     <span style={{ color: MUT }}>{ico}</span> {label}
                   </div>
@@ -261,10 +261,10 @@ function Navbar() {
               <div onClick={() => { setMenuOpen(false); logout(); navigate('/login'); }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '13px 16px', fontSize: 13, fontWeight: 700, color: '#dc2626',
+                  padding: '13px 16px', fontSize: 13, fontWeight: 700, color: '#f87171',
                   cursor: 'pointer', transition: 'background 0.12s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.06)'}
+                onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.10)'}
                 onMouseLeave={e => e.currentTarget.style.background='none'}>
                 <LogoutIco /> Log Out
               </div>
@@ -576,7 +576,7 @@ export default function SubscriptionManager() {
                 background: 'rgba(124,58,237,0.08)', border: 'none',
                 cursor: 'pointer', fontSize: 18, color: 'rgba(255,255,255,0.6)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>×</button>
+              }}>x</button>
             </div>
 
             {saveError && (

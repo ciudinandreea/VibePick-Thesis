@@ -13,12 +13,9 @@ import MoodHistoryCalendar  from './pages/MoodHistoryCalendar';
 import WatchedMovies        from './pages/WatchedMovies';
 import GenreManager         from './pages/GenreManager';
 import About                from './pages/About';
+import PrivacyData          from './pages/PrivacyData';
+import YourAccount          from './pages/YourAccount';
 import { isAuthenticated, getCurrentUser } from './services/api';
-
-function ProtectedRoute({ children }) {
-  if (!isAuthenticated()) return <Navigate to="/login" replace />;
-  return children;
-}
 
 function OnboardingRoute({ children }) {
   if (!isAuthenticated()) return <Navigate to="/login" replace />;
@@ -73,6 +70,8 @@ export default function App() {
         <Route path="/mood-history" element={<AppRoute><MoodHistoryCalendar /></AppRoute>} />
         <Route path="/watched"      element={<AppRoute><WatchedMovies /></AppRoute>} />
         <Route path="/genres"       element={<AppRoute><GenreManager /></AppRoute>} />
+        <Route path="/privacy"      element={<AppRoute><PrivacyData /></AppRoute>} />
+        <Route path="/account"      element={<AppRoute><YourAccount /></AppRoute>} />
 
         {}
         <Route path="/dashboard" element={<SmartRedirect />} />

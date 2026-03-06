@@ -524,7 +524,7 @@ export default function GenreManager() {
       <div className="gm-page-bg" style={{ fontFamily: FONT }}>
         <Navbar />
         <div style={{ padding: '32px 32px 56px' }}>
-          <div style={{ fontSize: 34, fontWeight: 900, color: TEXT, letterSpacing: '-0.5px', marginBottom: 4 }}>
+          <div style={{ fontSize: 34, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: 4 }}>
             Favorite Genres
           </div>
           <div style={{ fontSize: 15, fontWeight: 500, color: MUT, marginBottom: 28 }}>
