@@ -5,7 +5,6 @@ import api from '../services/api';
 
 const PUR  = '#7C3AED';
 const TEXT = '#1a0533';
-const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
 const ALL_PLATFORMS = [
@@ -195,9 +194,9 @@ function Navbar() {
           {userOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
-              background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
-              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              background: 'rgba(20,8,50,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.30)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(0,0,0,0.45)',
               overflow: 'hidden', animation: 'sm-fadeUp 0.18s ease both', zIndex: 300,
             }}>
               {[
@@ -207,13 +206,13 @@ function Navbar() {
                 <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setUserOpen(false)}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
-                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: 'white',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
                     onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
-                    <span style={{ color: MUT }}>{ico}</span> {label}
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ico}</span> {label}
                   </div>
                 </Link>
               ))}
@@ -236,9 +235,9 @@ function Navbar() {
           {menuOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
-              background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
-              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              background: 'rgba(20,8,50,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.30)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(0,0,0,0.45)',
               overflow: 'hidden', animation: 'sm-fadeUp 0.18s ease both', zIndex: 300,
             }}>
               {[
@@ -248,13 +247,13 @@ function Navbar() {
                 <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
-                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: 'white',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
                     onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
-                    <span style={{ color: MUT }}>{ico}</span> {label}
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ico}</span> {label}
                   </div>
                 </Link>
               ))}
@@ -576,14 +575,14 @@ export default function SubscriptionManager() {
                 background: 'rgba(124,58,237,0.08)', border: 'none',
                 cursor: 'pointer', fontSize: 18, color: 'rgba(255,255,255,0.6)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>x</button>
+              }}>×</button>
             </div>
 
             {saveError && (
               <div style={{
                 background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
                 borderRadius: 10, padding: '10px 14px', marginBottom: 16,
-                fontSize: 13, fontWeight: 600, color: '#dc2626',
+                fontSize: 13, fontWeight: 600, color: '#f87171',
               }}>{saveError}</div>
             )}
 

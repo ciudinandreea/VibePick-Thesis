@@ -201,15 +201,6 @@ function Login() {
             <Link to="/register" style={S.switchLink}>Sign Up</Link>
           </p>
         </div>
-
-        <div style={{
-          position: 'absolute', bottom: 20, left: 0, right: 0, zIndex: 2,
-          textAlign: 'center', fontSize: 11, fontWeight: 500,
-          color: 'rgba(255,255,255,0.3)', padding: '0 16px',
-          fontFamily: "'Montserrat', sans-serif",
-        }}>
-          By continuing, you agree to VibePick's Terms of Service and Privacy Policy
-        </div>
       </div>
     </>
   );

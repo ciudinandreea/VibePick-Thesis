@@ -220,9 +220,9 @@ function Navbar() {
           {userOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
-              background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
-              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              background: 'rgba(20,8,50,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.30)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(0,0,0,0.45)',
               overflow: 'hidden', animation: 'gm-fadeUp 0.18s ease both', zIndex: 300,
             }}>
               {[
@@ -232,13 +232,13 @@ function Navbar() {
                 <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setUserOpen(false)}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
-                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: 'white',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
-                    <span style={{ color: MUT }}>{ico}</span> {label}
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ico}</span> {label}
                   </div>
                 </Link>
               ))}
@@ -263,9 +263,9 @@ function Navbar() {
           {menuOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
-              background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
-              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              background: 'rgba(20,8,50,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.30)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(0,0,0,0.45)',
               overflow: 'hidden', animation: 'gm-fadeUp 0.18s ease both', zIndex: 300,
             }}>
               {[
@@ -275,23 +275,23 @@ function Navbar() {
                 <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
-                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: 'white',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
-                    <span style={{ color: MUT }}>{ico}</span> {label}
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ico}</span> {label}
                   </div>
                 </Link>
               ))}
               <div onClick={() => { setMenuOpen(false); logout(); navigate('/login'); }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '13px 16px', fontSize: 13, fontWeight: 700, color: '#dc2626',
+                  padding: '13px 16px', fontSize: 13, fontWeight: 700, color: '#f87171',
                   cursor: 'pointer', transition: 'background 0.12s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.06)'}
+                onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.10)'}
                 onMouseLeave={e => e.currentTarget.style.background='none'}>
                 <LogoutIco /> Log Out
               </div>
@@ -378,7 +378,7 @@ function DonutChart({ data, size = 200, thickness = 36 }) {
           <title>{s.label}: {s.pct}%</title>
         </circle>
       ))}
-      {/* Centre label */}
+      {}
       <text x={size/2} y={size/2 - 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="white">
         {data.reduce((a, d) => a + d.count, 0)}
       </text>
@@ -524,7 +524,7 @@ export default function GenreManager() {
       <div className="gm-page-bg" style={{ fontFamily: FONT }}>
         <Navbar />
         <div style={{ padding: '32px 32px 56px' }}>
-          <div style={{ fontSize: 34, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: 4 }}>
+          <div style={{ fontSize: 34, fontWeight: 900, color: TEXT, letterSpacing: '-0.5px', marginBottom: 4 }}>
             Favorite Genres
           </div>
           <div style={{ fontSize: 15, fontWeight: 500, color: MUT, marginBottom: 28 }}>
@@ -612,7 +612,7 @@ export default function GenreManager() {
               <div style={{
                 background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
                 borderRadius: 10, padding: '10px 14px', marginBottom: 16,
-                fontSize: 13, fontWeight: 600, color: '#dc2626',
+                fontSize: 13, fontWeight: 600, color: '#f87171',
               }}>{saveError}</div>
             )}
 

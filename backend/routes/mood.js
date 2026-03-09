@@ -201,4 +201,37 @@ router.get('/watched', auth, async (req, res) => {
   }
 });
 
+router.post('/rate', auth, async (req, res) => {
+  const userId = req.user.userId;
+  const { tmdb_id, title, rating } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+  }
+
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS recommendation_ratings (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        tmdb_id     INTEGER,
+        title       VARCHAR(255),
+        rating      SMALLINT     NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        rated_at    TIMESTAMP    NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(
+      `INSERT INTO recommendation_ratings (user_id, tmdb_id, title, rating)
+       VALUES ($1, $2, $3, $4)`,
+      [userId, tmdb_id || null, title || null, rating]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Rating log error:', err.message);
+    res.status(500).json({ error: 'Failed to save rating' });
+  }
+});
+
 module.exports = router;

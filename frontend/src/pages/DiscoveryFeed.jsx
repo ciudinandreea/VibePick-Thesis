@@ -129,15 +129,6 @@ const ChevronIco = () => (
   </svg>
 );
 
-const PROVIDER_LABELS = {
-  'Netflix':'Netflix','Disney Plus':'Disney+','Disney+':'Disney+',
-  'Amazon Prime Video':'Prime','Prime Video':'Prime',
-  'Max':'Max','HBO Max':'Max',
-  'Apple TV Plus':'Apple TV+','Apple TV+':'Apple TV+',
-  'Hulu':'Hulu','Paramount Plus':'Paramount+','Paramount+':'Paramount+',
-  'Peacock':'Peacock','Peacock Premium':'Peacock','SkyShowtime':'Sky',
-};
-
 function MovieCard({ movie, onClick }) {
   const [hov,     setHov]     = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
@@ -149,10 +140,10 @@ function MovieCard({ movie, onClick }) {
 
   const exp = movie.explanation || {};
   const scores = [
-    { label: 'Mood match',             val: exp.mood         },
-    { label: 'Genre preferences',      val: exp.preferences  },
-    { label: 'History affinity',       val: exp.history      },
-    { label: 'In subscription',        val: exp.subscription },
+    { label: 'Mood match',      val: exp.mood         },
+    { label: 'Genre pref',      val: exp.preferences  },
+    { label: 'History affinity',val: exp.history      },
+    { label: 'In subscription', val: exp.subscription },
   ].filter(s => s.val !== null && s.val !== undefined);
 
   return (
@@ -293,12 +284,15 @@ function MovieModal({ movieId, onClose }) {
   const [watched,      setWatched]      = useState(false);
   const [showMoodPick, setShowMoodPick] = useState(false);
   const [moodAfter,    setMoodAfter]    = useState(null);
+  const [starRating,   setStarRating]   = useState(0);      
+  const [ratingHov,    setRatingHov]    = useState(0);      
+  const [ratingDone,   setRatingDone]   = useState(false);  
   const user      = getCurrentUser();
   const firstName = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'you';
 
   useEffect(() => {
     if (!movieId) return;
-    setLoading(true); setSaved(false); setWatched(false); setShowMoodPick(false); setMoodAfter(null);
+    setLoading(true); setSaved(false); setWatched(false); setShowMoodPick(false); setMoodAfter(null); setStarRating(0); setRatingHov(0); setRatingDone(false);
     getMovieDetails(movieId)
       .then(setMovie).catch(console.error).finally(() => setLoading(false));
   }, [movieId]);
@@ -341,6 +335,18 @@ function MovieModal({ movieId, onClose }) {
     setShowMoodPick(false);
     try { await api.post('/mood/log-after', { mood_after: moodId, tmdb_id: movie?.id, title: movie?.title, poster_path: movie?.poster_url || null }); }
     catch (e) { console.error('Failed to log mood after:', e); }
+  };
+
+  const handleRating = async (stars) => {
+    setStarRating(stars);
+    setRatingDone(true);
+    try {
+      await api.post('/mood/rate', {
+        tmdb_id:    movie?.id,
+        title:      movie?.title,
+        rating:     stars,
+      });
+    } catch (e) { console.error('Failed to log rating:', e); }
   };
 
   useEffect(() => {
@@ -545,8 +551,59 @@ function MovieModal({ movieId, onClose }) {
                 </div>
               )}
               {moodAfter && !showMoodPick && (
-                <div style={{ marginTop:10, fontSize:13, color:'#86efac', fontWeight:600 }}>
-                  ✓ Mood logged after watching!
+                <div style={{
+                  marginTop:12,
+                  background:'rgba(124,58,237,0.12)',
+                  border:'1px solid rgba(124,58,237,0.25)',
+                  borderRadius:14, padding:'16px 18px',
+                  animation:'vp-fadeUp 0.3s ease both',
+                }}>
+                  {!ratingDone ? (
+                    <>
+                      <div style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:12 }}>
+                        ✓ Mood logged! &nbsp;
+                        <span style={{ color:'rgba(255,255,255,0.55)', fontWeight:500 }}>
+                          One more thing —
+                        </span>
+                      </div>
+                      <div style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.85)', marginBottom:10 }}>
+                        How helpful did you find this recommendation?
+                      </div>
+                      <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                        {[1,2,3,4,5].map(s => (
+                          <button key={s}
+                            onClick={() => handleRating(s)}
+                            onMouseEnter={() => setRatingHov(s)}
+                            onMouseLeave={() => setRatingHov(0)}
+                            style={{
+                              background:'none', border:'none', cursor:'pointer',
+                              fontSize:28, lineHeight:1, padding:'2px 3px',
+                              transition:'transform 0.12s ease',
+                              transform: (ratingHov || starRating) >= s ? 'scale(1.2)' : 'scale(1)',
+                              filter: (ratingHov || starRating) >= s
+                                ? 'drop-shadow(0 0 6px rgba(250,204,21,0.7))'
+                                : 'grayscale(1) opacity(0.4)',
+                            }}>
+                            ★
+                          </button>
+                        ))}
+                        <button onClick={() => setRatingDone(true)} style={{
+                          marginLeft:6, background:'none', border:'none',
+                          fontSize:12, fontWeight:600, color:'rgba(255,255,255,0.35)',
+                          cursor:'pointer', fontFamily:FONT,
+                        }}>skip</button>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                      <span style={{ fontSize:16 }}>
+                        {starRating >= 4 ? '🎉' : starRating >= 3 ? '👍' : starRating > 0 ? '🤔' : '✓'}
+                      </span>
+                      <span style={{ fontSize:13, fontWeight:700, color:'#86efac' }}>
+                        {starRating > 0 ? `Thanks for rating ${starRating}/5!` : 'Thanks for your feedback!'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -617,9 +674,7 @@ export default function DiscoveryFeed() {
     }
   }
 
-  useEffect(() => { loadPopular(); }, []);
-
-  async function loadPopular() {
+  const loadPopular = useCallback(async () => {
     try {
       setLoading(true); setError('');
       const data = await getPopularMovies();
@@ -629,7 +684,9 @@ export default function DiscoveryFeed() {
       setFeedTitle('Trending Movies');
     } catch { setError('Failed to load movies.'); }
     finally   { setLoading(false); }
-  }
+  }, []);
+
+  useEffect(() => { loadPopular(); }, [loadPopular]);
 
   async function loadRecommendations(mode) {
     try {

@@ -248,12 +248,12 @@ export default function About() {
           borderTop: '1px solid rgba(255,255,255,0.07)',
         }}>
           <QARow
-            q="🎥 What is VibePick?"
+            q="What is VibePick?"
             a="VibePick is a mood-aware film recommendation platform. Whether you are feeling happy, stressed or tired, VibePick curates a personalised feed of movies that genuinely match that emotional state. It connects your subscriptions, your watch history, and your preferences to suggest the perfect content for you."
             delay={0}
           />
           <QARow
-            q="🎯 What are VibePick's goals?"
+            q="What are VibePick's goals?"
             a={<>
               <strong style={{ color:'#c084fc' }}>Make discovery effortless.</strong> No more endless scrolling across multiple platforms. VibePick consolidates everything into one mood-driven feed.<br/><br/>
               <strong style={{ color:'#c084fc' }}>Surface films that matter.</strong> The scoring engine weighs mood, genre preferences, viewing history, and subscription availability.<br/><br/>
@@ -262,7 +262,7 @@ export default function About() {
             delay={100}
           />
           <QARow
-            q="✨ Why choose VibePick?"
+            q="Why choose VibePick?"
             a={<>
               Most platforms optimise for watch-time. VibePick optimises for <strong style={{ color:'#c084fc' }}>how you feel afterwards</strong>.<br/><br/>
               It tracks which genres lift your mood versus which ones don't, keeping a calendar of your emotional journey, so you can see patterns you never noticed. Data sovereignty is prioritized, therefore your emotional logs remain solely under your control.<br/><br/>

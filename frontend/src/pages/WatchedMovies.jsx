@@ -183,9 +183,9 @@ function Navbar() {
           {userOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
-              background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
-              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              background: 'rgba(20,8,50,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.30)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(0,0,0,0.45)',
               overflow: 'hidden', zIndex: 300,
             }}>
               {[
@@ -194,11 +194,11 @@ function Navbar() {
               ].map(({ label, to }) => (
                 <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setUserOpen(false)}>
                   <div style={{
-                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
-                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: 'white',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
                     {label}
                   </div>
@@ -223,9 +223,9 @@ function Navbar() {
           {menuOpen && (
             <div style={{
               position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 200,
-              background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(124,58,237,0.14)', borderRadius: 14,
-              boxShadow: '0 16px 48px rgba(91,33,182,0.18)',
+              background: 'rgba(20,8,50,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(124,58,237,0.30)', borderRadius: 14,
+              boxShadow: '0 16px 48px rgba(0,0,0,0.45)',
               overflow: 'hidden', animation: 'wm-fadeUp 0.18s ease both', zIndex: 300,
             }}>
               {[
@@ -235,23 +235,23 @@ function Navbar() {
                 <Link key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: TEXT,
-                    borderBottom: '1px solid rgba(124,58,237,0.07)',
+                    padding: '13px 16px', fontSize: 13, fontWeight: 600, color: 'white',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
                     transition: 'background 0.12s', cursor: 'pointer',
                   }}
-                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}>
-                    <span style={{ color: MUT }}>{ico}</span> {label}
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ico}</span> {label}
                   </div>
                 </Link>
               ))}
               <div onClick={() => { setMenuOpen(false); logout(); navigate('/login'); }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '13px 16px', fontSize: 13, fontWeight: 700, color: '#dc2626',
+                  padding: '13px 16px', fontSize: 13, fontWeight: 700, color: '#f87171',
                   cursor: 'pointer', transition: 'background 0.12s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.06)'}
+                onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.10)'}
                 onMouseLeave={e => e.currentTarget.style.background='none'}>
                 <LogoutIco /> Log Out
               </div>
@@ -418,7 +418,7 @@ export default function WatchedMovies() {
         <div style={{ padding: '32px 32px 56px' }}>
           {}
           <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontSize: 34, fontWeight: 900, color: 'white', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
+            <h1 style={{ fontSize: 28, fontWeight: 900, color: TEXT, margin: '0 0 6px', letterSpacing: '-0.4px' }}>
               Watched Movies
             </h1>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>
@@ -439,7 +439,7 @@ export default function WatchedMovies() {
           ) : error ? (
             <div style={{
               background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: 12, padding: '18px 20px', color: '#dc2626', fontWeight: 600, fontSize: 14,
+              borderRadius: 12, padding: '18px 20px', color: '#f87171', fontWeight: 600, fontSize: 14,
             }}>{error}</div>
           ) : movies.length === 0 ? (
             <div style={{
@@ -518,7 +518,7 @@ function WatchedCard({ movie, onClick }) {
         </div>
       </div>
 
-      {/* Info */}
+      {}
       <div style={{ padding: '10px 12px 12px', background: 'rgba(255,255,255,0.08)' }}>
         <div style={{
           fontSize: 14, fontWeight: 700, color: 'white',

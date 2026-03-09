@@ -57,7 +57,6 @@ const GenreIco = () => (
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
   </svg>
 );
-
 const DatabaseIco = () => (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
@@ -253,8 +252,20 @@ export default function PrivacyData() {
     }
   }
 
+  const DOC_PATHS = {
+    'Privacy Policy':   '/docs/privacy-policy.pdf',
+    'Terms of Service': '/docs/terms-of-service.pdf',
+    'GDPR Notice':      '/docs/gdpr-notice.pdf', 
+  };
+
   function handleDocDownload(name) {
-    alert(`"${name}" will be available for download soon.`);
+    const path = DOC_PATHS[name];
+    if (!path) return;
+    const a = document.createElement('a');
+    a.href = path;
+    a.download = name.toLowerCase().replace(/ /g, '-') + '.pdf';
+    a.target = '_blank';
+    a.click();
   }
 
   const DATA_ITEMS = [
@@ -288,7 +299,7 @@ export default function PrivacyData() {
           {}
           <div style={{ marginBottom: 48, animation: 'pd-fadeUp 0.4s ease both' }}>
             <h1 style={{ fontSize: 32, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: 8 }}>
-              Privacy and Data Management
+              Privacy &amp; Data Management
             </h1>
             <p style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
               Control your personal information and privacy settings
@@ -307,12 +318,12 @@ export default function PrivacyData() {
                 </div>
                 <div>
                   <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>Data Summary</div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>What is stored & why</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>What we store &amp; why</div>
                 </div>
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 24, textAlign: 'justify' }}>
-                 VibePick is committed to protecting your privacy. It collects only the data necessary to deliver personalised recommendations and improve your experience. Below is a full breakdown of every category of data we store on your behalf.
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 24 }}>
+                VibePick collects only the data necessary to deliver personalised recommendations and improve your experience. We never sell your data to third parties. Below is a full breakdown of every category of data we store on your behalf.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -340,8 +351,8 @@ export default function PrivacyData() {
                 </div>
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 28, textAlign: 'justify' }}>
-                Under the General Data Protection Regulation (GDPR — EU 2016/679), you have the right to receive a copy of all personal data we hold about you in a structured, commonly used and machine-readable format. You may also transmit that data to another service provider of your choosing without hindrance.
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 28 }}>
+                Under the General Data Protection Regulation (GDPR — EU 2016/679), you have the right to receive a copy of all personal data we hold about you in a structured, commonly used, and machine-readable format. You may also transmit that data to another service provider of your choosing without hindrance.
               </p>
 
               {}
@@ -350,8 +361,8 @@ export default function PrivacyData() {
                   <span style={{ fontSize: 20 }}>📦</span>
                   <span style={{ fontSize: 15, fontWeight: 800, color: 'white' }}>Export My Data</span>
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.58)', lineHeight: 1.75, marginBottom: 20, textAlign: 'justify' }}>
-                  Download a complete JSON archive of your VibePick account data, including your profile, genre preferences, subscriptions, watch history, wishlist, and all mood logs. Your data will be ready instantly.
+                <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.58)', lineHeight: 1.75, marginBottom: 20 }}>
+                  Download a complete JSON archive of your VibePick account data — including your profile, genre preferences, subscriptions, watch history, wishlist, and all mood logs. Your data will be ready instantly.
                 </p>
                 <button
                   onClick={handleExportData}
@@ -380,7 +391,7 @@ export default function PrivacyData() {
               {}
               <div style={{ marginTop: 20, padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Right to Erasure</div>
-                <p style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, textAlign: 'justify' }}>
+                <p style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
                   You may request full deletion of your account and all associated data at any time from the <Link to="/account" style={{ color: '#c084fc', textDecoration: 'none', fontWeight: 700 }}>Your Account</Link> page.
                 </p>
               </div>
@@ -394,11 +405,11 @@ export default function PrivacyData() {
                 </div>
                 <div>
                   <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>Legal Documentation</div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>Official notices & policies</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>Official notices &amp; policies</div>
                 </div>
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 32, textAlign: 'justify' }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 32 }}>
                 All legal documents governing your use of VibePick are available below. We recommend reviewing them periodically as they may be updated. Each document is provided as a PDF and can be saved for your records.
               </p>
 
@@ -422,7 +433,7 @@ export default function PrivacyData() {
               {}
               <div style={{ marginTop: 24, padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
                 <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.5px' }}>
-                  Documents last reviewed: January 2026
+                  Documents last reviewed: March 2026
                 </span>
               </div>
             </div>

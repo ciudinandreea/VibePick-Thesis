@@ -27,15 +27,23 @@ router.get('/', authMiddleware, async (req, res) => {
     const tmdbData2 = await getPopularMovies(2);
     candidateMovies = candidateMovies.concat(tmdbData2.results || []);
 
+    const seenIds = new Set();
+    candidateMovies = candidateMovies.filter(m => {
+      if (seenIds.has(m.id)) return false;
+      seenIds.add(m.id);
+      return true;
+    });
+
     if (candidateMovies.length === 0) {
       return res.json({ recommendations: [], mood, mode });
     }
 
     try {
       const watchedRes = await pool.query(`
-        SELECT i.tmdb_id FROM interactions int
-        JOIN items i ON int.item_id = i.id
-        WHERE int.user_id = $1 AND int.action_type = 'watched'
+        SELECT i.tmdb_id
+        FROM watched_items wi
+        JOIN items i ON wi.item_id = i.id
+        WHERE wi.user_id = $1
       `, [userId]);
       const watchedIds = new Set(watchedRes.rows.map(r => r.tmdb_id));
       if (watchedIds.size > 0) {
