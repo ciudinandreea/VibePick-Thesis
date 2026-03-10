@@ -20,8 +20,8 @@ const PROVIDER_DISPLAY_NAME = {
   'disney+':             'Disney+',
   'amazon prime video':  'Amazon Prime Video',
   'prime video':         'Amazon Prime Video',
-  'max':                 'HBO Max',
-  'hbo max':             'HBO Max',
+  'max':                 'Max',
+  'hbo max':             'Max',
   'apple tv plus':       'Apple TV+',
   'apple tv+':           'Apple TV+',
   'hulu':                'Hulu',
@@ -29,7 +29,7 @@ const PROVIDER_DISPLAY_NAME = {
   'paramount+':          'Paramount+',
   'peacock':             'Peacock',
   'peacock premium':     'Peacock',
-  'skyshowtime':         'Sky',
+  'skyshowtime':         'Sky Showtime',
 };
 
 function buildProviderSet(userPlatforms) {
@@ -40,7 +40,6 @@ function buildProviderSet(userPlatforms) {
   }
   return set;
 }
-
 function getGenreNames(movie) {
   if (movie.genres && Array.isArray(movie.genres) && movie.genres.length > 0) {
     return movie.genres.map(g => (typeof g === 'object' ? g.name : GENRE_IDS[g])).filter(Boolean);
@@ -71,10 +70,10 @@ function calculatePrefMatch(movie, userGenres) {
 async function calculateHistoryAffinity(movie, userId) {
   try {
     const result = await pool.query(`
-      SELECT DISTINCT i.genres FROM interactions int
-      JOIN items i ON int.item_id = i.id
-      WHERE int.user_id = $1
-        AND int.action_type IN ('watched', 'clicked')
+      SELECT DISTINCT i.genres
+      FROM watched_items wi
+      JOIN items i ON wi.item_id = i.id
+      WHERE wi.user_id = $1
       LIMIT 30
     `, [userId]);
 
@@ -100,11 +99,11 @@ async function calculateHistoryAffinity(movie, userId) {
 async function calculateNoveltyScore(movie, userId) {
   try {
     const result = await pool.query(`
-      SELECT COUNT(*) as count FROM interactions int
-      JOIN items i ON int.item_id = i.id
-      WHERE int.user_id = $1
+      SELECT COUNT(*) as count
+      FROM watched_items wi
+      JOIN items i ON wi.item_id = i.id
+      WHERE wi.user_id = $1
         AND i.tmdb_id = $2
-        AND int.action_type = 'watched'
     `, [userId, movie.id]);
     return parseInt(result.rows[0].count) > 0 ? 0 : 1;
   } catch { return 1; }

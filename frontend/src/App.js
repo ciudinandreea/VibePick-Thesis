@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login                from './components/Login';
 import Register             from './components/Register';
@@ -22,28 +22,63 @@ function OnboardingRoute({ children }) {
   return children;
 }
 
+async function checkSetupDone(uid) {
+  if (localStorage.getItem(`setupComplete_${uid}`) === 'true') return true;
+  try {
+    const { default: api } = await import('./services/api');
+    const [genreRes, subRes] = await Promise.all([
+      api.get('/profile/genres'),
+      api.get('/profile/subscriptions'),
+    ]);
+    const genres = genreRes.data?.genres || [];
+    const subs   = subRes.data?.platforms || [];
+    if (genres.length > 0 && subs.length > 0) {
+      localStorage.setItem(`setupComplete_${uid}`, 'true');
+      return true;
+    }
+  } catch {  }
+  return false;
+}
+
 function AppRoute({ children }) {
-  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  const [status, setStatus] = useState('checking');
   const user = getCurrentUser();
   const uid  = user?.id || user?.userId || '';
-  const setupDone = localStorage.getItem(`setupComplete_${uid}`) === 'true';
-  if (!setupDone) return <Navigate to="/setup/genres" replace />;
-  const today    = new Date().toISOString().slice(0, 10);
-  const moodDate = localStorage.getItem(`moodDate_${uid}`);
-  if (moodDate !== today) return <Navigate to="/mood" replace />;
+
+  useEffect(() => {
+    if (!isAuthenticated()) { setStatus('notAuthed'); return; }
+    checkSetupDone(uid).then(done => {
+      if (!done) { setStatus('needsSetup'); return; }
+      const today    = new Date().toISOString().slice(0, 10);
+      const moodDate = localStorage.getItem(`moodDate_${uid}`);
+      setStatus(moodDate === today ? 'ok' : 'needsMood');
+    });
+  }, [uid]);
+
+  if (status === 'checking')   return null;
+  if (status === 'notAuthed')  return <Navigate to="/login" replace />;
+  if (status === 'needsSetup') return <Navigate to="/setup/genres" replace />;
+  if (status === 'needsMood')  return <Navigate to="/mood" replace />;
   return children;
 }
 
 function SmartRedirect() {
-  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  const [dest, setDest] = useState(null);
   const user = getCurrentUser();
   const uid  = user?.id || user?.userId || '';
-  const setupDone = localStorage.getItem(`setupComplete_${uid}`) === 'true';
-  if (!setupDone) return <Navigate to="/setup/genres" replace />;
-  const today    = new Date().toISOString().slice(0, 10);
-  const moodDate = localStorage.getItem(`moodDate_${uid}`);
-  if (moodDate !== today) return <Navigate to="/mood" replace />;
-  return <Navigate to="/browse" replace />;
+
+  useEffect(() => {
+    if (!isAuthenticated()) { setDest('/login'); return; }
+    checkSetupDone(uid).then(done => {
+      if (!done) { setDest('/setup/genres'); return; }
+      const today    = new Date().toISOString().slice(0, 10);
+      const moodDate = localStorage.getItem(`moodDate_${uid}`);
+      setDest(moodDate === today ? '/browse' : '/mood');
+    });
+  }, [uid]);
+
+  if (!dest) return null;
+  return <Navigate to={dest} replace />;
 }
 
 export default function App() {
