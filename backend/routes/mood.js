@@ -169,7 +169,11 @@ router.post('/watch', auth, async (req, res) => {
     }
 
     await pool.query(
-      `INSERT INTO interactions (user_id, item_id, action_type, timestamp) VALUES ($1,$2,'watched',NOW())`,
+      `INSERT INTO interactions (user_id, item_id, action_type, timestamp) VALUES ($1,$2,'watched',NOW()) ON CONFLICT DO NOTHING`,
+      [userId, itemId]
+    );
+    await pool.query(
+      `INSERT INTO watched_items (user_id, item_id, watched_at) VALUES ($1,$2,NOW()) ON CONFLICT (user_id, item_id) DO NOTHING`,
       [userId, itemId]
     );
     res.json({ success: true });

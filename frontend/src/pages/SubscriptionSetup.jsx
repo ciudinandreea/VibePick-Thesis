@@ -128,10 +128,6 @@ export default function SubscriptionSetup() {
           color: 'white', animation: 'fadeUp 0.45s ease both',
           textAlign: 'center',
         }}>
-          <img src="/logo.png" alt="VibePick" style={{
-            width: 56, height: 56, borderRadius: 14, objectFit: 'cover',
-            marginBottom: 14, boxShadow: '0 8px 32px rgba(168,85,247,0.45)',
-          }} />
           <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 6, letterSpacing: '-0.3px' }}>
             Personalize Your Experience
           </div>

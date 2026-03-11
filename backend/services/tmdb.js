@@ -96,10 +96,36 @@ async function getMovieProviders(movieId, region = 'US') {
   }
 }
 
+async function discoverMoviesByGenre(genreId, page = 1) {
+  try {
+    const data = await tmdbRequest('/discover/movie', {
+      with_genres:      genreId,
+      sort_by:          'popularity.desc',
+      'vote_count.gte': 50,
+      include_adult:    false,
+      page,
+      region:           'RO',
+      language:         'en-US',
+    });
+    return {
+      ...data,
+      results: (data.results || []).map(movie => ({
+        ...movie,
+        poster_url:   movie.poster_path   ? `${IMAGE_BASE_URL}${movie.poster_path}`   : null,
+        backdrop_url: movie.backdrop_path ? `${IMAGE_BASE_URL}${movie.backdrop_path}` : null,
+      })),
+    };
+  } catch (err) {
+    console.error(`discoverMoviesByGenre(${genreId}) error:`, err.message);
+    return { results: [] };
+  }
+}
+
 module.exports = {
   getPopularMovies,
   getMovieDetails,
   searchMovies,
   getMoviesByGenre,
+  discoverMoviesByGenre,
   getMovieProviders,
 };

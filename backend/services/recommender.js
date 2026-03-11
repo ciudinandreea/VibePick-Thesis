@@ -15,103 +15,115 @@ const PLATFORM_TMDB_NAMES = {
 };
 
 const PROVIDER_DISPLAY_NAME = {
-  'netflix':             'Netflix',
-  'disney plus':         'Disney+',
-  'disney+':             'Disney+',
-  'amazon prime video':  'Amazon Prime Video',
-  'prime video':         'Amazon Prime Video',
-  'max':                 'Max',
-  'hbo max':             'Max',
-  'apple tv plus':       'Apple TV+',
-  'apple tv+':           'Apple TV+',
-  'hulu':                'Hulu',
-  'paramount plus':      'Paramount+',
-  'paramount+':          'Paramount+',
-  'peacock':             'Peacock',
-  'peacock premium':     'Peacock',
-  'skyshowtime':         'Sky Showtime',
+  'netflix': 'Netflix', 'disney plus': 'Disney+', 'disney+': 'Disney+',
+  'amazon prime video': 'Prime', 'prime video': 'Prime',
+  'max': 'Max', 'hbo max': 'Max',
+  'apple tv plus': 'Apple TV+', 'apple tv+': 'Apple TV+',
+  'hulu': 'Hulu', 'paramount plus': 'Paramount+', 'paramount+': 'Paramount+',
+  'peacock': 'Peacock', 'peacock premium': 'Peacock', 'skyshowtime': 'Sky',
 };
 
 function buildProviderSet(userPlatforms) {
   const set = new Set();
   for (const pid of userPlatforms) {
-    const names = PLATFORM_TMDB_NAMES[pid] || [];
-    names.forEach(n => set.add(n.toLowerCase()));
+    (PLATFORM_TMDB_NAMES[pid] || []).forEach(n => set.add(n.toLowerCase()));
   }
   return set;
 }
-function getGenreNames(movie) {
-  if (movie.genres && Array.isArray(movie.genres) && movie.genres.length > 0) {
-    return movie.genres.map(g => (typeof g === 'object' ? g.name : GENRE_IDS[g])).filter(Boolean);
+
+function getMovieGenreNames(movie) {
+  if (Array.isArray(movie.genres) && movie.genres.length > 0) {
+    return movie.genres
+      .map(g => (typeof g === 'object' ? g.name : GENRE_IDS[g]))
+      .filter(Boolean);
   }
-  if (movie.genre_ids && Array.isArray(movie.genre_ids)) {
+  if (Array.isArray(movie.genre_ids) && movie.genre_ids.length > 0) {
     return movie.genre_ids.map(id => GENRE_IDS[id]).filter(Boolean);
   }
   return [];
 }
 
 function calculateMoodMatch(movie, mood) {
-  const moodScores = MOOD_GENRE_SCORES[mood];
-  if (!moodScores) return 0.5;
-  const genreNames = getGenreNames(movie);
-  if (genreNames.length === 0) return 0.5;
-  const scores = genreNames.map(g => moodScores[g] || 0.5);
-  return scores.reduce((sum, s) => sum + s, 0) / scores.length;
+  const moodMap = MOOD_GENRE_SCORES[mood];
+  if (!moodMap) return 0.5;
+  const names = getMovieGenreNames(movie);
+  if (names.length === 0) return 0.5;
+  const scores = names.map(n => moodMap[n] !== undefined ? moodMap[n] : 0);
+  return scores.reduce((s, v) => s + v, 0) / scores.length;
 }
 
-function calculatePrefMatch(movie, userGenres) {
-  if (!userGenres || userGenres.length === 0) return 0.5;
-  const genreNames = getGenreNames(movie);
-  if (genreNames.length === 0) return 0.5;
-  const overlap = genreNames.filter(g => userGenres.includes(g)).length;
-  return overlap / Math.max(genreNames.length, userGenres.length);
+function calculatePrefMatch(movie, userGenreNames) {
+  if (!userGenreNames || userGenreNames.length === 0) return 0;
+  const movieNames = getMovieGenreNames(movie);
+  if (movieNames.length === 0) return 0;
+  const overlap = movieNames.filter(n => userGenreNames.includes(n)).length;
+  return overlap / Math.max(movieNames.length, userGenreNames.length);
 }
 
-async function calculateHistoryAffinity(movie, userId) {
+async function calculateHistoryAffinity(movie, userId, watchedGenreNames) {
+  if (!watchedGenreNames || watchedGenreNames.size === 0) return 0;
+  const movieNames = getMovieGenreNames(movie);
+  if (movieNames.length === 0) return 0;
+  const overlap = movieNames.filter(n => watchedGenreNames.has(n)).length;
+  return overlap / Math.max(movieNames.length, 1);
+}
+
+async function fetchWatchedGenreNames(userId) {
   try {
     const result = await pool.query(`
       SELECT DISTINCT i.genres
-      FROM watched_items wi
-      JOIN items i ON wi.item_id = i.id
-      WHERE wi.user_id = $1
-      LIMIT 30
+      FROM items i
+      WHERE i.id IN (
+        SELECT item_id FROM watched_items WHERE user_id = $1
+        UNION
+        SELECT item_id FROM interactions  WHERE user_id = $1 AND action_type = 'watched'
+      )
     `, [userId]);
 
-    if (result.rows.length === 0) return 0.5;
-
-    const watchedGenres = new Set();
-    result.rows.forEach(row => {
-      if (row.genres) {
-        const g = typeof row.genres === 'string' ? JSON.parse(row.genres) : row.genres;
-        g.forEach(x => watchedGenres.add(typeof x === 'object' ? x.name : x));
+    const names = new Set();
+    for (const row of result.rows) {
+      if (!row.genres) continue;
+      const arr = typeof row.genres === 'string' ? JSON.parse(row.genres) : row.genres;
+      for (const g of arr) {
+        if (typeof g === 'object' && g.name) {
+          names.add(g.name);
+        } else {
+          const name = GENRE_IDS[g];
+          if (name) names.add(name);
+        }
       }
-    });
-
-    if (watchedGenres.size === 0) return 0.5;
-
-    const movieGenres = getGenreNames(movie);
-    if (movieGenres.length === 0) return 0.5;
-
-    return movieGenres.filter(g => watchedGenres.has(g)).length / Math.max(movieGenres.length, 1);
-  } catch { return 0.5; }
+    }
+    return names;
+  } catch (e) {
+    console.error('fetchWatchedGenreNames error:', e.message);
+    return new Set();
+  }
 }
 
-async function calculateNoveltyScore(movie, userId) {
+async function calculateNoveltyScore(movie, watchedTmdbIds) {
+  return watchedTmdbIds.has(movie.id) ? 0 : 1;
+}
+
+async function fetchWatchedTmdbIds(userId) {
   try {
     const result = await pool.query(`
-      SELECT COUNT(*) as count
-      FROM watched_items wi
-      JOIN items i ON wi.item_id = i.id
-      WHERE wi.user_id = $1
-        AND i.tmdb_id = $2
-    `, [userId, movie.id]);
-    return parseInt(result.rows[0].count) > 0 ? 0 : 1;
-  } catch { return 1; }
+      SELECT DISTINCT i.tmdb_id
+      FROM items i
+      WHERE i.id IN (
+        SELECT item_id FROM watched_items WHERE user_id = $1
+        UNION
+        SELECT item_id FROM interactions  WHERE user_id = $1 AND action_type = 'watched'
+      )
+    `, [userId]);
+    return new Set(result.rows.map(r => r.tmdb_id));
+  } catch (e) {
+    console.error('fetchWatchedTmdbIds error:', e.message);
+    return new Set();
+  }
 }
 
 async function calculateSubscriptionScore(movie, providerSet, providerCache) {
-  if (providerSet.size === 0) return { score: 0.5, platformName: null };
-
+  if (providerSet.size === 0) return { score: 0, platformName: null };
   try {
     let providers;
     if (providerCache.has(movie.id)) {
@@ -120,57 +132,65 @@ async function calculateSubscriptionScore(movie, providerSet, providerCache) {
       providers = await getMovieProviders(movie.id);
       providerCache.set(movie.id, providers);
     }
-
     const available = providers.flatrate || [];
-    let matchedName = null;
     for (const p of available) {
-      if (providerSet.has(p.provider_name.toLowerCase())) {
-        matchedName = PROVIDER_DISPLAY_NAME[p.provider_name.toLowerCase()] || p.provider_name;
-        break;
+      const key = p.provider_name.toLowerCase();
+      if (providerSet.has(key)) {
+        return {
+          score: 1.0,
+          platformName: PROVIDER_DISPLAY_NAME[key] || p.provider_name,
+        };
       }
     }
-    return { score: matchedName ? 1.0 : 0.0, platformName: matchedName };
+    return { score: 0, platformName: null };
   } catch {
-    return { score: 0.5, platformName: null };
+    return { score: 0, platformName: null };
   }
 }
 
 async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
-  let userGenres   = [];
-  let userPlatforms = [];
-
+  let userGenreNames = [];
   try {
-    const prefResult = await pool.query(
+    const r = await pool.query(
       `SELECT favourite_genres FROM profiles WHERE user_id = $1`, [userId]
     );
-    if (prefResult.rows[0]?.favourite_genres) {
-      userGenres = prefResult.rows[0].favourite_genres;
+    const raw = r.rows[0]?.favourite_genres;
+    if (raw) {
+      const arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      userGenreNames = arr.map(g => typeof g === 'string' ? g : GENRE_IDS[g]).filter(Boolean);
     }
-  } catch (e) { console.error('Error fetching genres:', e.message); }
+  } catch (e) { console.error('Genre fetch error:', e.message); }
 
+  let userPlatforms = [];
   try {
-    const subResult = await pool.query(
-      `SELECT platform_name FROM subscriptions WHERE user_id = $1 AND active = true`,
-      [userId]
+    const r = await pool.query(
+      `SELECT platform_name FROM subscriptions WHERE user_id = $1 AND active = true`, [userId]
     );
-    userPlatforms = subResult.rows.map(r => r.platform_name);
-  } catch (e) { console.error('Error fetching subscriptions:', e.message); }
+    userPlatforms = r.rows.map(r => r.platform_name);
+  } catch (e) { console.error('Subscription fetch error:', e.message); }
+
+  const [watchedGenreNames, watchedTmdbIds] = await Promise.all([
+    fetchWatchedGenreNames(userId),
+    fetchWatchedTmdbIds(userId),
+  ]);
 
   const providerSet   = buildProviderSet(userPlatforms);
-  const providerCache = new Map(); 
-  const weights = mode === 'baseline'
-    ? { mood: 0.00, pref: 0.35, hist: 0.30, novelty: 0.20, sub: 0.15 }
-    : { mood: 0.30, pref: 0.25, hist: 0.15, novelty: 0.15, sub: 0.15 };
+  const providerCache = new Map();
 
-  const scoredMovies = await Promise.all(movies.map(async (movie) => {
+  const weights = mode === 'baseline'
+    ? { mood: 0.00, pref: 0.40, hist: 0.30, novelty: 0.15, sub: 0.15 }
+    : { mood: 0.35, pref: 0.25, hist: 0.20, novelty: 0.10, sub: 0.10 };
+
+  const scored = await Promise.all(movies.map(async (movie) => {
+    const subResult = await calculateSubscriptionScore(movie, providerSet, providerCache);
+
     const scores = {
-      mood:    mode === 'baseline' ? 0 : calculateMoodMatch(movie, mood),
-      pref:    calculatePrefMatch(movie, userGenres),
-      hist:    await calculateHistoryAffinity(movie, userId),
-      novelty: await calculateNoveltyScore(movie, userId),
-      ...await calculateSubscriptionScore(movie, providerSet, providerCache).then(r => ({
-        sub: r.score, platformName: r.platformName,
-      })),
+      mood:        mode === 'baseline' ? 0 : calculateMoodMatch(movie, mood),
+      pref:        calculatePrefMatch(movie, userGenreNames),
+      hist:        await calculateHistoryAffinity(movie, userId, watchedGenreNames),
+      novelty:     await calculateNoveltyScore(movie, watchedTmdbIds),
+      sub:         subResult.score,
+      platformName: subResult.platformName,
     };
 
     const finalScore =
@@ -183,15 +203,12 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
     return { movie, finalScore, scores, weights };
   }));
 
-  scoredMovies.sort((a, b) => b.finalScore - a.finalScore);
-  return scoredMovies;
+  scored.sort((a, b) => b.finalScore - a.finalScore);
+  return scored;
 }
 
 module.exports = {
-  calculateMoodMatch,
-  calculatePrefMatch,
-  calculateHistoryAffinity,
-  calculateNoveltyScore,
-  calculateSubscriptionScore,
-  rankMovies,
+  calculateMoodMatch, calculatePrefMatch,
+  calculateHistoryAffinity, calculateNoveltyScore,
+  calculateSubscriptionScore, rankMovies,
 };
