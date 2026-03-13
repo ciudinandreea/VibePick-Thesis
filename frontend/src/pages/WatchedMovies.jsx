@@ -5,7 +5,6 @@ import api from '../services/api';
 import { getMovieDetails } from '../services/movies';
 
 const PUR  = '#7C3AED';
-const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
@@ -444,11 +443,11 @@ export default function WatchedMovies() {
           ) : movies.length === 0 ? (
             <div style={{
               textAlign: 'center', padding: '80px 20px',
-              background: 'rgba(255,255,255,0.5)', borderRadius: 20,
-              border: '1px solid rgba(124,58,237,0.1)',
+              background:'rgba(255,255,255,0.07)', backdropFilter:'blur(12px)',
+              border:'1px solid rgba(255,255,255,0.12)', borderRadius:20,
             }}>
               <div style={{ fontSize: 52, marginBottom: 16 }}>🎬</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: TEXT, marginBottom: 8 }}>No watched movies yet</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: 'white', marginBottom: 8 }}>No watched movies yet</div>
               <div style={{ fontSize: 14, color: MUT, fontWeight: 500 }}>
                 Click "Mark as Watched" on any movie to track it here
               </div>
