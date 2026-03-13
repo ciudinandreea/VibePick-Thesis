@@ -418,7 +418,7 @@ export default function WatchedMovies() {
         <div style={{ padding: '32px 32px 56px' }}>
           {}
           <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontSize: 28, fontWeight: 900, color: TEXT, margin: '0 0 6px', letterSpacing: '-0.4px' }}>
+            <h1 style={{ fontSize: 28, fontWeight: 900, color: 'white', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
               Watched Movies
             </h1>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>

@@ -2,6 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const pool    = require('../db/connection');
 const auth    = require('../middleware/auth');
+const { getMovieDetails } = require('../services/tmdb');
 
 const VALID = ['happy','sad','stressed','tired','excited','bored'];
 
@@ -155,15 +156,33 @@ router.post('/watch', auth, async (req, res) => {
     if (!tmdb_id) return res.status(400).json({ error: 'tmdb_id required' });
     const userId = req.user.userId;
 
+    let genres = null;
+    let resolvedTitle    = title;
+    let resolvedPoster   = poster_path || null;
+    try {
+      const details = await getMovieDetails(tmdb_id);
+      genres          = details.genres ? JSON.stringify(details.genres) : null;
+      resolvedTitle   = details.title  || title;
+      resolvedPoster  = details.poster_url || poster_path || null;
+    } catch (e) {
+      console.error('TMDB detail fetch failed for watch log:', e.message);
+    }
+
     let itemId;
-    const existing = await pool.query(`SELECT id FROM items WHERE tmdb_id = $1`, [tmdb_id]);
+    const existing = await pool.query(`SELECT id, genres FROM items WHERE tmdb_id = $1`, [tmdb_id]);
     if (existing.rows.length > 0) {
       itemId = existing.rows[0].id;
+      if (!existing.rows[0].genres && genres) {
+        await pool.query(
+          `UPDATE items SET genres = $1::jsonb WHERE id = $2`,
+          [genres, itemId]
+        );
+      }
     } else {
-      if (!title) return res.status(404).json({ error: 'Movie not in DB and no title provided' });
+      if (!resolvedTitle) return res.status(404).json({ error: 'Movie not in DB and no title provided' });
       const newItem = await pool.query(
-        `INSERT INTO items (tmdb_id, title, poster_path) VALUES ($1,$2,$3) RETURNING id`,
-        [tmdb_id, title, poster_path || null]
+        `INSERT INTO items (tmdb_id, title, poster_path, genres) VALUES ($1,$2,$3,$4::jsonb) RETURNING id`,
+        [tmdb_id, resolvedTitle, resolvedPoster, genres]
       );
       itemId = newItem.rows[0].id;
     }

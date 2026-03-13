@@ -354,7 +354,7 @@ const CHART_PALETTE = [
   '#a855f7','#14b8a6',
 ];
 
-function DonutChart({ data, size = 200, thickness = 36 }) {
+function DonutChart({ data, size = 200, thickness = 36, total }) {
   const r = (size / 2) - thickness / 2;
   const circ = 2 * Math.PI * r;
   let offset = 0;
@@ -380,7 +380,7 @@ function DonutChart({ data, size = 200, thickness = 36 }) {
       ))}
       {}
       <text x={size/2} y={size/2 - 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="white">
-        {data.reduce((a, d) => a + d.count, 0)}
+        {total || data.reduce((a, d) => a + d.count, 0)}
       </text>
       <text x={size/2} y={size/2 + 12} textAnchor="middle" fontSize="11" fontWeight="600" fill="rgba(255,255,255,0.5)">
         movies
@@ -415,7 +415,7 @@ function StatsBars({ data }) {
   );
 }
 
-function StatsPanel({ title, subtitle, data, loading, empty }) {
+function StatsPanel({ title, subtitle, data, loading, empty, total }) {
   const chartData = data.map((d, i) => ({ ...d, label: d.label || d.genre || d.platform }));
   return (
     <div style={{
@@ -440,7 +440,7 @@ function StatsPanel({ title, subtitle, data, loading, empty }) {
         </div>
       ) : (
         <div style={{ display:'flex', alignItems:'center', gap:32, flexWrap:'wrap' }}>
-          <DonutChart data={chartData} />
+          <DonutChart data={chartData} total={total} />
           <StatsBars data={chartData} />
         </div>
       )}
@@ -455,13 +455,21 @@ export default function GenreManager() {
   const [saving,     setSaving]     = useState(false);
   const [saveError,  setSaveError]  = useState('');
   const [genreStats,  setGenreStats]  = useState([]);
+  const [genreTotal,  setGenreTotal]  = useState(0);
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/profile/stats/genres')
-      .then(r => setGenreStats(r.data.breakdown || []))
-      .catch(() => {})
-      .finally(() => setStatsLoading(false));
+    api.post('/profile/backfill-genres?force=true')
+      .catch(() => {}) 
+      .finally(() => {
+        api.get('/profile/stats/genres')
+          .then(r => {
+            setGenreStats(r.data.breakdown || []);
+            setGenreTotal(r.data.total || 0);
+          })
+          .catch(() => {})
+          .finally(() => setStatsLoading(false));
+      });
   }, []);
 
   useEffect(() => {
@@ -524,10 +532,10 @@ export default function GenreManager() {
       <div className="gm-page-bg" style={{ fontFamily: FONT }}>
         <Navbar />
         <div style={{ padding: '32px 32px 56px' }}>
-          <div style={{ fontSize: 34, fontWeight: 900, color: TEXT, letterSpacing: '-0.5px', marginBottom: 4 }}>
+          <div style={{ fontSize: 34, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: 4 }}>
             Favorite Genres
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: MUT, marginBottom: 28 }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginBottom: 28 }}>
             Manage your genre preferences
           </div>
 
@@ -575,6 +583,7 @@ export default function GenreManager() {
           <StatsPanel
             title="Genre Breakdown"
             subtitle={`All your watched movies by genre`}
+            total={genreTotal}
             data={genreStats.map(d => ({ ...d, label: d.genre }))}
             loading={statsLoading}
           />

@@ -2,6 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const pool    = require('../db/connection');
 const auth    = require('../middleware/auth');
+const { getMovieDetails, getMovieProviders } = require('../services/tmdb');
 
 router.put('/genres', auth, async (req, res) => {
   try {
@@ -96,38 +97,54 @@ router.delete('/subscriptions/:platformId', auth, async (req, res) => {
 router.get('/stats/genres', auth, async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT i.genres
-      FROM interactions int
-      JOIN items i ON int.item_id = i.id
-      WHERE int.user_id = $1
-        AND int.action_type = 'watched'
+      SELECT DISTINCT i.id, i.genres
+      FROM items i
+      WHERE i.id IN (
+        SELECT item_id FROM watched_items WHERE user_id = $1
+        UNION
+        SELECT item_id FROM interactions  WHERE user_id = $1 AND action_type = 'watched'
+      )
     `, [req.user.userId]);
 
+    const GENRE_IDS = {
+      28:'Action',12:'Adventure',16:'Animation',35:'Comedy',80:'Crime',
+      99:'Documentary',18:'Drama',10751:'Family',14:'Fantasy',36:'History',
+      27:'Horror',10402:'Music',9648:'Mystery',10749:'Romance',878:'Science Fiction',
+      10770:'TV Movie',53:'Thriller',10752:'War',37:'Western'
+    };
+
     const tally = {};
-    let total = 0;
+    let movieCount = 0;
 
     for (const row of result.rows) {
-      let genres = row.genres;
-      if (!genres) continue;
-      if (typeof genres === 'string') genres = JSON.parse(genres);
-      if (!Array.isArray(genres)) continue;
+      if (!row.genres) continue;
+      let genres = typeof row.genres === 'string' ? JSON.parse(row.genres) : row.genres;
+      if (!Array.isArray(genres) || genres.length === 0) continue;
+      movieCount++;
       for (const g of genres) {
-        const name = typeof g === 'object' ? g.name : g;
+        let name;
+        if (typeof g === 'object' && g !== null) {
+          name = g.name || GENRE_IDS[g.id];
+        } else if (typeof g === 'string') {
+          name = g;
+        } else {
+          name = GENRE_IDS[g];
+        }
         if (!name) continue;
         tally[name] = (tally[name] || 0) + 1;
-        total++;
       }
     }
 
+    const totalGenreHits = Object.values(tally).reduce((s, v) => s + v, 0);
     const breakdown = Object.entries(tally)
       .sort((a, b) => b[1] - a[1])
       .map(([genre, count]) => ({
         genre,
         count,
-        pct: total > 0 ? Math.round((count / total) * 100) : 0,
+        pct: totalGenreHits > 0 ? Math.round((count / totalGenreHits) * 100) : 0,
       }));
 
-    res.json({ breakdown, total: result.rows.length, period: 'All time' });
+    res.json({ breakdown, total: movieCount, period: 'All time' });
   } catch (err) {
     console.error('Error fetching genre stats:', err.message);
     res.status(500).json({ error: 'Failed to fetch genre stats' });
@@ -155,7 +172,6 @@ router.get('/stats/platforms', auth, async (req, res) => {
       return res.json({ breakdown: [], total: 0, period: 'All time' });
     }
 
-    const { getMovieProviders } = require('../services/tmdb');
     const PLATFORM_TMDB_NAMES = {
       netflix:     ['Netflix'],
       disneyplus:  ['Disney Plus', 'Disney+'],
@@ -235,7 +251,6 @@ router.post('/movies/platform-labels', auth, async (req, res) => {
     const userSubs = new Set(subResult.rows.map(r => r.platform_name));
     if (userSubs.size === 0) return res.json({ labels: {} });
 
-    const { getMovieProviders } = require('../services/tmdb');
 
     const PROVIDER_DISPLAY_NAME = {
       'netflix':             'Netflix',
@@ -430,6 +445,59 @@ router.get('/me', auth, async (req, res) => {
   } catch (err) {
     console.error('Error fetching user:', err.message);
     res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});
+
+router.post('/backfill-genres', auth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const force = req.query.force === 'true';
+
+    const missing = await pool.query(`
+      SELECT DISTINCT i.id, i.tmdb_id, i.title
+      FROM items i
+      WHERE (i.genres IS NULL OR $2)
+        AND i.id IN (
+          SELECT item_id FROM watched_items WHERE user_id = $1
+          UNION
+          SELECT item_id FROM interactions  WHERE user_id = $1 AND action_type = 'watched'
+        )
+    `, [userId, force]);
+
+    if (missing.rows.length === 0) {
+      return res.json({ updated: 0, message: 'All watched items already have genres.' });
+    }
+
+    let updated = 0;
+    let failed  = 0;
+
+    for (const item of missing.rows) {
+      try {
+        const details = await getMovieDetails(item.tmdb_id);
+        if (details.genres && details.genres.length > 0) {
+          await pool.query(
+            `UPDATE items SET genres = $1::jsonb WHERE id = $2`,
+            [JSON.stringify(details.genres), item.id]
+          );
+          updated++;
+        }
+        await new Promise(r => setTimeout(r, 260));
+      } catch (e) {
+        console.error(`Backfill failed for tmdb_id ${item.tmdb_id}:`, e.message);
+        failed++;
+      }
+    }
+
+    res.json({
+      updated,
+      failed,
+      total: missing.rows.length,
+      message: `Backfilled genres for ${updated} of ${missing.rows.length} movies.`,
+    });
+  } catch (err) {
+    console.error('Backfill error:', err.message);
+    res.status(500).json({ error: 'Backfill failed' });
   }
 });
 
