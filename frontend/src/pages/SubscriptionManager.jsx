@@ -90,6 +90,18 @@ const GenreIco = () => (
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
   </svg>
 );
+const SearchIco = ({ color = 'rgba(255,255,255,0.75)', size = 17 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+);
+const XSearchIco = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
 
 function Navbar() {
   const navigate   = useNavigate();
@@ -100,6 +112,8 @@ function Navbar() {
   const userRef    = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQ,   setSearchQ]   = useState('');
 
   useEffect(() => {
     const fn = e => {
@@ -171,6 +185,56 @@ function Navbar() {
             </Link>
           );
         })}
+
+
+        {}
+        {!showSearch ? (
+          <button onClick={() => setShowSearch(true)} title="Search movies" style={{
+            display:'flex', alignItems:'center', justifyContent:'center',
+            width:34, height:34, borderRadius:9,
+            background:'none', border:'none', cursor:'pointer', transition:'background 0.15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(124,58,237,0.18)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background='none'; }}>
+            <SearchIco />
+          </button>
+        ) : (
+          <form onSubmit={e => { e.preventDefault(); const q = searchQ.trim(); if (q) navigate(`/browse?q=${encodeURIComponent(q)}`); }} style={{
+            display:'flex', alignItems:'center', gap:6, animation:'srch-in 0.2s ease both',
+          }}>
+            <style>{`@keyframes srch-in{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}`}</style>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', pointerEvents:'none', display:'flex' }}>
+                <SearchIco color="rgba(124,58,237,0.5)" size={15} />
+              </span>
+              <input
+                autoFocus
+                value={searchQ}
+                onChange={e => setSearchQ(e.target.value)}
+                placeholder="Search movies…"
+                style={{
+                  width:190, background:'rgba(255,255,255,0.95)',
+                  border:'1.5px solid rgba(124,58,237,0.3)', borderRadius:9,
+                  padding:'7px 10px 7px 32px', fontSize:13, fontWeight:500,
+                  color:'#1a0533', fontFamily:"'Montserrat', sans-serif", outline:'none',
+                }}
+                onFocus={e => e.target.style.borderColor='rgba(124,58,237,0.6)'}
+                onBlur={e  => e.target.style.borderColor='rgba(124,58,237,0.3)'} />
+            </div>
+            <button type="submit" style={{
+              padding:'7px 13px', background:'linear-gradient(135deg,#7C3AED,#9333ea)',
+              border:'none', borderRadius:9, color:'white',
+              fontSize:13, fontWeight:700, fontFamily:"'Montserrat', sans-serif", cursor:'pointer',
+            }}>Search</button>
+            <button type="button" onClick={() => { setShowSearch(false); setSearchQ(''); }} style={{
+              display:'flex', alignItems:'center', justifyContent:'center',
+              width:30, height:30, borderRadius:8,
+              background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', cursor:'pointer',
+            }}>
+              <XSearchIco />
+            </button>
+          </form>
+        )}
 
         <div style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
 
@@ -326,12 +390,12 @@ const CHART_PALETTE_SM = [
   '#a855f7','#14b8a6',
 ];
 
-function DonutChartSM({ data, size = 200, thickness = 36 }) {
-  const r = (size / 2) - thickness / 2;
+function DonutChartSM({ data, size = 200, thickness = 36, total, selected, onSelect }) {
+  const r    = (size / 2) - thickness / 2;
   const circ = 2 * Math.PI * r;
   let offset = 0;
   const slices = data.map((d, i) => {
-    const len = (d.pct / 100) * circ;
+    const len   = (d.pct / 100) * circ;
     const slice = { ...d, offset, len, color: CHART_PALETTE_SM[i % CHART_PALETTE_SM.length] };
     offset += len;
     return slice;
@@ -340,17 +404,24 @@ function DonutChartSM({ data, size = 200, thickness = 36 }) {
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display:'block', flexShrink:0 }}>
       <circle cx={size/2} cy={size/2} r={r} fill="none"
         stroke="rgba(255,255,255,0.07)" strokeWidth={thickness} />
-      {slices.map((s, i) => (
-        <circle key={i} cx={size/2} cy={size/2} r={r} fill="none"
-          stroke={s.color} strokeWidth={thickness}
-          strokeDasharray={`${s.len} ${circ - s.len}`}
-          strokeDashoffset={-s.offset + circ * 0.25}
-          style={{ transition:'stroke-dasharray 0.6s ease', cursor:'default' }}>
-          <title>{s.label}: {s.pct}%</title>
-        </circle>
-      ))}
+      {slices.map((s, i) => {
+        const isSelected = selected === s.label;
+        return (
+          <circle key={i} cx={size/2} cy={size/2} r={r} fill="none"
+            stroke={s.color} strokeWidth={isSelected ? thickness + 6 : thickness}
+            strokeDasharray={`${s.len} ${circ - s.len}`}
+            strokeDashoffset={-s.offset + circ * 0.25}
+            onClick={() => onSelect && onSelect(isSelected ? null : s.label)}
+            style={{
+              transition:'all 0.2s ease', cursor:'pointer',
+              opacity: selected && !isSelected ? 0.35 : 1,
+            }}>
+            <title>{s.label}: {s.pct}% — click to see movies</title>
+          </circle>
+        );
+      })}
       <text x={size/2} y={size/2 - 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="white">
-        {data.reduce((a, d) => a + d.count, 0)}
+        {total || data.reduce((a, d) => a + d.count, 0)}
       </text>
       <text x={size/2} y={size/2 + 12} textAnchor="middle" fontSize="11" fontWeight="600" fill="rgba(255,255,255,0.5)">
         movies
@@ -359,33 +430,121 @@ function DonutChartSM({ data, size = 200, thickness = 36 }) {
   );
 }
 
-function StatsBarsSM({ data }) {
+function StatsBarsSM({ data, selected, onSelect }) {
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', gap:10, justifyContent:'center' }}>
-      {data.map((d, i) => (
-        <div key={d.label}>
-          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-            <span style={{ fontSize:13, fontWeight:700, color:'white' }}>{d.label}</span>
-            <span style={{ fontSize:13, fontWeight:800, color: CHART_PALETTE_SM[i % CHART_PALETTE_SM.length] }}>{d.pct}%</span>
+      {data.map((d, i) => {
+        const isSelected = selected === d.label;
+        return (
+          <div key={d.label}
+            onClick={() => onSelect && onSelect(isSelected ? null : d.label)}
+            style={{ cursor:'pointer', borderRadius:10, padding:'6px 8px', transition:'background 0.15s',
+              background: isSelected ? 'rgba(124,58,237,0.18)' : 'transparent',
+              opacity: selected && !isSelected ? 0.45 : 1,
+            }}
+            onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}
+            onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background='transparent'; }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+              <span style={{ fontSize:13, fontWeight:700, color: isSelected ? '#c084fc' : 'white' }}>{d.label}</span>
+              <span style={{ fontSize:13, fontWeight:800, color: CHART_PALETTE_SM[i % CHART_PALETTE_SM.length] }}>{d.pct}%</span>
+            </div>
+            <div style={{ height:8, borderRadius:8, background:'rgba(255,255,255,0.08)', overflow:'hidden' }}>
+              <div style={{
+                height:'100%', borderRadius:8, width:`${d.pct}%`,
+                background: `linear-gradient(90deg, ${CHART_PALETTE_SM[i % CHART_PALETTE_SM.length]}, ${CHART_PALETTE_SM[(i+1) % CHART_PALETTE_SM.length]})`,
+                transition:'width 0.7s cubic-bezier(.4,0,.2,1)',
+              }}/>
+            </div>
+            <div style={{ fontSize:11, fontWeight:500, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
+              {d.count} movie{d.count !== 1 ? 's' : ''} · click to explore
+            </div>
           </div>
-          <div style={{ height:8, borderRadius:8, background:'rgba(255,255,255,0.08)', overflow:'hidden' }}>
-            <div style={{
-              height:'100%', borderRadius:8,
-              width:`${d.pct}%`,
-              background: `linear-gradient(90deg, ${CHART_PALETTE_SM[i % CHART_PALETTE_SM.length]}, ${CHART_PALETTE_SM[(i+1) % CHART_PALETTE_SM.length]})`,
-              transition:'width 0.7s cubic-bezier(.4,0,.2,1)',
-            }}/>
-          </div>
-          <div style={{ fontSize:11, fontWeight:500, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
-            {d.count} movie{d.count !== 1 ? 's' : ''}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
-function StatsPanelSM({ title, subtitle, data, loading }) {
+function DrillMovieGridSM({ label, movies, loading, onClose }) {
+  return (
+    <div style={{
+      marginTop:24, background:'rgba(124,58,237,0.10)',
+      border:'1px solid rgba(124,58,237,0.25)', borderRadius:16, padding:'20px 24px',
+      animation:'sm-fadeUp 0.22s ease both',
+    }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+        <div>
+          <span style={{ fontSize:16, fontWeight:800, color:'white' }}>{label}</span>
+          {!loading && (
+            <span style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.45)', marginLeft:10 }}>
+              {movies.length} movie{movies.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+        <button onClick={onClose} style={{
+          background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.14)',
+          borderRadius:8, color:'rgba(255,255,255,0.6)', cursor:'pointer',
+          padding:'5px 12px', fontSize:12, fontWeight:700, fontFamily:FONT,
+        }}>✕ Close</button>
+      </div>
+      {loading ? (
+        <div style={{ display:'flex', justifyContent:'center', padding:'24px 0' }}>
+          <div style={{ width:28, height:28, borderRadius:'50%',
+            border:'3px solid rgba(255,255,255,0.1)', borderTop:'3px solid #a855f7',
+            animation:'sm-spin 0.75s linear infinite' }}/>
+        </div>
+      ) : movies.length === 0 ? (
+        <div style={{ textAlign:'center', padding:'20px 0', fontSize:13, color:'rgba(255,255,255,0.4)', fontWeight:600 }}>
+          No watched movies found for this platform.
+        </div>
+      ) : (
+        <div style={{
+          display:'grid', gap:12,
+          gridTemplateColumns:'repeat(auto-fill, minmax(90px, 1fr))',
+        }}>
+          {movies.map(m => (
+            <div key={m.tmdb_id} title={m.title} style={{ display:'flex', flexDirection:'column', gap:6 }}>
+              {m.poster_url
+                ? <img src={m.poster_url} alt={m.title} style={{
+                    width:'100%', aspectRatio:'2/3', objectFit:'cover',
+                    borderRadius:10, boxShadow:'0 4px 12px rgba(0,0,0,0.4)',
+                  }} />
+                : <div style={{
+                    width:'100%', aspectRatio:'2/3', borderRadius:10,
+                    background:'rgba(255,255,255,0.06)', display:'flex',
+                    alignItems:'center', justifyContent:'center',
+                    fontSize:22, color:'rgba(255,255,255,0.2)',
+                  }}>🎬</div>
+              }
+              <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.75)',
+                lineHeight:1.3, textAlign:'center',
+                overflow:'hidden', display:'-webkit-box',
+                WebkitLineClamp:2, WebkitBoxOrient:'vertical',
+              }}>{m.title}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatsPanelSM({ title, subtitle, data, loading, fetchMovies }) {
+  const [selected,     setSelected]     = useState(null);
+  const [drillMovies,  setDrillMovies]  = useState([]);
+  const [drillLoading, setDrillLoading] = useState(false);
+
+  const handleSelect = async (label) => {
+    if (!label) { setSelected(null); setDrillMovies([]); return; }
+    setSelected(label);
+    setDrillLoading(true);
+    try {
+      const result = await fetchMovies(label);
+      setDrillMovies(result);
+    } catch { setDrillMovies([]); }
+    finally { setDrillLoading(false); }
+  };
+
   return (
     <div style={{
       background:'rgba(255,255,255,0.07)', backdropFilter:'blur(12px)',
@@ -408,10 +567,20 @@ function StatsPanelSM({ title, subtitle, data, loading }) {
           No data yet — start watching movies to see your stats!
         </div>
       ) : (
-        <div style={{ display:'flex', alignItems:'center', gap:32, flexWrap:'wrap' }}>
-          <DonutChartSM data={data} />
-          <StatsBarsSM data={data} />
-        </div>
+        <>
+          <div style={{ display:'flex', alignItems:'center', gap:32, flexWrap:'wrap' }}>
+            <DonutChartSM data={data} total={data.reduce((a,d)=>a+d.count,0)} selected={selected} onSelect={handleSelect} />
+            <StatsBarsSM data={data}                       selected={selected} onSelect={handleSelect} />
+          </div>
+          {selected && (
+            <DrillMovieGridSM
+              label={selected}
+              movies={drillMovies}
+              loading={drillLoading}
+              onClose={() => handleSelect(null)}
+            />
+          )}
+        </>
       )}
     </div>
   );
@@ -428,7 +597,9 @@ export default function SubscriptionManager() {
 
   useEffect(() => {
     api.get('/profile/stats/platforms')
-      .then(r => setPlatformStats(r.data.breakdown || []))
+      .then(r => {
+        setPlatformStats(r.data.breakdown || []);
+      })
       .catch(() => {})
       .finally(() => setStatsLoading(false));
   }, []);
@@ -544,9 +715,13 @@ export default function SubscriptionManager() {
 
           <StatsPanelSM
             title="Platform Breakdown"
-            subtitle={`All your watched movies by streaming platform`}
+            subtitle={`Click any platform to see which movies you watched on it`}
             data={platformStats.map(d => ({ ...d, label: d.platform }))}
             loading={statsLoading}
+            fetchMovies={async (platform) => {
+              const r = await api.get(`/profile/watched-by-platform/${encodeURIComponent(platform)}`);
+              return r.data.movies || [];
+            }}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getPopularMovies, searchMovies, getMovieDetails } from '../services/movies';
 import { logout, getCurrentUser } from '../services/api';
 import api from '../services/api';
@@ -284,7 +284,7 @@ function MovieModal({ movieId, onClose }) {
   const [watched,      setWatched]      = useState(false);
   const [showMoodPick, setShowMoodPick] = useState(false);
   const [moodAfter,    setMoodAfter]    = useState(null);
-  const [starRating,   setStarRating]   = useState(0);      
+  const [starRating,   setStarRating]   = useState(0);    
   const [ratingHov,    setRatingHov]    = useState(0);      
   const [ratingDone,   setRatingDone]   = useState(false);  
   const user      = getCurrentUser();
@@ -630,6 +630,7 @@ export default function DiscoveryFeed() {
   const [feedTitle,   setFeedTitle]   = useState('Trending Movies');
 
   const navigate  = useNavigate();
+  const location  = useLocation();
   const user      = getCurrentUser();
   const menuRef   = useRef(null);
   const feedRef   = useRef(null);
@@ -687,6 +688,20 @@ export default function DiscoveryFeed() {
   }, []);
 
   useEffect(() => { loadPopular(); }, [loadPopular]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q')?.trim();
+    if (q) {
+      setSearchQ(q);
+      setActiveQ(q);
+      setShowSearch(true);
+      searchMovies(q)
+        .then(data => { setMovies(data.results || []); setFeedMode(null); setFeedTitle(`Search Results for "${q}"`); })
+        .catch(() => setError('Search failed.'));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function loadRecommendations(mode) {
     try {

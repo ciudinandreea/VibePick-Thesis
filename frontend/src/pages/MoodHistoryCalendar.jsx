@@ -36,12 +36,6 @@ const TvIco = () => (
     <polyline points="17 2 12 7 7 2"/>
   </svg>
 );
-const CheckNavIco = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12"/>
-  </svg>
-);
 
 const ShieldIco = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -78,6 +72,18 @@ const FeedIco = () => (
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
   </svg>
 );
+const SearchIco = ({ color = 'rgba(255,255,255,0.75)', size = 17 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+);
+const XSearchIco = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
 
 function Navbar() {
   const navigate = useNavigate();
@@ -88,6 +94,8 @@ function Navbar() {
   const userRef  = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQ,   setSearchQ]   = useState('');
 
   useEffect(() => {
     const fn = e => {
@@ -166,6 +174,56 @@ function Navbar() {
             </Link>
           );
         })}
+
+
+        {}
+        {!showSearch ? (
+          <button onClick={() => setShowSearch(true)} title="Search movies" style={{
+            display:'flex', alignItems:'center', justifyContent:'center',
+            width:34, height:34, borderRadius:9,
+            background:'none', border:'none', cursor:'pointer', transition:'background 0.15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(124,58,237,0.18)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background='none'; }}>
+            <SearchIco />
+          </button>
+        ) : (
+          <form onSubmit={e => { e.preventDefault(); const q = searchQ.trim(); if (q) navigate(`/browse?q=${encodeURIComponent(q)}`); }} style={{
+            display:'flex', alignItems:'center', gap:6, animation:'srch-in 0.2s ease both',
+          }}>
+            <style>{`@keyframes srch-in{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}`}</style>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', pointerEvents:'none', display:'flex' }}>
+                <SearchIco color="rgba(124,58,237,0.5)" size={15} />
+              </span>
+              <input
+                autoFocus
+                value={searchQ}
+                onChange={e => setSearchQ(e.target.value)}
+                placeholder="Search movies…"
+                style={{
+                  width:190, background:'rgba(255,255,255,0.95)',
+                  border:'1.5px solid rgba(124,58,237,0.3)', borderRadius:9,
+                  padding:'7px 10px 7px 32px', fontSize:13, fontWeight:500,
+                  color:'#1a0533', fontFamily:"'Montserrat', sans-serif", outline:'none',
+                }}
+                onFocus={e => e.target.style.borderColor='rgba(124,58,237,0.6)'}
+                onBlur={e  => e.target.style.borderColor='rgba(124,58,237,0.3)'} />
+            </div>
+            <button type="submit" style={{
+              padding:'7px 13px', background:'linear-gradient(135deg,#7C3AED,#9333ea)',
+              border:'none', borderRadius:9, color:'white',
+              fontSize:13, fontWeight:700, fontFamily:"'Montserrat', sans-serif", cursor:'pointer',
+            }}>Search</button>
+            <button type="button" onClick={() => { setShowSearch(false); setSearchQ(''); }} style={{
+              display:'flex', alignItems:'center', justifyContent:'center',
+              width:30, height:30, borderRadius:8,
+              background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', cursor:'pointer',
+            }}>
+              <XSearchIco />
+            </button>
+          </form>
+        )}
 
         <div style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
 
@@ -311,13 +369,7 @@ export default function MoodHistoryCalendar() {
 
   const selectedEntry = selected ? moodData[selected] : null;
 
-  const navH   = 62;
   const padV   = 20;
-  const headerH = 56; 
-  const calHeaderH = 64; 
-  const dayLabelsH = 36;
-  const detailH = selected ? 180 : 0;
-  const availH  = `calc(100vh - ${navH + padV*2 + headerH + calHeaderH + dayLabelsH + detailH + 20}px)`;
 
   return (
     <>
@@ -429,16 +481,27 @@ export default function MoodHistoryCalendar() {
                       fontSize:13, fontWeight: isToday ? 800 : 600,
                       color: isToday ? '#c084fc' : 'rgba(255,255,255,0.85)', lineHeight:1, flexShrink:0,
                     }}>{day}</span>
-                    {entry?.mood && (
-                      <span style={{ fontSize:'min(20px,2vw)', lineHeight:1, flexShrink:0 }}>
+                    {entry?.mood && entry?.mood_after ? (
+                      <div style={{
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        gap:'min(3px,0.4vw)', width:'100%', marginTop:2,
+                      }}>
+                        <span style={{ fontSize:'min(22px,2.4vw)', lineHeight:1 }}>
+                          {MOOD_EMOJI[entry.mood] || '😊'}
+                        </span>
+                        <span style={{
+                          fontSize:'min(9px,1vw)', color:'rgba(255,255,255,0.35)',
+                          fontWeight:700, lineHeight:1, flexShrink:0,
+                        }}>|</span>
+                        <span style={{ fontSize:'min(22px,2.4vw)', lineHeight:1 }}>
+                          {MOOD_EMOJI[entry.mood_after] || '😊'}
+                        </span>
+                      </div>
+                    ) : entry?.mood ? (
+                      <span style={{ fontSize:'min(22px,2.4vw)', lineHeight:1, marginTop:2 }}>
                         {MOOD_EMOJI[entry.mood] || '😊'}
                       </span>
-                    )}
-                    {entry?.mood_after && (
-                      <span style={{ fontSize:'min(16px,1.6vw)', lineHeight:1, flexShrink:0, opacity:0.75 }}>
-                        {MOOD_EMOJI[entry.mood_after] || '😊'}
-                      </span>
-                    )}
+                    ) : null}
                   </div>
                 );
               })}

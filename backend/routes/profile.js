@@ -315,6 +315,7 @@ router.post('/movies/platform-labels', auth, async (req, res) => {
   }
 });
 
+
 router.put('/account', auth, async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -403,6 +404,7 @@ router.get('/export', auth, async (req, res) => {
     res.status(500).json({ error: 'Failed to export data', detail: err.message });
   }
 });
+
 
 router.delete('/account', auth, async (req, res) => {
   const client = await pool.connect();
@@ -498,6 +500,112 @@ router.post('/backfill-genres', auth, async (req, res) => {
   } catch (err) {
     console.error('Backfill error:', err.message);
     res.status(500).json({ error: 'Backfill failed' });
+  }
+});
+
+router.get('/watched-by-genre/:genre', auth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const genre  = req.params.genre;
+
+    const result = await pool.query(`
+      SELECT DISTINCT i.tmdb_id, i.title, i.poster_path, i.genres, i.rating
+      FROM items i
+      WHERE i.id IN (
+        SELECT item_id FROM watched_items WHERE user_id = $1
+        UNION
+        SELECT item_id FROM interactions  WHERE user_id = $1 AND action_type = 'watched'
+      )
+      AND i.genres IS NOT NULL
+    `, [userId]);
+
+    const GENRE_IDS = {
+      28:'Action',12:'Adventure',16:'Animation',35:'Comedy',80:'Crime',
+      99:'Documentary',18:'Drama',10751:'Family',14:'Fantasy',36:'History',
+      27:'Horror',10402:'Music',9648:'Mystery',10749:'Romance',878:'Science Fiction',
+      10770:'TV Movie',53:'Thriller',10752:'War',37:'Western'
+    };
+
+    const IMAGE_BASE = 'https://image.tmdb.org/t/p/w300';
+
+    const movies = result.rows.filter(row => {
+      const arr = typeof row.genres === 'string' ? JSON.parse(row.genres) : (row.genres || []);
+      return arr.some(g => {
+        if (typeof g === 'object' && g !== null) return (g.name || GENRE_IDS[g.id]) === genre;
+        if (typeof g === 'string') return g === genre;
+        return GENRE_IDS[g] === genre;
+      });
+    }).map(row => ({
+      tmdb_id:    row.tmdb_id,
+      title:      row.title,
+      poster_url: row.poster_path ? `${IMAGE_BASE}${row.poster_path}` : null,
+      rating:     row.rating,
+    }));
+
+    res.json({ movies, genre, total: movies.length });
+  } catch (err) {
+    console.error('watched-by-genre error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch movies for genre' });
+  }
+});
+
+router.get('/watched-by-platform/:platform', auth, async (req, res) => {
+  try {
+    const userId   = req.user.userId;
+    const platform = req.params.platform; 
+
+    const result = await pool.query(`
+      SELECT DISTINCT i.tmdb_id, i.title, i.poster_path, i.rating
+      FROM items i
+      WHERE i.id IN (
+        SELECT item_id FROM watched_items WHERE user_id = $1
+        UNION
+        SELECT item_id FROM interactions  WHERE user_id = $1 AND action_type = 'watched'
+      )
+      AND i.tmdb_id IS NOT NULL
+    `, [userId]);
+
+    const IMAGE_BASE = 'https://image.tmdb.org/t/p/w300';
+
+    const PLATFORM_TMDB_NAMES = {
+      'Netflix': ['Netflix'],
+      'Disney+': ['Disney Plus', 'Disney+'],
+      'Prime Video': ['Amazon Prime Video', 'Prime Video'],
+      'HBO Max': ['Max', 'HBO Max'], 'Max': ['Max', 'HBO Max'],
+      'Apple TV+': ['Apple TV Plus', 'Apple TV+'],
+      'Hulu': ['Hulu'],
+      'Paramount+': ['Paramount Plus', 'Paramount+'],
+      'Peacock': ['Peacock', 'Peacock Premium'],
+      'SkyShowtime': ['SkyShowtime'], 'Sky': ['SkyShowtime'],
+    };
+    const targetNames = new Set(
+      (PLATFORM_TMDB_NAMES[platform] || [platform]).map(n => n.toLowerCase())
+    );
+
+    const movies = [];
+    await Promise.all(result.rows.map(async row => {
+      try {
+        let providers = await getMovieProviders(row.tmdb_id, 'US');
+        let flatrate  = providers.flatrate || [];
+        if (flatrate.length === 0) {
+          providers = await getMovieProviders(row.tmdb_id, 'RO');
+          flatrate  = providers.flatrate || [];
+        }
+        const match = flatrate.some(p => targetNames.has(p.provider_name.toLowerCase()));
+        if (match) movies.push({
+          tmdb_id:    row.tmdb_id,
+          title:      row.title,
+          poster_url: row.poster_path ? `${IMAGE_BASE}${row.poster_path}` : null,
+          rating:     row.rating,
+        });
+      } catch {}
+    }));
+
+    movies.sort((a, b) => a.title.localeCompare(b.title));
+    res.json({ movies, platform, total: movies.length });
+  } catch (err) {
+    console.error('watched-by-platform error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch movies for platform' });
   }
 });
 

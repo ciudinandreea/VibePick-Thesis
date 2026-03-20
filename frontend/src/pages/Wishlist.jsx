@@ -5,6 +5,7 @@ import { getMovieDetails } from '../services/movies';
 import api from '../services/api';
 
 const PUR  = '#7C3AED';
+const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
@@ -297,6 +298,18 @@ const FeedIco = () => (
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
   </svg>
 );
+const SearchIco = ({ color = 'rgba(255,255,255,0.75)', size = 17 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+);
+const XSearchIco = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
 
 function Navbar() {
   const navigate = useNavigate();
@@ -307,6 +320,8 @@ function Navbar() {
   const userRef  = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQ,   setSearchQ]   = useState('');
 
   useEffect(() => {
     const fn = e => {
@@ -385,6 +400,56 @@ function Navbar() {
             </Link>
           );
         })}
+
+
+        {}
+        {!showSearch ? (
+          <button onClick={() => setShowSearch(true)} title="Search movies" style={{
+            display:'flex', alignItems:'center', justifyContent:'center',
+            width:34, height:34, borderRadius:9,
+            background:'none', border:'none', cursor:'pointer', transition:'background 0.15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(124,58,237,0.18)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background='none'; }}>
+            <SearchIco />
+          </button>
+        ) : (
+          <form onSubmit={e => { e.preventDefault(); const q = searchQ.trim(); if (q) navigate(`/browse?q=${encodeURIComponent(q)}`); }} style={{
+            display:'flex', alignItems:'center', gap:6, animation:'srch-in 0.2s ease both',
+          }}>
+            <style>{`@keyframes srch-in{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}`}</style>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', pointerEvents:'none', display:'flex' }}>
+                <SearchIco color="rgba(124,58,237,0.5)" size={15} />
+              </span>
+              <input
+                autoFocus
+                value={searchQ}
+                onChange={e => setSearchQ(e.target.value)}
+                placeholder="Search movies…"
+                style={{
+                  width:190, background:'rgba(255,255,255,0.95)',
+                  border:'1.5px solid rgba(124,58,237,0.3)', borderRadius:9,
+                  padding:'7px 10px 7px 32px', fontSize:13, fontWeight:500,
+                  color:'#1a0533', fontFamily:"'Montserrat', sans-serif", outline:'none',
+                }}
+                onFocus={e => e.target.style.borderColor='rgba(124,58,237,0.6)'}
+                onBlur={e  => e.target.style.borderColor='rgba(124,58,237,0.3)'} />
+            </div>
+            <button type="submit" style={{
+              padding:'7px 13px', background:'linear-gradient(135deg,#7C3AED,#9333ea)',
+              border:'none', borderRadius:9, color:'white',
+              fontSize:13, fontWeight:700, fontFamily:"'Montserrat', sans-serif", cursor:'pointer',
+            }}>Search</button>
+            <button type="button" onClick={() => { setShowSearch(false); setSearchQ(''); }} style={{
+              display:'flex', alignItems:'center', justifyContent:'center',
+              width:30, height:30, borderRadius:8,
+              background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', cursor:'pointer',
+            }}>
+              <XSearchIco />
+            </button>
+          </form>
+        )}
 
         <div style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
 
@@ -651,7 +716,7 @@ export default function Wishlist() {
             <div style={{ textAlign:'center', padding:'80px 0',
               display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
               <div style={{ fontSize:52 }}>🎬</div>
-              <div style={{ fontSize:20, fontWeight:700, color:'white' }}>Your wishlist is empty</div>
+              <div style={{ fontSize:20, fontWeight:700, color:TEXT }}>Your wishlist is empty</div>
               <div style={{ fontSize:15, fontWeight:500, color:MUT }}>
                 Save movies from the discovery feed to see them here
               </div>

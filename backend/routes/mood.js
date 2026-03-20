@@ -257,4 +257,29 @@ router.post('/rate', auth, async (req, res) => {
   }
 });
 
+router.delete('/watch/:tmdb_id', auth, async (req, res) => {
+  try {
+    const userId  = req.user.userId;
+    const tmdb_id = parseInt(req.params.tmdb_id);
+    if (!tmdb_id) return res.status(400).json({ error: 'tmdb_id required' });
+
+    const item = await pool.query(`SELECT id FROM items WHERE tmdb_id = $1`, [tmdb_id]);
+    if (item.rows.length === 0) return res.json({ success: true }); 
+
+    const itemId = item.rows[0].id;
+    await pool.query(
+      `DELETE FROM watched_items WHERE user_id = $1 AND item_id = $2`,
+      [userId, itemId]
+    );
+    await pool.query(
+      `DELETE FROM interactions WHERE user_id = $1 AND item_id = $2 AND action_type = 'watched'`,
+      [userId, itemId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Unwatch error:', err.message);
+    res.status(500).json({ error: 'Failed to remove watched movie' });
+  }
+});
+
 module.exports = router;

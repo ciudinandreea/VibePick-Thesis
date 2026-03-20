@@ -5,6 +5,8 @@ import api from '../services/api';
 import { getMovieDetails } from '../services/movies';
 
 const PUR  = '#7C3AED';
+const PUR2 = '#9333ea';
+const TEXT = '#1a0533';
 const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
@@ -75,6 +77,18 @@ const StarIco = ({ size = 13 }) => (
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
   </svg>
 );
+const SearchIco = ({ color = 'rgba(255,255,255,0.75)', size = 17 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+);
+const XSearchIco = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
 
 function Navbar() {
   const navigate    = useNavigate();
@@ -85,6 +99,8 @@ function Navbar() {
   const userRef     = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQ,   setSearchQ]   = useState('');
 
   useEffect(() => {
     const fn = e => {
@@ -158,6 +174,56 @@ function Navbar() {
             </Link>
           );
         })}
+
+
+        {}
+        {!showSearch ? (
+          <button onClick={() => setShowSearch(true)} title="Search movies" style={{
+            display:'flex', alignItems:'center', justifyContent:'center',
+            width:34, height:34, borderRadius:9,
+            background:'none', border:'none', cursor:'pointer', transition:'background 0.15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(124,58,237,0.18)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background='none'; }}>
+            <SearchIco />
+          </button>
+        ) : (
+          <form onSubmit={e => { e.preventDefault(); const q = searchQ.trim(); if (q) navigate(`/browse?q=${encodeURIComponent(q)}`); }} style={{
+            display:'flex', alignItems:'center', gap:6, animation:'srch-in 0.2s ease both',
+          }}>
+            <style>{`@keyframes srch-in{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}`}</style>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', pointerEvents:'none', display:'flex' }}>
+                <SearchIco color="rgba(124,58,237,0.5)" size={15} />
+              </span>
+              <input
+                autoFocus
+                value={searchQ}
+                onChange={e => setSearchQ(e.target.value)}
+                placeholder="Search movies…"
+                style={{
+                  width:190, background:'rgba(255,255,255,0.95)',
+                  border:'1.5px solid rgba(124,58,237,0.3)', borderRadius:9,
+                  padding:'7px 10px 7px 32px', fontSize:13, fontWeight:500,
+                  color:'#1a0533', fontFamily:"'Montserrat', sans-serif", outline:'none',
+                }}
+                onFocus={e => e.target.style.borderColor='rgba(124,58,237,0.6)'}
+                onBlur={e  => e.target.style.borderColor='rgba(124,58,237,0.3)'} />
+            </div>
+            <button type="submit" style={{
+              padding:'7px 13px', background:'linear-gradient(135deg,#7C3AED,#9333ea)',
+              border:'none', borderRadius:9, color:'white',
+              fontSize:13, fontWeight:700, fontFamily:"'Montserrat', sans-serif", cursor:'pointer',
+            }}>Search</button>
+            <button type="button" onClick={() => { setShowSearch(false); setSearchQ(''); }} style={{
+              display:'flex', alignItems:'center', justifyContent:'center',
+              width:30, height:30, borderRadius:8,
+              background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', cursor:'pointer',
+            }}>
+              <XSearchIco />
+            </button>
+          </form>
+        )}
 
         <div style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
 
@@ -263,10 +329,9 @@ function Navbar() {
 }
 
 
-function WatchedModal({ tmdbId, onClose }) {
+function WatchedModal({ tmdbId, onClose, onUnwatch }) {
   const [movie,   setMovie]   = useState(null);
   const [loading, setLoading] = useState(true);
-  const user = getCurrentUser();
 
   useEffect(() => {
     if (!tmdbId) return;
@@ -361,10 +426,26 @@ function WatchedModal({ tmdbId, onClose }) {
                 <div style={{ fontSize:14, fontWeight:500, lineHeight:1.7,
                   color:'rgba(255,255,255,0.75)' }}>{movie.overview}</div>
               )}
-              <div style={{ marginTop:16, display:'inline-flex', alignItems:'center', gap:6,
-                background:'rgba(34,197,94,0.14)', border:'1px solid rgba(34,197,94,0.22)',
-                borderRadius:20, padding:'7px 14px', fontSize:13, fontWeight:700, color:'#86efac' }}>
-                ✓ Watched
+              <div style={{ marginTop:16, display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
+                <div style={{
+                  display:'inline-flex', alignItems:'center', gap:6,
+                  background:'rgba(34,197,94,0.14)', border:'1px solid rgba(34,197,94,0.22)',
+                  borderRadius:20, padding:'7px 14px', fontSize:13, fontWeight:700, color:'#86efac' }}>
+                  ✓ Watched
+                </div>
+                {onUnwatch && (
+                  <button onClick={() => onUnwatch(tmdbId)} style={{
+                    display:'inline-flex', alignItems:'center', gap:6,
+                    background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.25)',
+                    borderRadius:20, padding:'7px 14px', fontSize:13, fontWeight:700,
+                    color:'#f87171', cursor:'pointer', fontFamily:FONT,
+                    transition:'background 0.15s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.22)'}
+                    onMouseLeave={e => e.currentTarget.style.background='rgba(239,68,68,0.12)'}>
+                    ✕ Not Watched
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -379,8 +460,7 @@ export default function WatchedMovies() {
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState('');
   const [modalId,   setModalId]   = useState(null);
-  const user      = getCurrentUser();
-  const firstName = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'you';
+  const [sortBy,    setSortBy]    = useState('date');
 
   useEffect(() => {
     api.get('/mood/watched')
@@ -388,6 +468,19 @@ export default function WatchedMovies() {
       .catch(() => setError('Failed to load watched movies.'))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleUnwatch = async (tmdbId) => {
+    try {
+      await api.delete(`/mood/watch/${tmdbId}`);
+      setMovies(prev => prev.filter(m => m.tmdb_id !== tmdbId));
+    } catch { }
+  };
+
+  const sortedMovies = [...movies].sort((a, b) =>
+    sortBy === 'alpha'
+      ? (a.title || '').localeCompare(b.title || '')
+      : new Date(b.watched_at || 0) - new Date(a.watched_at || 0)
+  );
 
   return (
     <>
@@ -416,15 +509,31 @@ export default function WatchedMovies() {
 
         <div style={{ padding: '32px 32px 56px' }}>
           {}
-          <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontSize: 28, fontWeight: 900, color: 'white', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
-              Watched Movies
-            </h1>
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>
-              {movies.length > 0
-                ? `${movies.length} movie${movies.length !== 1 ? 's' : ''} watched — filtered from your recommendations`
-                : `Movies you mark as watched won't appear in your recommendations`}
-            </p>
+          <div style={{ marginBottom: 28, display:'flex', alignItems:'flex-end', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
+            <div>
+              <h1 style={{ fontSize: 28, fontWeight: 900, color: 'white', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
+                Watched Movies
+              </h1>
+              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>
+                {movies.length > 0
+                  ? `${movies.length} movie${movies.length !== 1 ? 's' : ''} watched — filtered from your recommendations`
+                  : `Movies you mark as watched won't appear in your recommendations`}
+              </p>
+            </div>
+            {movies.length > 0 && (
+              <div style={{ display:'flex', gap:6 }}>
+                {[['date','Date Added'],['alpha','A → Z']].map(([val, label]) => (
+                  <button key={val} onClick={() => setSortBy(val)} style={{
+                    padding:'7px 14px', borderRadius:9, fontSize:12, fontWeight:700,
+                    fontFamily:FONT, cursor:'pointer', border:'none',
+                    background: sortBy === val ? `linear-gradient(135deg,${PUR},${PUR2})` : 'rgba(255,255,255,0.08)',
+                    color: sortBy === val ? 'white' : 'rgba(255,255,255,0.6)',
+                    boxShadow: sortBy === val ? '0 3px 10px rgba(124,58,237,0.3)' : 'none',
+                    transition:'all 0.15s',
+                  }}>{label}</button>
+                ))}
+              </div>
+            )}
           </div>
 
           {loading ? (
@@ -443,11 +552,11 @@ export default function WatchedMovies() {
           ) : movies.length === 0 ? (
             <div style={{
               textAlign: 'center', padding: '80px 20px',
-              background:'rgba(255,255,255,0.07)', backdropFilter:'blur(12px)',
-              border:'1px solid rgba(255,255,255,0.12)', borderRadius:20,
+              background: 'rgba(255,255,255,0.5)', borderRadius: 20,
+              border: '1px solid rgba(124,58,237,0.1)',
             }}>
               <div style={{ fontSize: 52, marginBottom: 16 }}>🎬</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: 'white', marginBottom: 8 }}>No watched movies yet</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: TEXT, marginBottom: 8 }}>No watched movies yet</div>
               <div style={{ fontSize: 14, color: MUT, fontWeight: 500 }}>
                 Click "Mark as Watched" on any movie to track it here
               </div>
@@ -458,7 +567,7 @@ export default function WatchedMovies() {
               gridTemplateColumns: 'repeat(5, 1fr)',
               gap: 18,
             }}>
-              {movies.map(movie => (
+              {sortedMovies.map(movie => (
                 <WatchedCard key={`${movie.tmdb_id}-${movie.watched_at}`} movie={movie} onClick={setModalId} />
               ))}
             </div>
@@ -466,7 +575,13 @@ export default function WatchedMovies() {
         </div>
       </div>
 
-      {modalId && <WatchedModal tmdbId={modalId} onClose={() => setModalId(null)} />}
+      {modalId && (
+        <WatchedModal
+          tmdbId={modalId}
+          onClose={() => setModalId(null)}
+          onUnwatch={(id) => { handleUnwatch(id); setModalId(null); }}
+        />
+      )}
 
       <style>{`
         @keyframes wm-spin { to { transform: rotate(360deg); } }
