@@ -276,7 +276,7 @@ function MovieCard({ movie, onClick }) {
   );
 }
 
-function MovieModal({ movieId, onClose }) {
+function MovieModal({ movieId, onClose, feedMode, currentMood }) {
   const [movie,      setMovie]      = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [saved,      setSaved]      = useState(false);
@@ -284,7 +284,7 @@ function MovieModal({ movieId, onClose }) {
   const [watched,      setWatched]      = useState(false);
   const [showMoodPick, setShowMoodPick] = useState(false);
   const [moodAfter,    setMoodAfter]    = useState(null);
-  const [starRating,   setStarRating]   = useState(0);    
+  const [starRating,   setStarRating]   = useState(0);      
   const [ratingHov,    setRatingHov]    = useState(0);      
   const [ratingDone,   setRatingDone]   = useState(false);  
   const user      = getCurrentUser();
@@ -342,9 +342,11 @@ function MovieModal({ movieId, onClose }) {
     setRatingDone(true);
     try {
       await api.post('/mood/rate', {
-        tmdb_id:    movie?.id,
-        title:      movie?.title,
-        rating:     stars,
+        tmdb_id: movie?.id,
+        title:   movie?.title,
+        rating:  stars,
+        mode:    feedMode  || null,  
+        mood:    currentMood || null, 
       });
     } catch (e) { console.error('Failed to log rating:', e); }
   };
@@ -1126,7 +1128,14 @@ export default function DiscoveryFeed() {
         </div>
       </div>
 
-      {modalId && <MovieModal movieId={modalId} onClose={closeModal} />}
+      {modalId && (
+        <MovieModal
+          movieId={modalId}
+          onClose={closeModal}
+          feedMode={feedMode}
+          currentMood={currentMood}
+        />
+      )}
     </>
   );
 }

@@ -226,11 +226,16 @@ router.get('/watched', auth, async (req, res) => {
 
 router.post('/rate', auth, async (req, res) => {
   const userId = req.user.userId;
-  const { tmdb_id, title, rating } = req.body;
+  const { tmdb_id, title, rating, mode, mood } = req.body;
 
   if (!rating || rating < 1 || rating > 5) {
     return res.status(400).json({ error: 'Rating must be between 1 and 5' });
   }
+
+  const validModes = ['mood-aware', 'baseline'];
+  const validMoods = ['happy', 'sad', 'stressed', 'tired', 'excited', 'bored'];
+  const safeMode   = validModes.includes(mode) ? mode : null;
+  const safeMood   = validMoods.includes(mood) ? mood : null;
 
   try {
     await pool.query(`
@@ -240,14 +245,19 @@ router.post('/rate', auth, async (req, res) => {
         tmdb_id     INTEGER,
         title       VARCHAR(255),
         rating      SMALLINT     NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        mode        VARCHAR(20),
+        mood        VARCHAR(20),
         rated_at    TIMESTAMP    NOT NULL DEFAULT NOW()
       )
     `);
 
+    await pool.query(`ALTER TABLE recommendation_ratings ADD COLUMN IF NOT EXISTS mode VARCHAR(20)`);
+    await pool.query(`ALTER TABLE recommendation_ratings ADD COLUMN IF NOT EXISTS mood VARCHAR(20)`);
+
     await pool.query(
-      `INSERT INTO recommendation_ratings (user_id, tmdb_id, title, rating)
-       VALUES ($1, $2, $3, $4)`,
-      [userId, tmdb_id || null, title || null, rating]
+      `INSERT INTO recommendation_ratings (user_id, tmdb_id, title, rating, mode, mood)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [userId, tmdb_id || null, title || null, rating, safeMode, safeMood]
     );
 
     res.json({ success: true });
