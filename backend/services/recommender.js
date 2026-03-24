@@ -16,11 +16,11 @@ const PLATFORM_TMDB_NAMES = {
 
 const PROVIDER_DISPLAY_NAME = {
   'netflix': 'Netflix', 'disney plus': 'Disney+', 'disney+': 'Disney+',
-  'amazon prime video': 'Prime', 'prime video': 'Prime',
-  'max': 'Max', 'hbo max': 'Max',
+  'amazon prime video': 'Amazon Prime Video', 'prime video': 'Prime Video',
+  'max': 'HBO Max', 'hbo max': 'HBO Max',
   'apple tv plus': 'Apple TV+', 'apple tv+': 'Apple TV+',
   'hulu': 'Hulu', 'paramount plus': 'Paramount+', 'paramount+': 'Paramount+',
-  'peacock': 'Peacock', 'peacock premium': 'Peacock', 'skyshowtime': 'Sky',
+  'peacock': 'Peacock', 'peacock premium': 'Peacock', 'skyshowtime': 'Sky Showtime',
 };
 
 function buildProviderSet(userPlatforms) {
@@ -149,6 +149,7 @@ async function calculateSubscriptionScore(movie, providerSet, providerCache) {
 }
 
 async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
+
   let userGenreNames = [];
   try {
     const r = await pool.query(
@@ -178,8 +179,8 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
   const providerCache = new Map();
 
   const weights = mode === 'baseline'
-    ? { mood: 0.00, pref: 0.40, hist: 0.30, novelty: 0.15, sub: 0.15 }
-    : { mood: 0.35, pref: 0.25, hist: 0.20, novelty: 0.10, sub: 0.10 };
+    ? { mood: 0.00, pref: 0.40, hist: 0.30, sub: 0.30 }
+    : { mood: 0.35, pref: 0.25, hist: 0.20, sub: 0.20 };
 
   const scored = await Promise.all(movies.map(async (movie) => {
     const subResult = await calculateSubscriptionScore(movie, providerSet, providerCache);
@@ -188,17 +189,15 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
       mood:        mode === 'baseline' ? 0 : calculateMoodMatch(movie, mood),
       pref:        calculatePrefMatch(movie, userGenreNames),
       hist:        await calculateHistoryAffinity(movie, userId, watchedGenreNames),
-      novelty:     await calculateNoveltyScore(movie, watchedTmdbIds),
       sub:         subResult.score,
       platformName: subResult.platformName,
     };
 
     const finalScore =
-      weights.mood    * scores.mood    +
-      weights.pref    * scores.pref    +
-      weights.hist    * scores.hist    +
-      weights.novelty * scores.novelty +
-      weights.sub     * scores.sub;
+      weights.mood * scores.mood +
+      weights.pref * scores.pref +
+      weights.hist * scores.hist +
+      weights.sub  * scores.sub;
 
     return { movie, finalScore, scores, weights };
   }));

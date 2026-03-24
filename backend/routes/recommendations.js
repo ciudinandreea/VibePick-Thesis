@@ -111,7 +111,6 @@ router.get('/', auth, async (req, res) => {
           preferences:  r.scores.pref,
           history:      r.scores.hist,
           subscription: r.scores.sub,
-          novelty:      r.scores.novelty,
           platformName: r.scores.platformName || null,
         },
         weights: r.weights,
