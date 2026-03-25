@@ -121,11 +121,42 @@ async function discoverMoviesByGenre(genreId, page = 1) {
   }
 }
 
+async function discoverMoviesByGenreAndProviders(genreId, providerIds, page = 1) {
+  try {
+    const params = {
+      with_genres:          genreId,
+      sort_by:              'popularity.desc',
+      'vote_count.gte':     30,
+      include_adult:        false,
+      page,
+      language:             'en-US',
+    };
+
+    if (providerIds && providerIds.length > 0) {
+      params.with_watch_providers = providerIds.join('|');
+      params.watch_region         = 'RO';
+    }
+
+    const data = await tmdbRequest('/discover/movie', params);
+    return {
+      ...data,
+      results: (data.results || []).map(movie => ({
+        ...movie,
+        poster_url:   movie.poster_path   ? `${IMAGE_BASE_URL}${movie.poster_path}`   : null,
+        backdrop_url: movie.backdrop_path ? `${IMAGE_BASE_URL}${movie.backdrop_path}` : null,
+      })),
+    };
+  } catch (err) {
+    console.error(`discoverMoviesByGenreAndProviders(genre:${genreId}) error:`, err.message);
+    return { results: [] };
+  }
+}
 module.exports = {
   getPopularMovies,
   getMovieDetails,
   searchMovies,
   getMoviesByGenre,
   discoverMoviesByGenre,
+  discoverMoviesByGenreAndProviders,
   getMovieProviders,
 };

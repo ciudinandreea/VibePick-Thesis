@@ -16,11 +16,11 @@ const PLATFORM_TMDB_NAMES = {
 
 const PROVIDER_DISPLAY_NAME = {
   'netflix': 'Netflix', 'disney plus': 'Disney+', 'disney+': 'Disney+',
-  'amazon prime video': 'Amazon Prime Video', 'prime video': 'Prime Video',
+  'amazon prime video': 'Amazon Prime Video', 'prime video': 'Amazon Prime Video',
   'max': 'HBO Max', 'hbo max': 'HBO Max',
   'apple tv plus': 'Apple TV+', 'apple tv+': 'Apple TV+',
   'hulu': 'Hulu', 'paramount plus': 'Paramount+', 'paramount+': 'Paramount+',
-  'peacock': 'Peacock', 'peacock premium': 'Peacock', 'skyshowtime': 'Sky Showtime',
+  'peacock': 'Peacock', 'peacock premium': 'Peacock', 'skyshowtime': 'Sky',
 };
 
 function buildProviderSet(userPlatforms) {
@@ -30,6 +30,7 @@ function buildProviderSet(userPlatforms) {
   }
   return set;
 }
+
 
 function getMovieGenreNames(movie) {
   if (Array.isArray(movie.genres) && movie.genres.length > 0) {
@@ -42,6 +43,7 @@ function getMovieGenreNames(movie) {
   }
   return [];
 }
+
 
 function calculateMoodMatch(movie, mood) {
   const moodMap = MOOD_GENRE_SCORES[mood];
@@ -57,21 +59,21 @@ function calculatePrefMatch(movie, userGenreNames) {
   const movieNames = getMovieGenreNames(movie);
   if (movieNames.length === 0) return 0;
   const overlap = movieNames.filter(n => userGenreNames.includes(n)).length;
-  return overlap / Math.max(movieNames.length, userGenreNames.length);
+  return overlap / movieNames.length;
 }
 
-async function calculateHistoryAffinity(movie, userId, watchedGenreNames) {
-  if (!watchedGenreNames || watchedGenreNames.size === 0) return 0;
+function calculateHistoryAffinity(movie, watchedGenreWeights) {
+  if (!watchedGenreWeights || watchedGenreWeights.size === 0) return 0;
   const movieNames = getMovieGenreNames(movie);
   if (movieNames.length === 0) return 0;
-  const overlap = movieNames.filter(n => watchedGenreNames.has(n)).length;
-  return overlap / Math.max(movieNames.length, 1);
+  const scores = movieNames.map(n => watchedGenreWeights.get(n) || 0);
+  return scores.reduce((s, v) => s + v, 0) / scores.length;
 }
 
-async function fetchWatchedGenreNames(userId) {
+async function fetchWatchedGenreWeights(userId) {
   try {
     const result = await pool.query(`
-      SELECT DISTINCT i.genres
+      SELECT i.genres
       FROM items i
       WHERE i.id IN (
         SELECT item_id FROM watched_items WHERE user_id = $1
@@ -80,23 +82,33 @@ async function fetchWatchedGenreNames(userId) {
       )
     `, [userId]);
 
-    const names = new Set();
+    if (result.rows.length === 0) return new Map();
+
+    const tally = new Map();   
+    let total = 0;             
+
     for (const row of result.rows) {
-      if (!row.genres) continue;
+      if (!row.genres) continue;  
       const arr = typeof row.genres === 'string' ? JSON.parse(row.genres) : row.genres;
+      if (!arr || arr.length === 0) continue;
+      total++;  
       for (const g of arr) {
-        if (typeof g === 'object' && g.name) {
-          names.add(g.name);
-        } else {
-          const name = GENRE_IDS[g];
-          if (name) names.add(name);
-        }
+        const name = (typeof g === 'object' && g.name) ? g.name : GENRE_IDS[g];
+        if (!name) continue;
+        tally.set(name, (tally.get(name) || 0) + 1);
       }
     }
-    return names;
+
+    if (total === 0) return new Map();
+
+    const weights = new Map();
+    for (const [name, count] of tally) {
+      weights.set(name, count / total);
+    }
+    return weights;
   } catch (e) {
-    console.error('fetchWatchedGenreNames error:', e.message);
-    return new Set();
+    console.error('fetchWatchedGenreWeights error:', e.message);
+    return new Map();
   }
 }
 
@@ -170,17 +182,18 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
     userPlatforms = r.rows.map(r => r.platform_name);
   } catch (e) { console.error('Subscription fetch error:', e.message); }
 
-  const [watchedGenreNames, watchedTmdbIds] = await Promise.all([
-    fetchWatchedGenreNames(userId),
+  const [watchedGenreWeights, watchedTmdbIds] = await Promise.all([
+    fetchWatchedGenreWeights(userId),
     fetchWatchedTmdbIds(userId),
   ]);
+
 
   const providerSet   = buildProviderSet(userPlatforms);
   const providerCache = new Map();
 
   const weights = mode === 'baseline'
-    ? { mood: 0.00, pref: 0.40, hist: 0.30, sub: 0.30 }
-    : { mood: 0.35, pref: 0.25, hist: 0.20, sub: 0.20 };
+    ? { mood: 0.00, pref: 0.40, hist: 0.35, sub: 0.25 }
+    : { mood: 0.25, pref: 0.40, hist: 0.20, sub: 0.15 };
 
   const scored = await Promise.all(movies.map(async (movie) => {
     const subResult = await calculateSubscriptionScore(movie, providerSet, providerCache);
@@ -188,7 +201,7 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
     const scores = {
       mood:        mode === 'baseline' ? 0 : calculateMoodMatch(movie, mood),
       pref:        calculatePrefMatch(movie, userGenreNames),
-      hist:        await calculateHistoryAffinity(movie, userId, watchedGenreNames),
+      hist:        calculateHistoryAffinity(movie, watchedGenreWeights),
       sub:         subResult.score,
       platformName: subResult.platformName,
     };
@@ -207,7 +220,9 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
 }
 
 module.exports = {
-  calculateMoodMatch, calculatePrefMatch,
-  calculateHistoryAffinity, calculateNoveltyScore,
-  calculateSubscriptionScore, rankMovies,
+  calculateMoodMatch,
+  calculatePrefMatch,
+  calculateHistoryAffinity,
+  calculateSubscriptionScore,
+  rankMovies,
 };

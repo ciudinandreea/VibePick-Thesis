@@ -2,7 +2,19 @@ const express  = require('express');
 const router   = express.Router();
 const pool     = require('../db/connection');
 const auth     = require('../middleware/auth');
-const { getPopularMovies, discoverMoviesByGenre } = require('../services/tmdb');
+const { getPopularMovies, discoverMoviesByGenre, discoverMoviesByGenreAndProviders } = require('../services/tmdb');
+
+const TMDB_PROVIDER_IDS = {
+  netflix:     8,
+  disneyplus:  337,
+  prime:       9,
+  hbomax:      384,
+  appletv:     350,
+  hulu:        15,
+  paramount:   531,
+  peacock:     386,
+  skyshowtime: 1773,
+};
 const { rankMovies } = require('../services/recommender');
 const { GENRE_IDS } = require('../config/moodMapping');
 
@@ -14,18 +26,25 @@ for (const [id, name] of Object.entries(GENRE_IDS)) {
 const MOOD_DISCOVER_GENRES = {
   happy:    [35, 10749, 10751, 16, 10402],   // Comedy, Romance, Family, Animation, Music
   sad:      [18, 10749, 10751, 35, 99],       // Drama, Romance, Family, Comedy, Documentary
-  stressed: [35, 10751, 16, 99, 10749],       // Comedy, Family, Animation, Documentary, Romance
-  tired:    [35, 16, 10751, 10749, 14],       // Comedy, Animation, Family, Romance, Fantasy
-  excited:  [28, 12, 53, 878, 14],            // Action, Adventure, Thriller, SciFi, Fantasy
-  bored:    [9648, 878, 80, 37, 36],          // Mystery, SciFi, Crime, Western, History (less common = novelty)
+  stressed: [35, 10751, 99, 16, 10749],       // Comedy, Family, Documentary, Animation, Romance
+  tired:    [35, 10751, 10749, 14, 16],       // Comedy, Family, Romance, Fantasy, Animation
+  excited:  [28, 53, 12, 878, 14],            // Action, Thriller, Adventure, SciFi, Fantasy
+  bored:    [9648, 878, 80, 37, 36],          // Mystery, SciFi, Crime, Western, History
 };
 
-async function buildPool(pages, genreIds, maxGenres = 3) {
+async function buildPool(pages, genreIds, maxGenres = 2, providerIds = []) {
   const tasks = pages.map(p => getPopularMovies(p));
+
   for (const gid of genreIds.slice(0, maxGenres)) {
     tasks.push(discoverMoviesByGenre(gid, 1));
-    tasks.push(discoverMoviesByGenre(gid, 2));
+    if (providerIds.length > 0 && typeof discoverMoviesByGenreAndProviders === 'function') {
+      tasks.push(discoverMoviesByGenreAndProviders(gid, providerIds, 1));
+      tasks.push(discoverMoviesByGenreAndProviders(gid, providerIds, 2));
+    } else {
+      tasks.push(discoverMoviesByGenre(gid, 2));
+    }
   }
+
   const results = await Promise.allSettled(tasks);
   let movies = [];
   for (const r of results) {
@@ -54,7 +73,17 @@ router.get('/', auth, async (req, res) => {
 
     if (mode === 'mood-aware') {
       const moodGenreIds = MOOD_DISCOVER_GENRES[mood] || [];
-      candidateMovies = await buildPool([1, 2], moodGenreIds, 3);
+      let moodProviderIds = [];
+      try {
+        const subRes = await pool.query(
+          `SELECT platform_name FROM subscriptions WHERE user_id = $1 AND active = true`,
+          [userId]
+        );
+        moodProviderIds = subRes.rows
+          .map(r => TMDB_PROVIDER_IDS[r.platform_name])
+          .filter(Boolean);
+      } catch (e) { console.error('Platform fetch error:', e.message); }
+      candidateMovies = await buildPool([1, 2, 3], moodGenreIds, 2, moodProviderIds);
     } else {
       let userGenreNames = [];
       try {
@@ -94,6 +123,7 @@ router.get('/', auth, async (req, res) => {
 
     const ranked = await rankMovies(candidateMovies, userId, mood, mode);
     const top    = ranked.slice(0, limit);
+
 
     try {
       await pool.query(
