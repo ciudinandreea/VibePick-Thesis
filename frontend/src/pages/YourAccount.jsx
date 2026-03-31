@@ -502,7 +502,7 @@ export default function YourAccount() {
                     Delete Account &amp; History
                   </div>
                   <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.50)', lineHeight: 1.7 }}>
-                    Permanently removes your account along with all associated data — mood logs, watch history, wishlist, genres, and subscriptions. This cannot be reversed.
+                    Permanently removes your account along with all associated data: mood logs, watch history, wishlist, genres, and subscriptions. This cannot be reversed.
                   </p>
                 </div>
                 <button

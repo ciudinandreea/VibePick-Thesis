@@ -426,7 +426,7 @@ export default function PrivacyData() {
                   <span style={{ fontSize: 15, fontWeight: 800, color: 'white' }}>Export My Data</span>
                 </div>
                 <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.58)', lineHeight: 1.75, marginBottom: 20 }}>
-                  Download a complete JSON archive of your VibePick account data — including your profile, genre preferences, subscriptions, watch history, wishlist, and all mood logs. Your data will be ready instantly.
+                  Download a complete JSON archive of your VibePick account data, including your profile, genre preferences, subscriptions, watch history, wishlist, and all mood logs. Your data will be ready instantly.
                 </p>
                 <button
                   onClick={handleExportData}
@@ -497,7 +497,7 @@ export default function PrivacyData() {
               {}
               <div style={{ marginTop: 24, padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
                 <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.5px' }}>
-                  Documents last reviewed: January 2025
+                  Documents last reviewed: March 2026
                 </span>
               </div>
             </div>
