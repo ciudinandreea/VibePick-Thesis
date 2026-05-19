@@ -382,7 +382,7 @@ export default function PrivacyData() {
                 </div>
                 <div>
                   <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>Data Summary</div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>What we store &amp; why</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>What we store & why</div>
                 </div>
               </div>
 
@@ -469,7 +469,7 @@ export default function PrivacyData() {
                 </div>
                 <div>
                   <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>Legal Documentation</div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>Official notices &amp; policies</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>Official notices & policies</div>
                 </div>
               </div>
 

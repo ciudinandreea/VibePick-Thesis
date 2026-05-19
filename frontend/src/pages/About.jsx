@@ -265,47 +265,16 @@ export default function About() {
             q="Why choose VibePick?"
             a={<>
               Most platforms optimise for watch-time. VibePick optimises for <strong style={{ color:'#c084fc' }}>how you feel afterwards</strong>.<br/><br/>
-              It tracks which genres lift your mood versus which ones don't, keeping a calendar of your emotional journey, so you can see patterns you never noticed. Data sovereignty is prioritized, therefore your emotional logs remain solely under your control.<br/><br/>
+              It tracks which genres lift your mood versus which ones don't, keeping a calendar of your emotional journey, so you can see patterns you never noticed. Emotional logs remain solely under your control.<br/><br/>
               VibePick isn't just a recommendation engine. It's a mood-aware companion for the films you actually want to watch.
             </>}
             delay={100}
           />
         </section>
-
-        {}
-        <section style={{
-          padding: 'clamp(80px, 10vw, 120px) clamp(24px, 8vw, 120px)',
-        }}>
-          {}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 48,
-          }}>
-            {[
-              { value: '98', label: 'of users enjoy the app', isNA: true },
-              { value: '73', label: 'find recommendations helpful', isNA: true },
-              { value: '86', label: 'reported improved mood', isNA: true },
-            ].map((s, i) => (
-              <Reveal key={s.label} delay={i * 120}>
-                <div style={{
-                  padding: '40px 32px',
-                  background: 'rgba(255,255,255,0.05)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 20,
-                }}>
-                  <StatCounter {...s} />
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
+        
         {}
         <section style={{
           padding: 'clamp(80px, 10vw, 130px) clamp(24px, 8vw, 120px) clamp(100px, 14vw, 180px)',
-          borderTop: '1px solid rgba(255,255,255,0.07)',
           display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 40,
         }}>
           <Reveal>

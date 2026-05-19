@@ -704,7 +704,7 @@ export default function GenreManager() {
           <div style={{ fontSize: 34, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: 4 }}>
             Favorite Genres
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: MUT, marginBottom: 28 }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: 'white', marginBottom: 28 }}>
             Manage your genre preferences
           </div>
 

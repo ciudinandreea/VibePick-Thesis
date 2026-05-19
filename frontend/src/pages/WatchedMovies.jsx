@@ -516,7 +516,7 @@ export default function WatchedMovies() {
               </h1>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>
                 {movies.length > 0
-                  ? `${movies.length} movie${movies.length !== 1 ? 's' : ''} watched — filtered from your recommendations`
+                  ? `${movies.length} movie${movies.length !== 1 ? 's' : ''} watched, filtered from your recommendations`
                   : `Movies you mark as watched won't appear in your recommendations`}
               </p>
             </div>

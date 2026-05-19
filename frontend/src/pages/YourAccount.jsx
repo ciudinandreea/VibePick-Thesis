@@ -332,7 +332,7 @@ function DeleteModal({ onConfirm, onCancel, deleting }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(10,0,30,0.70)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, animation: 'ac-mdIn 0.2s ease both' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'rgba(20,8,50,0.96)', backdropFilter: 'blur(24px)', border: '1px solid rgba(239,68,68,0.30)', borderRadius: 22, padding: '36px 36px 30px', maxWidth: 440, width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.60)', fontFamily: FONT }}>
         <div style={{ fontSize: 36, marginBottom: 16, textAlign: 'center' }}>⚠️</div>
-        <div style={{ fontSize: 20, fontWeight: 900, color: 'white', textAlign: 'center', marginBottom: 14 }}>Delete account &amp; history?</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: 'white', textAlign: 'center', marginBottom: 14 }}>Delete account & history?</div>
         <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, textAlign: 'center', marginBottom: 28 }}>
           This will permanently delete your account, all mood logs, watch history, wishlist, genre preferences, and subscription data. <strong style={{ color: '#f87171' }}>This action cannot be undone.</strong>
         </p>
