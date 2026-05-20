@@ -3,53 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 
 const FONT = "'Montserrat', sans-serif";
 
-function StatCounter({ value, label, isNA }) {
-  const [displayed, setDisplayed] = useState(0);
-  const [started, setStarted]     = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (isNA) return;
-    const observer = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started) {
-        setStarted(true);
-        let start = 0;
-        const end = parseInt(value);
-        const duration = 1400;
-        const step = 16;
-        const inc = end / (duration / step);
-        const timer = setInterval(() => {
-          start += inc;
-          if (start >= end) { setDisplayed(end); clearInterval(timer); }
-          else setDisplayed(Math.floor(start));
-        }, step);
-      }
-    }, { threshold: 0.4 });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [started, value, isNA]);
-
-  return (
-    <div ref={ref} style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-    }}>
-      <div style={{
-        fontSize: 'clamp(48px, 7vw, 80px)', fontWeight: 900, fontFamily: FONT,
-        background: 'linear-gradient(135deg, #c084fc, #7C3AED)',
-        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        letterSpacing: '-2px', lineHeight: 1,
-      }}>
-        {isNA ? 'N/A' : `${displayed}%`}
-      </div>
-      <div style={{
-        fontSize: 14, fontWeight: 600, fontFamily: FONT,
-        color: 'rgba(255,255,255,0.55)', textAlign: 'center',
-        maxWidth: 180, lineHeight: 1.5,
-      }}>{label}</div>
-    </div>
-  );
-}
-
 function Reveal({ children, delay = 0, from = 'bottom' }) {
   const [vis, setVis] = useState(false);
   const ref = useRef(null);
@@ -72,12 +25,12 @@ function Reveal({ children, delay = 0, from = 'bottom' }) {
   );
 }
 
-function QARow({ q, a, delay = 0 }) {
+function QARow({ q, a, delay = 0, isLast = false }) {
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: '40px 80px',
       padding: '64px 0',
-      borderBottom: '1px solid rgba(255,255,255,0.07)',
+      borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.07)',
     }}>
       <Reveal from="left" delay={delay}>
         <div style={{
@@ -188,7 +141,6 @@ export default function About() {
           justifyContent: 'center', alignItems: 'flex-start',
           padding: 'clamp(80px, 10vw, 140px) clamp(24px, 8vw, 120px) 80px',
         }}>
-          {}
           <div style={{
             fontSize: 12, fontWeight: 700, letterSpacing: '3px',
             color: '#c084fc', textTransform: 'uppercase', marginBottom: 36,
@@ -197,10 +149,9 @@ export default function About() {
             Emotion-based entertainment recommendation application
           </div>
 
-          {}
           {[
-            { text: 'YOUR',  color: 'white' },
-            { text: 'MOOD',  color: 'white' },
+            { text: 'YOUR',    color: 'white' },
+            { text: 'MOOD',    color: 'white' },
             { text: 'MATTERS.', color: 'url(#heroGrad)', isGrad: true },
           ].map((w, i) => (
             <div key={w.text} style={{
@@ -218,7 +169,6 @@ export default function About() {
             </div>
           ))}
 
-          {}
           <p style={{
             marginTop: 48, maxWidth: 520,
             fontSize: 'clamp(15px, 1.6vw, 19px)', fontWeight: 500,
@@ -229,7 +179,6 @@ export default function About() {
             resonate, not just what's trending.
           </p>
 
-          {}
           <div style={{
             marginTop: 72, display: 'flex', alignItems: 'center', gap: 12,
             animation: 'ab-fadeUp 0.7s ease 900ms both',
@@ -244,7 +193,7 @@ export default function About() {
 
         {}
         <section style={{
-          padding: '0 clamp(24px, 8vw, 120px) 40px',
+          padding: '0 clamp(24px, 8vw, 120px) 0',
           borderTop: '1px solid rgba(255,255,255,0.07)',
         }}>
           <QARow
@@ -269,12 +218,13 @@ export default function About() {
               VibePick isn't just a recommendation engine. It's a mood-aware companion for the films you actually want to watch.
             </>}
             delay={100}
+            isLast={true}
           />
         </section>
-        
+
         {}
         <section style={{
-          padding: 'clamp(80px, 10vw, 130px) clamp(24px, 8vw, 120px) clamp(100px, 14vw, 180px)',
+          padding: 'clamp(100px, 12vw, 160px) clamp(24px, 8vw, 120px) clamp(100px, 14vw, 180px)',
           display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 40,
         }}>
           <Reveal>
@@ -306,20 +256,21 @@ export default function About() {
               <span className="ab-arrow" style={{ fontSize: 20, lineHeight: 1 }}>→</span>
             </button>
           </Reveal>
+
           <Reveal delay={240}>
             <p style={{
               fontSize: 13, fontWeight: 500, fontFamily: FONT,
               color: 'rgba(250, 242, 242, 0.76)', marginTop: 16,
             }}>
-                ⚠️ Disclaimer:
-                VibePick is meant for academic research. 
-                It is NOT a mental health tool and does not provide psychological or 
-                medical advice. If you're experiencing mental health concerns, please 
-                consult a qualified healthcare professional.
+              ⚠️ Disclaimer: VibePick is meant for academic research. 
+              It is NOT a mental health tool and does not provide psychological or 
+              medical advice. If you're experiencing mental health concerns, please 
+              consult a qualified healthcare professional.
             </p>
           </Reveal>
         </section>
-      </div>{}
+
+      </div>
     </div>
   );
 }

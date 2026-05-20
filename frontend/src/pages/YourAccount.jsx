@@ -68,16 +68,6 @@ const SaveIco = () => (
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
-const EyeIco = ({ open }) => open ? (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-  </svg>
-) : (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
-  </svg>
-);
 const TrashIco = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -260,7 +250,6 @@ function Navbar() {
 
 function Field({ label, value, type = 'text', editable = true, onChange, onSave, saving, saved }) {
   const [editing, setEditing] = useState(false);
-  const [showPw,  setShowPw]  = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => { if (editing && inputRef.current) inputRef.current.focus(); }, [editing]);
@@ -270,8 +259,7 @@ function Field({ label, value, type = 'text', editable = true, onChange, onSave,
     setEditing(false);
   };
 
-  const displayType = type === 'password' ? (showPw ? 'text' : 'password') : type;
-  const displayValue = type === 'password' ? (editing ? value : '••••••••') : (value || '—');
+  const displayValue = value || '—';
 
   return (
     <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
@@ -281,27 +269,19 @@ function Field({ label, value, type = 'text', editable = true, onChange, onSave,
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {editing ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <input
-                ref={inputRef}
-                type={displayType}
-                value={value}
-                onChange={e => onChange(e.target.value)}
-                style={{
-                  width: '100%', padding: '10px 14px',
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(124,58,237,0.45)',
-                  borderRadius: 10, fontFamily: FONT, fontSize: 15,
-                  fontWeight: 600, color: 'white', outline: 'none',
-                  paddingRight: type === 'password' ? 40 : 14,
-                }}
-              />
-              {type === 'password' && (
-                <button onClick={() => setShowPw(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', padding: 0 }}>
-                  <EyeIco open={showPw} />
-                </button>
-              )}
-            </div>
+            <input
+              ref={inputRef}
+              type={type}
+              value={value}
+              onChange={e => onChange(e.target.value)}
+              style={{
+                flex: 1, padding: '10px 14px',
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(124,58,237,0.45)',
+                borderRadius: 10, fontFamily: FONT, fontSize: 15,
+                fontWeight: 600, color: 'white', outline: 'none',
+              }}
+            />
             <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 9, background: 'linear-gradient(135deg,#7C3AED,#9333ea)', border: 'none', color: 'white', fontFamily: FONT, fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.7 : 1, flexShrink: 0 }}>
               <SaveIco /> {saving ? 'Saving…' : 'Save'}
             </button>
@@ -311,7 +291,7 @@ function Field({ label, value, type = 'text', editable = true, onChange, onSave,
           </div>
         ) : (
           <>
-            <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: type === 'password' ? 'rgba(255,255,255,0.45)' : 'white', letterSpacing: type === 'password' ? '2px' : 'normal' }}>
+            <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: 'white' }}>
               {displayValue}
             </span>
             {saved && <span style={{ fontSize: 12, fontWeight: 700, color: '#10b981' }}>✓ Saved</span>}
@@ -358,15 +338,14 @@ export default function YourAccount() {
   const initFirst = nameParts[0] || '';
   const initLast  = nameParts.slice(1).join(' ') || '';
 
-  const [firstName,   setFirstName]   = useState(initFirst);
-  const [lastName,    setLastName]    = useState(initLast);
-  const [email,       setEmail]       = useState(rawUser?.email || '');
-  const [password,    setPassword]    = useState('');
-  const [saving,      setSaving]      = useState({});
-  const [saved,       setSaved]       = useState({});
-  const [showDelete,  setShowDelete]  = useState(false);
-  const [deleting,    setDeleting]    = useState(false);
-  const [createdAt,   setCreatedAt]   = useState(null);
+  const [firstName,  setFirstName]  = useState(initFirst);
+  const [lastName,   setLastName]   = useState(initLast);
+  const [email,      setEmail]      = useState(rawUser?.email || '');
+  const [saving,     setSaving]     = useState({});
+  const [saved,      setSaved]      = useState({});
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleting,   setDeleting]   = useState(false);
+  const [createdAt,  setCreatedAt]  = useState(null);
 
   useEffect(() => {
     api.get('/profile/me').then(r => {
@@ -479,15 +458,7 @@ export default function YourAccount() {
               saving={saving.email}
               saved={saved.email}
             />
-            <Field
-              label="Password"
-              value={password}
-              type="password"
-              onChange={setPassword}
-              onSave={() => handleSave('password', { password })}
-              saving={saving.password}
-              saved={saved.password}
-            />
+            {}
             <Field
               label="Member Since"
               value={memberSince}
@@ -499,7 +470,7 @@ export default function YourAccount() {
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#f87171', marginBottom: 8 }}>
-                    Delete Account &amp; History
+                    Delete Account & History
                   </div>
                   <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.50)', lineHeight: 1.7 }}>
                     Permanently removes your account along with all associated data: mood logs, watch history, wishlist, genres, and subscriptions. This cannot be reversed.

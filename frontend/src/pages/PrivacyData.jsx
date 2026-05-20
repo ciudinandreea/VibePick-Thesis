@@ -333,13 +333,13 @@ export default function PrivacyData() {
   }
 
   const DATA_ITEMS = [
-    { icon: '👤', label: 'Account info',       desc: 'Name and email address used at registration.' },
-    { icon: '🎭', label: 'Genre preferences',   desc: 'Your selected favourite genres.' },
-    { icon: '📺', label: 'Subscription data',   desc: 'Streaming platforms you have linked.' },
-    { icon: '🎬', label: 'Watch history',        desc: 'Movies you have marked as watched.' },
-    { icon: '💜', label: 'Wishlist',             desc: 'Movies saved for later viewing.' },
-    { icon: '😊', label: 'Mood logs',            desc: 'Daily mood entries and post-watch moods.' },
-    { icon: '🔍', label: 'Recommendation logs',  desc: 'Records of films shown to you and how they were ranked.' },
+    { label: 'Account info',       desc: 'Name and email address used at registration.' },
+    { label: 'Genre preferences',   desc: 'Your selected favourite genres.' },
+    { label: 'Subscription data',   desc: 'Streaming platforms you have linked.' },
+    { label: 'Watch history',        desc: 'Movies you have marked as watched.' },
+    { label: 'Wishlist',             desc: 'Movies saved for later viewing.' },
+    { label: 'Mood logs',            desc: 'Daily mood entries and post-watch moods.' },
+    { label: 'Recommendation logs',  desc: 'Records of films shown to you and how they were ranked.' },
   ];
 
   return (
@@ -363,7 +363,7 @@ export default function PrivacyData() {
           {}
           <div style={{ marginBottom: 48, animation: 'pd-fadeUp 0.4s ease both' }}>
             <h1 style={{ fontSize: 32, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: 8 }}>
-              Privacy &amp; Data Management
+              Privacy & Data Management
             </h1>
             <p style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
               Control your personal information and privacy settings
@@ -386,7 +386,7 @@ export default function PrivacyData() {
                 </div>
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 24 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 24, textAlign: 'justify' }}>
                 VibePick collects only the data necessary to deliver personalised recommendations and improve your experience. We never sell your data to third parties. Below is a full breakdown of every category of data we store on your behalf.
               </p>
 
@@ -415,17 +415,16 @@ export default function PrivacyData() {
                 </div>
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 28 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 28, textAlign: 'justify' }}>
                 Under the General Data Protection Regulation (GDPR — EU 2016/679), you have the right to receive a copy of all personal data we hold about you in a structured, commonly used, and machine-readable format. You may also transmit that data to another service provider of your choosing without hindrance.
               </p>
 
               {}
               <div style={{ background: 'rgba(124,58,237,0.10)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 16, padding: '24px 22px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <span style={{ fontSize: 20 }}>📦</span>
                   <span style={{ fontSize: 15, fontWeight: 800, color: 'white' }}>Export My Data</span>
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.58)', lineHeight: 1.75, marginBottom: 20 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.58)', lineHeight: 1.75, marginBottom: 20, textAlign: 'justify' }}>
                   Download a complete JSON archive of your VibePick account data, including your profile, genre preferences, subscriptions, watch history, wishlist, and all mood logs. Your data will be ready instantly.
                 </p>
                 <button
@@ -454,8 +453,8 @@ export default function PrivacyData() {
 
               {}
               <div style={{ marginTop: 20, padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Right to Erasure</div>
-                <p style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'white', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Right to Erasure</div>
+                <p style={{ fontSize: 12, fontWeight: 500, color: 'white', lineHeight: 1.7, textAlign: 'justify' }}>
                   You may request full deletion of your account and all associated data at any time from the <Link to="/account" style={{ color: '#c084fc', textDecoration: 'none', fontWeight: 700 }}>Your Account</Link> page.
                 </p>
               </div>
@@ -473,18 +472,18 @@ export default function PrivacyData() {
                 </div>
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 32 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 32, textAlign: 'justify' }}>
                 All legal documents governing your use of VibePick are available below. We recommend reviewing them periodically as they may be updated. Each document is provided as a PDF and can be saved for your records.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
-                  { label: 'Privacy Policy',    icon: '🔒', desc: 'How we collect, use, and protect your personal data.' },
-                  { label: 'Terms of Service',  icon: '📋', desc: 'The rules and conditions governing use of the platform.' },
-                  { label: 'GDPR Notice',       icon: '🇪🇺', desc: 'Your data rights under EU regulation 2016/679.' },
+                  { label: 'Privacy Policy', desc: 'How we collect, use, and protect your personal data.' },
+                  { label: 'Terms of Service', desc: 'The rules and conditions governing use of the platform.' },
+                  { label: 'GDPR Notice', desc: 'Your data rights under EU regulation 2016/679.' },
                 ].map(doc => (
                   <div key={doc.label} style={{ padding: '18px 20px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
                       <span style={{ fontSize: 18 }}>{doc.icon}</span>
                       <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{doc.label}</span>
                     </div>
