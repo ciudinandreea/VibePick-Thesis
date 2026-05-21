@@ -32,6 +32,18 @@ const MOOD_DISCOVER_GENRES = {
   bored:    [9648, 878, 80, 37, 36],          // Mystery, SciFi, Crime, Western, History
 };
 
+const ADULT_KEYWORDS = [
+  'sex', 'xxx', 'porn', 'erotic', 'nymphomaniac', 'nude', 'nudity',
+  'lust', 'caution', 'hot girls wanted', 'secretary', 'straight a',
+  'realm of the senses', 'last tango', 'irreversible', '9 songs',
+  'damage', 'from straight', 'graphic desires'
+];
+
+function isAdultContent(movie) {
+  const title = (movie.title || movie.original_title || '').toLowerCase();
+  return ADULT_KEYWORDS.some(kw => title.includes(kw));
+}
+
 async function buildPool(pages, genreIds, maxGenres = 2, providerIds = []) {
   const tasks = pages.map(p => getPopularMovies(p));
 
@@ -121,10 +133,10 @@ router.get('/', auth, async (req, res) => {
       }
     } catch (e) { console.error('Watched filter error:', e.message); }
 
+    candidateMovies = candidateMovies.filter(movie => !isAdultContent(movie));
+
     const ranked = await rankMovies(candidateMovies, userId, mood, mode);
     const top    = ranked.slice(0, limit);
-
-
     try {
       await pool.query(
         `INSERT INTO recommendation_runs (user_id, mode, items_shown, timestamp) VALUES ($1,$2,$3,NOW())`,

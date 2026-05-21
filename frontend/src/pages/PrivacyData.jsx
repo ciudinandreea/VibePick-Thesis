@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/api';
-import api from '../services/api';
 
 const FONT = "'Montserrat', sans-serif";
 
@@ -61,12 +60,6 @@ const DatabaseIco = () => (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
     <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-  </svg>
-);
-const ExportIco = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
   </svg>
 );
 const LegalIco = () => (
@@ -163,7 +156,6 @@ function Navbar() {
             </Link>
           );
         })}
-
 
         {}
         {!showSearch ? (
@@ -289,37 +281,11 @@ function DlButton({ label, onClick }) {
 }
 
 export default function PrivacyData() {
-  const [exporting, setExporting] = useState(false);
-  const [exportDone, setExportDone] = useState(false);
-
-  async function handleExportData() {
-    setExporting(true);
-    try {
-      const resp = await api.get('/profile/export', { responseType: 'blob' });
-      const url  = URL.createObjectURL(new Blob([resp.data]));
-      const a    = document.createElement('a');
-      a.href = url; a.download = 'vibepick-data.json'; a.click();
-      URL.revokeObjectURL(url);
-      setExportDone(true);
-      setTimeout(() => setExportDone(false), 3000);
-    } catch {
-      const user = getCurrentUser();
-      const blob = new Blob([JSON.stringify({ user, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = url; a.download = 'vibepick-data.json'; a.click();
-      URL.revokeObjectURL(url);
-      setExportDone(true);
-      setTimeout(() => setExportDone(false), 3000);
-    } finally {
-      setExporting(false);
-    }
-  }
 
   const DOC_PATHS = {
     'Privacy Policy':   '/docs/privacy-policy.pdf',
     'Terms of Service': '/docs/terms-of-service.pdf',
-    'GDPR Notice':      '/docs/privacy-policy.pdf', 
+    'GDPR Notice':      '/docs/privacy-policy.pdf',
   };
 
   function handleDocDownload(name) {
@@ -333,7 +299,7 @@ export default function PrivacyData() {
   }
 
   const DATA_ITEMS = [
-    { label: 'Account info',       desc: 'Name and email address used at registration.' },
+    { label: 'Account info',        desc: 'Name and email address used at registration.' },
     { label: 'Genre preferences',   desc: 'Your selected favourite genres.' },
     { label: 'Subscription data',   desc: 'Streaming platforms you have linked.' },
     { label: 'Watch history',        desc: 'Movies you have marked as watched.' },
@@ -348,19 +314,16 @@ export default function PrivacyData() {
       <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       <style>{`
         @keyframes pd-fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
-        @keyframes pd-spin   { to{transform:rotate(360deg);} }
       `}</style>
 
-      {}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: 'url(/pages-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(6px)', transform: 'scale(1.05)' }}/>
       <div style={{ position: 'fixed', inset: 0, zIndex: 1, background: 'rgba(15,5,35,0.55)' }}/>
 
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Navbar />
 
-        <div style={{ padding: '52px 40px 80px', maxWidth: 1300, margin: '0 auto' }}>
+        <div style={{ padding: '52px 40px 80px', maxWidth: 1000, margin: '0 auto' }}>
 
-          {}
           <div style={{ marginBottom: 48, animation: 'pd-fadeUp 0.4s ease both' }}>
             <h1 style={{ fontSize: 32, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: 8 }}>
               Privacy & Data Management
@@ -371,29 +334,27 @@ export default function PrivacyData() {
           </div>
 
           {}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, alignItems: 'start' }}>
 
             {}
             <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 22, padding: '32px 28px', animation: 'pd-fadeUp 0.4s ease 60ms both' }}>
-              {}
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(124,58,237,0.20)', border: '1px solid rgba(124,58,237,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc', flexShrink: 0 }}>
                   <DatabaseIco />
                 </div>
                 <div>
                   <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>Data Summary</div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>What we store & why</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>What VibePick stores & why</div>
                 </div>
               </div>
 
               <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 24, textAlign: 'justify' }}>
-                VibePick collects only the data necessary to deliver personalised recommendations and improve your experience. We never sell your data to third parties. Below is a full breakdown of every category of data we store on your behalf.
+                VibePick collects only the data necessary to deliver personalised recommendations and improve your experience. Your data is never sold to third parties. Below is a full breakdown of every category of data VibePick stores on your behalf.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {DATA_ITEMS.map((item, i) => (
                   <div key={item.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', borderRadius: 12, background: i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent' }}>
-                    <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 2 }}>{item.label}</div>
                       <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.50)', lineHeight: 1.6 }}>{item.desc}</div>
@@ -401,67 +362,19 @@ export default function PrivacyData() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {}
-            <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 22, padding: '32px 28px', animation: 'pd-fadeUp 0.4s ease 120ms both' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(124,58,237,0.20)', border: '1px solid rgba(124,58,237,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc', flexShrink: 0 }}>
-                  <ExportIco />
-                </div>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: 'white' }}>Data Portability</div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>Your GDPR rights</div>
-                </div>
-              </div>
-
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 28, textAlign: 'justify' }}>
-                Under the General Data Protection Regulation (GDPR — EU 2016/679), you have the right to receive a copy of all personal data we hold about you in a structured, commonly used, and machine-readable format. You may also transmit that data to another service provider of your choosing without hindrance.
-              </p>
-
-              {}
-              <div style={{ background: 'rgba(124,58,237,0.10)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 16, padding: '24px 22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <span style={{ fontSize: 15, fontWeight: 800, color: 'white' }}>Export My Data</span>
-                </div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.58)', lineHeight: 1.75, marginBottom: 20, textAlign: 'justify' }}>
-                  Download a complete JSON archive of your VibePick account data, including your profile, genre preferences, subscriptions, watch history, wishlist, and all mood logs. Your data will be ready instantly.
-                </p>
-                <button
-                  onClick={handleExportData}
-                  disabled={exporting}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-                    width: '100%', padding: '13px 0', borderRadius: 11, cursor: exporting ? 'default' : 'pointer',
-                    fontFamily: FONT, fontSize: 14, fontWeight: 800,
-                    background: exportDone ? 'rgba(16,185,129,0.25)' : 'linear-gradient(135deg,#7C3AED,#9333ea)',
-                    border: exportDone ? '1px solid rgba(16,185,129,0.5)' : 'none',
-                    color: 'white',
-                    boxShadow: exportDone ? 'none' : '0 6px 20px rgba(124,58,237,0.40)',
-                    transition: 'all 0.2s ease',
-                    opacity: exporting ? 0.7 : 1,
-                  }}>
-                  {exporting ? (
-                    <><div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid white', animation: 'pd-spin 0.7s linear infinite' }}/> Preparing…</>
-                  ) : exportDone ? (
-                    <>✓ Downloaded!</>
-                  ) : (
-                    <><DownloadIco /> Download my data</>
-                  )}
-                </button>
-              </div>
 
               {}
               <div style={{ marginTop: 20, padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'white', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Right to Erasure</div>
                 <p style={{ fontSize: 12, fontWeight: 500, color: 'white', lineHeight: 1.7, textAlign: 'justify' }}>
-                  You may request full deletion of your account and all associated data at any time from the <Link to="/account" style={{ color: '#c084fc', textDecoration: 'none', fontWeight: 700 }}>Your Account</Link> page.
+                  You may request full deletion of your account and all associated data at any time from the{' '}
+                  <Link to="/account" style={{ color: '#c084fc', textDecoration: 'none', fontWeight: 700 }}>Your Account</Link> page.
                 </p>
               </div>
             </div>
 
             {}
-            <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 22, padding: '32px 28px', animation: 'pd-fadeUp 0.4s ease 180ms both' }}>
+            <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 22, padding: '32px 28px', animation: 'pd-fadeUp 0.4s ease 120ms both' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(124,58,237,0.20)', border: '1px solid rgba(124,58,237,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc', flexShrink: 0 }}>
                   <LegalIco />
@@ -473,18 +386,17 @@ export default function PrivacyData() {
               </div>
 
               <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.60)', lineHeight: 1.75, marginBottom: 32, textAlign: 'justify' }}>
-                All legal documents governing your use of VibePick are available below. We recommend reviewing them periodically as they may be updated. Each document is provided as a PDF and can be saved for your records.
+                All legal documents governing your use of VibePick are available below. Each document is provided as a PDF and can be saved for your records.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
-                  { label: 'Privacy Policy', desc: 'How we collect, use, and protect your personal data.' },
+                  { label: 'Privacy Policy',   desc: 'How VibePick collects, uses, and protects your personal data.' },
                   { label: 'Terms of Service', desc: 'The rules and conditions governing use of the platform.' },
-                  { label: 'GDPR Notice', desc: 'Your data rights under EU regulation 2016/679.' },
+                  { label: 'GDPR Notice',      desc: 'Your data rights under EU regulation 2016/679.' },
                 ].map(doc => (
                   <div key={doc.label} style={{ padding: '18px 20px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                      <span style={{ fontSize: 18 }}>{doc.icon}</span>
                       <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{doc.label}</span>
                     </div>
                     <p style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.50)', lineHeight: 1.65, marginBottom: 14 }}>{doc.desc}</p>
@@ -493,7 +405,6 @@ export default function PrivacyData() {
                 ))}
               </div>
 
-              {}
               <div style={{ marginTop: 24, padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
                 <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.5px' }}>
                   Documents last reviewed: March 2026
