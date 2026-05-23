@@ -40,7 +40,6 @@ router.get('/subscriptions', auth, async (req, res) => {
       `SELECT platform_name FROM subscriptions WHERE user_id=$1 AND active=true`,
       [req.user.userId]
     );
-    console.log(`Subscriptions for user ${req.user.userId}:`, result.rows);
     res.json({ platforms: result.rows.map(r => r.platform_name) });
   } catch (err) {
     console.error('Error fetching subscriptions:', err.message);
@@ -52,7 +51,6 @@ router.post('/subscriptions', auth, async (req, res) => {
   const client = await pool.connect();
   try {
     const { platforms } = req.body;
-    console.log('Saving subscriptions for user', req.user.userId, ':', platforms);
 
     await client.query('BEGIN');
 
@@ -69,7 +67,6 @@ router.post('/subscriptions', auth, async (req, res) => {
     }
 
     await client.query('COMMIT');
-    console.log('Subscriptions saved successfully');
     res.json({ success: true });
   } catch (err) {
     await client.query('ROLLBACK');
