@@ -273,7 +273,7 @@ function Navbar() {
           )}
         </div>
 
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative' }} ref={menuRef} >
           <button onClick={() => setMenuOpen(v => !v)} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 36, height: 36, borderRadius: 9,

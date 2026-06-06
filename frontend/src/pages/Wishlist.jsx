@@ -679,13 +679,9 @@ export default function Wishlist() {
                 My Wishlist
               </div>
               <div style={{ fontSize:15, fontWeight:500, color:'rgba(255,255,255,0.7)', display:'flex', alignItems:'center', gap:8 }}>
-                Movies you're excited to watch
-                {items.length > 0 && (
-                  <span style={{
-                    background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.2)',
-                    borderRadius:20, padding:'2px 10px', fontSize:13, fontWeight:700, color:PUR,
-                  }}>{items.length}</span>
-                )}
+                {items.length > 0
+                  ? `${items.length} movie${items.length !== 1 ? 's' : ''} you are excited to watch` 
+                  : `Save movies from the discovery feed to see them here` }
               </div>
             </div>
             {items.length > 0 && (

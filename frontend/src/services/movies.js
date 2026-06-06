@@ -21,8 +21,3 @@ export const getMoviesByGenre = async (genreId, page = 1) => {
   const response = await api.get(`${MOVIES_API}/genre/${genreId}?page=${page}`);
   return response.data;
 };
-
-export const cacheMovie = async (movieId) => {
-  const response = await api.post(`${MOVIES_API}/${movieId}/cache`);
-  return response.data;
-};

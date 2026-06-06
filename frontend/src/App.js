@@ -6,7 +6,6 @@ import GenreSetup           from './pages/GenreSetup';
 import SubscriptionSetup    from './pages/SubscriptionSetup';
 import MoodPicker           from './pages/MoodPicker';
 import DiscoveryFeed        from './pages/DiscoveryFeed';
-import MovieDetail          from './pages/MovieDetail';
 import Wishlist             from './pages/Wishlist';
 import SubscriptionManager  from './pages/SubscriptionManager';
 import MoodHistoryCalendar  from './pages/MoodHistoryCalendar';
@@ -99,7 +98,6 @@ export default function App() {
 
         {}
         <Route path="/browse"       element={<AppRoute><DiscoveryFeed /></AppRoute>} />
-        <Route path="/movie/:id"    element={<AppRoute><MovieDetail /></AppRoute>} />
         <Route path="/wishlist"     element={<AppRoute><Wishlist /></AppRoute>} />
         <Route path="/subscriptions" element={<AppRoute><SubscriptionManager /></AppRoute>} />
         <Route path="/mood-history" element={<AppRoute><MoodHistoryCalendar /></AppRoute>} />
