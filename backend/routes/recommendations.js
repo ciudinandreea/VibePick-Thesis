@@ -16,12 +16,7 @@ const TMDB_PROVIDER_IDS = {
   skyshowtime: 1773,
 };
 const { rankMovies } = require('../services/recommender');
-const { GENRE_IDS } = require('../config/moodMapping');
-
-const GENRE_NAME_TO_ID = {};
-for (const [id, name] of Object.entries(GENRE_IDS)) {
-  GENRE_NAME_TO_ID[name] = parseInt(id);
-}
+const { GENRE_IDS, GENRE_NAMES } = require('../config/moodMapping');
 
 const MOOD_DISCOVER_GENRES = {
   happy:    [35, 10749, 10751, 16, 10402],   // Comedy, Romance, Family, Animation, Music
@@ -49,7 +44,7 @@ async function buildPool(pages, genreIds, maxGenres = 2, providerIds = []) {
 
   for (const gid of genreIds.slice(0, maxGenres)) {
     tasks.push(discoverMoviesByGenre(gid, 1));
-    if (providerIds.length > 0 && typeof discoverMoviesByGenreAndProviders === 'function') {
+    if (providerIds.length > 0) {
       tasks.push(discoverMoviesByGenreAndProviders(gid, providerIds, 1));
       tasks.push(discoverMoviesByGenreAndProviders(gid, providerIds, 2));
     } else {
@@ -110,7 +105,7 @@ router.get('/', auth, async (req, res) => {
       } catch (e) { console.error('Genre fetch error:', e.message); }
 
       const prefGenreIds = userGenreNames
-        .map(n => GENRE_NAME_TO_ID[n])
+        .map(n => GENRE_NAMES[n])
         .filter(Boolean);
 
       candidateMovies = await buildPool([1, 2, 3], prefGenreIds, 4);

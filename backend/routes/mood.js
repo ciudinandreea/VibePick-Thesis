@@ -238,28 +238,11 @@ router.post('/rate', auth, async (req, res) => {
   const safeMood   = validMoods.includes(mood) ? mood : null;
 
   try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS recommendation_ratings (
-        id          SERIAL PRIMARY KEY,
-        user_id     INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        tmdb_id     INTEGER,
-        title       VARCHAR(255),
-        rating      SMALLINT     NOT NULL CHECK (rating >= 1 AND rating <= 5),
-        mode        VARCHAR(20),
-        mood        VARCHAR(20),
-        rated_at    TIMESTAMP    NOT NULL DEFAULT NOW()
-      )
-    `);
-
-    await pool.query(`ALTER TABLE recommendation_ratings ADD COLUMN IF NOT EXISTS mode VARCHAR(20)`);
-    await pool.query(`ALTER TABLE recommendation_ratings ADD COLUMN IF NOT EXISTS mood VARCHAR(20)`);
-
     await pool.query(
       `INSERT INTO recommendation_ratings (user_id, tmdb_id, title, rating, mode, mood)
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [userId, tmdb_id || null, title || null, rating, safeMode, safeMood]
     );
-
     res.json({ success: true });
   } catch (err) {
     console.error('Rating log error:', err.message);

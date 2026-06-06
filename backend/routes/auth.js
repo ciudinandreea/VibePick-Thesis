@@ -1,12 +1,10 @@
 const express  = require('express');
 const bcrypt   = require('bcrypt');
 const jwt      = require('jsonwebtoken');
-const crypto   = require('crypto');   
 const pool     = require('../db/connection');
 const Joi      = require('joi');
 
 const router = express.Router();
-
 
 const registerSchema = Joi.object({
   fullName: Joi.string().min(2).max(100).required(),
@@ -17,15 +15,6 @@ const registerSchema = Joi.object({
 const loginSchema = Joi.object({
   email:    Joi.string().email().required(),
   password: Joi.string().required()
-});
-
-const forgotSchema = Joi.object({
-  email: Joi.string().email().required()
-});
-
-const resetSchema = Joi.object({
-  token:       Joi.string().required(),
-  newPassword: Joi.string().min(6).required()
 });
 
 router.post('/register', async (req, res) => {

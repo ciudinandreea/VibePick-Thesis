@@ -112,28 +112,6 @@ async function fetchWatchedGenreWeights(userId) {
   }
 }
 
-async function calculateNoveltyScore(movie, watchedTmdbIds) {
-  return watchedTmdbIds.has(movie.id) ? 0 : 1;
-}
-
-async function fetchWatchedTmdbIds(userId) {
-  try {
-    const result = await pool.query(`
-      SELECT DISTINCT i.tmdb_id
-      FROM items i
-      WHERE i.id IN (
-        SELECT item_id FROM watched_items WHERE user_id = $1
-        UNION
-        SELECT item_id FROM interactions  WHERE user_id = $1 AND action_type = 'watched'
-      )
-    `, [userId]);
-    return new Set(result.rows.map(r => r.tmdb_id));
-  } catch (e) {
-    console.error('fetchWatchedTmdbIds error:', e.message);
-    return new Set();
-  }
-}
-
 async function calculateSubscriptionScore(movie, providerSet, providerCache) {
   if (providerSet.size === 0) return { score: 0, platformName: null };
   try {
@@ -182,10 +160,7 @@ async function rankMovies(movies, userId, mood, mode = 'mood-aware') {
     userPlatforms = r.rows.map(r => r.platform_name);
   } catch (e) { console.error('Subscription fetch error:', e.message); }
 
-  const [watchedGenreWeights, watchedTmdbIds] = await Promise.all([
-    fetchWatchedGenreWeights(userId),
-    fetchWatchedTmdbIds(userId),
-  ]);
+  const watchedGenreWeights = await fetchWatchedGenreWeights(userId);
 
 
   const providerSet   = buildProviderSet(userPlatforms);

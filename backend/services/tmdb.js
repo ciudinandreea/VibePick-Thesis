@@ -151,6 +151,7 @@ async function discoverMoviesByGenreAndProviders(genreId, providerIds, page = 1)
     return { results: [] };
   }
 }
+
 module.exports = {
   getPopularMovies,
   getMovieDetails,
