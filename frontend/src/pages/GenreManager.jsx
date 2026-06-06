@@ -628,7 +628,7 @@ export default function GenreManager() {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    api.post('/profile/backfill-genres?force=true')
+    api.post('/profile/backfill-genres')
       .catch(() => {})  
       .finally(() => {
         api.get('/profile/stats/genres')

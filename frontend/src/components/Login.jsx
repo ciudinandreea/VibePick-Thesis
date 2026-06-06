@@ -83,11 +83,6 @@ const S = {
     background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)',
     cursor: 'pointer', display: 'flex', padding: 0,
   },
-  forgotRow: { textAlign: 'right', marginBottom: 20, marginTop: -8 },
-  forgot: {
-    fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)',
-    textDecoration: 'none', transition: 'color 0.2s',
-  },
   btn: {
     width: '100%', padding: '14px',
     background: 'linear-gradient(90deg, #a855f7, #ec4899)',
@@ -151,7 +146,6 @@ function Login() {
         input[type="password"]::-ms-reveal { display: none; }
         input[type="password"]::-ms-clear { display: none; }
         input::-webkit-credentials-auto-fill-button { display: none !important; }
-        .vp-forgot:hover { color: white !important; }
       `}</style>
 
       <div style={S.page}>
