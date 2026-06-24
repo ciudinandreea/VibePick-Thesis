@@ -698,7 +698,7 @@ export default function SubscriptionManager() {
 
           {activePlatforms.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
-              No subscriptions yet — click Add Subscription to get started.
+              No subscriptions yet. Click Add Subscription to get started.
             </div>
           ) : (
             <div style={{

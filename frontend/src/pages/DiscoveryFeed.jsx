@@ -565,7 +565,7 @@ function MovieModal({ movieId, onClose, feedMode, currentMood }) {
                       <div style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:12 }}>
                         ✓ Mood logged! &nbsp;
                         <span style={{ color:'rgba(255,255,255,0.55)', fontWeight:500 }}>
-                          One more thing —
+                          One more thing!
                         </span>
                       </div>
                       <div style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.85)', marginBottom:10 }}>
