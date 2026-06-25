@@ -527,7 +527,7 @@ function MovieModal({ movieId, onClose, feedMode, currentMood }) {
                 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
                     <span style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.85)' }}>
-                      How do you feel after watching, {firstName}? 🎬
+                      How do you feel after watching, {firstName}? 
                     </span>
                     <button onClick={() => setShowMoodPick(false)} style={{
                       background:'none', border:'none', color:'rgba(255,255,255,0.4)',
@@ -598,9 +598,6 @@ function MovieModal({ movieId, onClose, feedMode, currentMood }) {
                     </>
                   ) : (
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                      <span style={{ fontSize:16 }}>
-                        {starRating >= 4 ? '🎉' : starRating >= 3 ? '👍' : starRating > 0 ? '🤔' : '✓'}
-                      </span>
                       <span style={{ fontSize:13, fontWeight:700, color:'#86efac' }}>
                         {starRating > 0 ? `Thanks for rating ${starRating}/5!` : 'Thanks for your feedback!'}
                       </span>

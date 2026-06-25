@@ -285,7 +285,6 @@ export default function PrivacyData() {
   const DOC_PATHS = {
     'Privacy Policy':   '/docs/privacy-policy.pdf',
     'Terms of Service': '/docs/terms-of-service.pdf',
-    'GDPR Notice':      '/docs/privacy-policy.pdf',
   };
 
   function handleDocDownload(name) {
@@ -365,7 +364,7 @@ export default function PrivacyData() {
 
               {}
               <div style={{ marginTop: 20, padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'white', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Right to Erasure</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'red', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Right to Erasure</div>
                 <p style={{ fontSize: 12, fontWeight: 500, color: 'white', lineHeight: 1.7, textAlign: 'justify' }}>
                   You may request full deletion of your account and all associated data at any time from the{' '}
                   <Link to="/account" style={{ color: '#c084fc', textDecoration: 'none', fontWeight: 700 }}>Your Account</Link> page.
@@ -391,9 +390,8 @@ export default function PrivacyData() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
-                  { label: 'Privacy Policy',   desc: 'How VibePick collects, uses, and protects your personal data.' },
+                  { label: 'Privacy Policy',   desc: 'How VibePick collects, uses and protects your personal data.' },
                   { label: 'Terms of Service', desc: 'The rules and conditions governing use of the platform.' },
-                  { label: 'GDPR Notice',      desc: 'Your data rights under EU regulation 2016/679.' },
                 ].map(doc => (
                   <div key={doc.label} style={{ padding: '18px 20px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
