@@ -402,12 +402,6 @@ export default function PrivacyData() {
                   </div>
                 ))}
               </div>
-
-              <div style={{ marginTop: 24, padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.5px' }}>
-                  Documents last reviewed: March 2026
-                </span>
-              </div>
             </div>
 
           </div>
