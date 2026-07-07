@@ -116,8 +116,6 @@ router.get('/history', auth, async (req, res) => {
             i.title,
             i.poster_path as poster_url,
             TO_CHAR(int.timestamp, 'YYYY-MM-DD') as date,
-            -- 'clicked' = explicitly linked to mood_after (highest priority)
-            -- 'watched' = just marked watched (fallback)
             CASE WHEN int.action_type = 'clicked' THEN 0 ELSE 1 END as priority,
             int.timestamp
           FROM interactions int

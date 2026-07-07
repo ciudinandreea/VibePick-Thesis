@@ -59,41 +59,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/:id/cache', authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const movie = await getMovieDetails(id);
-    
-    const query = `
-      INSERT INTO items (tmdb_id, title, description, genres, rating, poster_path, cached_at)
-      VALUES ($1, $2, $3, $4, $5, $6, NOW())
-      ON CONFLICT (tmdb_id) 
-      DO UPDATE SET 
-        title = $2,
-        description = $3,
-        genres = $4,
-        rating = $5,
-        poster_path = $6,
-        cached_at = NOW()
-      RETURNING *
-    `;
-    
-    const values = [
-      movie.id,
-      movie.title,
-      movie.overview,
-      JSON.stringify(movie.genres),
-      movie.vote_average,
-      movie.poster_path
-    ];
-    
-    const result = await pool.query(query, values);
-    res.json(result.rows[0]);
-    
-  } catch (error) {
-    console.error('Error caching movie:', error);
-    res.status(500).json({ error: 'Failed to cache movie' });
-  }
-});
-
 module.exports = router;
