@@ -5,8 +5,6 @@ import { getMovieDetails } from '../services/movies';
 import api from '../services/api';
 
 const PUR  = '#7C3AED';
-const TEXT = '#1a0533';
-const MUT  = '#6b5c7e';
 const FONT = "'Montserrat', sans-serif";
 
 const XIcon = ({ size=16, color='currentColor' }) => (
@@ -711,9 +709,8 @@ export default function Wishlist() {
           {!loading && !error && items.length === 0 && (
             <div style={{ textAlign:'center', padding:'80px 0',
               display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
-              <div style={{ fontSize:52 }}>🎬</div>
-              <div style={{ fontSize:20, fontWeight:700, color:TEXT }}>Your wishlist is empty</div>
-              <div style={{ fontSize:15, fontWeight:500, color:MUT }}>
+              <div style={{ fontSize:20, fontWeight:700, color:'white' }}>Your wishlist is empty</div>
+              <div style={{ fontSize:15, fontWeight:500, color:'white' }}>
                 Save movies from the discovery feed to see them here
               </div>
               <Link to="/browse" style={{

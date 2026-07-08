@@ -564,7 +564,7 @@ function StatsPanelSM({ title, subtitle, data, loading, fetchMovies }) {
       ) : data.length === 0 ? (
         <div style={{ textAlign:'center', padding:'32px 0',
           fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.35)' }}>
-          No data yet — start watching movies to see your stats!
+          No data yet, start watching movies to see your stats!
         </div>
       ) : (
         <>
